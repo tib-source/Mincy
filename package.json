@@ -1,0 +1,21 @@
+{
+  "name": "mincy",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "agent",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build"
+  },
+  "dependencies": {
+    "supabase": ">=1.8.1"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.8"
+  },
+  "packageManager": "bun@1.3.0"
+}
