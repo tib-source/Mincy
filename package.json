@@ -12,7 +12,8 @@
     "build": "turbo run build"
   },
   "dependencies": {
-    "supabase": ">=1.8.1"
+    "supabase": ">=1.8.1",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "turbo": "^2.5.8"
