@@ -4,8 +4,8 @@ import Docker from "dockerode";
 import { mkdir } from "node:fs/promises";
 import pino from "pino";
 import { PassThrough } from "node:stream";
+import { logger } from "../..";
 
-const logger = pino({ level: "info" })
 
 export default class DockerAgent extends Agent {
     /**
@@ -65,7 +65,7 @@ export default class DockerAgent extends Agent {
             const container = await executor.createContainer({
                 Image: job.image,
                 Cmd: job.cmd,
-                name: job.name + hashed_id,
+                name: job.name + hashed_id + Date.now(),
                 WorkingDir: currDir,
                 // Env: workflow.environment as [string],
                 HostConfig: {

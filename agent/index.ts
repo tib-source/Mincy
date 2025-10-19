@@ -4,7 +4,16 @@ import { AgentConfig } from "./src/config"
 import { loadTomlConfig } from "./src/util"
 import DockerAgent from "./src/agent/DockerAgent"
 import { simpleWorkflow } from "./test/test"
+import pino from "pino";
 
+export const logger = pino({
+  base: null, // removes pid, hostname, name
+  level: "info",
+  transport: {
+    target: "pino-pretty",
+    options: { colorize: true },
+  },
+});
 
 const AGENT_CONFIG_DIR = Bun.env.MINCY_AGENT_CONFIG
 const rawConfig = await loadTomlConfig(AGENT_CONFIG_DIR!)

@@ -8,15 +8,15 @@ export const simpleWorkflow = {
     jobs: [
         {
             name: "hello-world",
-            image: "alpine:latest",
-            cmd: ["echo", "Hello World!"],
+            image: "ubuntu",
+            cmd: ["sh", "-c", "echo Hello world! && cd / && env && ls -la"],
             logs: [],
             status: "pending"
         },
             {
             name: "hello-world",
             image: "alpine:latest",
-            cmd: ["echo", "Hello World!"],
+            cmd: ["ls", "-la"],
             logs: [],
             status: "pending"
         }
