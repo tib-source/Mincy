@@ -9,9 +9,11 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "types": "(cd shared && bun run build)"
   },
   "dependencies": {
+    "@types/dockerode": "^3.3.44",
     "dockerode": "^4.0.9",
     "pino": "^10.1.0",
     "supabase": ">=1.8.1",

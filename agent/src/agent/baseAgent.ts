@@ -7,11 +7,13 @@ class Agent {
   server: string = "localhost:3001"
   pollInterval: number = 3000; 
   heartbeatId : NodeJS.Timeout | null = null;
+  workdir: string;
 
-  constructor(id: string, name: string, capacity: number){
+  constructor(id: string, name: string, capacity: number, workdir: string){
     this.id = id; 
     this.name = name; 
     this.capacity = capacity; 
+    this.workdir = workdir
   }
 
 
@@ -27,7 +29,9 @@ class Agent {
   }
 
 
-  execute(Workflow: Tables<"Workflow">){}
+  execute(workflow: Tables<"Workflow">){
+    throw Error("This is the base agent, something must've gone really bad to get here")
+  }
 
 
   async heartbeat(){
