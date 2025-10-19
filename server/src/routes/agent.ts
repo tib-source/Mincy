@@ -14,8 +14,8 @@ agents.get("/", async c => {
     return c.json({data, user})
 
 })
-agents.get("/register", c => c.text("You have been registered"))
-agents.get("/heartbeat", c => c.text("You have been marked healthy!"))
+agents.get("/register", c => c.json("You have been registered"))
+agents.get("/heartbeat", c => c.json("You have been marked healthy!"))
 
 
 

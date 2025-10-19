@@ -14,6 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      Agents: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          id: number
+          name: string | null
+          type: string | null
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          id?: number
+          name?: string | null
+          type?: string | null
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          id?: number
+          name?: string | null
+          type?: string | null
+        }
+        Relationships: []
+      }
+      Logs: {
+        Row: {
+          created_at: string
+          id: number
+          job_id: number | null
+          workflow_id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          job_id?: number | null
+          workflow_id: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          job_id?: number | null
+          workflow_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Jobs_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "Workflow"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      PipelineRun: {
+        Row: {
+          created_at: string
+          id: number
+          logs: number | null
+          project_id: number | null
+          workflow_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          logs?: number | null
+          project_id?: number | null
+          workflow_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          logs?: number | null
+          project_id?: number | null
+          workflow_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "PipelineRun_logs_fkey"
+            columns: ["logs"]
+            isOneToOne: false
+            referencedRelation: "Logs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "PipelineRun_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "Projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "PipelineRun_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "Workflow"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Projects: {
         Row: {
           created_at: string
@@ -37,6 +136,38 @@ export type Database = {
           owner?: string | null
         }
         Relationships: []
+      }
+      Workflow: {
+        Row: {
+          created_at: string
+          environment: Json | null
+          id: number
+          jobs: Json | null
+          project_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          environment?: Json | null
+          id?: number
+          jobs?: Json | null
+          project_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          environment?: Json | null
+          id?: number
+          jobs?: Json | null
+          project_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Workflow_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "Projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
