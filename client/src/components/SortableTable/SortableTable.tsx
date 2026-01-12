@@ -14,12 +14,25 @@ import {
 import classes from './TableSort.module.css';
 
 interface RowData {
-  name: string;
-  email: string;
-  company: string;
+  status: string;
+  commit: string;
+  branch: string;
+  triggered_by: string,
+  duration: string,
+  time: string,
+  [key: string]: string;
 }
 
-interface ThProps {
+
+const cols = [
+  "Status",
+  "Commit",
+  "Branch",
+  "Triggered By",
+  "Duration",
+  "Time"
+]
+  interface ThProps {
   children: React.ReactNode;
   reversed: boolean;
   sorted: boolean;
@@ -73,89 +86,15 @@ function sortData(
   );
 }
 
-const data = [
-  {
-    name: 'Athena Weissnat',
-    company: 'Little - Rippin',
-    email: 'Elouise.Prohaska@yahoo.com',
-  },
-  {
-    name: 'Deangelo Runolfsson',
-    company: 'Greenfelder - Krajcik',
-    email: 'Kadin_Trantow87@yahoo.com',
-  },
-  {
-    name: 'Danny Carter',
-    company: 'Kohler and Sons',
-    email: 'Marina3@hotmail.com',
-  },
-  {
-    name: 'Trace Tremblay PhD',
-    company: 'Crona, Aufderhar and Senger',
-    email: 'Antonina.Pouros@yahoo.com',
-  },
-  {
-    name: 'Derek Dibbert',
-    company: 'Gottlieb LLC',
-    email: 'Abagail29@hotmail.com',
-  },
-  {
-    name: 'Viola Bernhard',
-    company: 'Funk, Rohan and Kreiger',
-    email: 'Jamie23@hotmail.com',
-  },
-  {
-    name: 'Austin Jacobi',
-    company: 'Botsford - Corwin',
-    email: 'Genesis42@yahoo.com',
-  },
-  {
-    name: 'Hershel Mosciski',
-    company: 'Okuneva, Farrell and Kilback',
-    email: 'Idella.Stehr28@yahoo.com',
-  },
-  {
-    name: 'Mylene Ebert',
-    company: 'Kirlin and Sons',
-    email: 'Hildegard17@hotmail.com',
-  },
-  {
-    name: 'Lou Trantow',
-    company: 'Parisian - Lemke',
-    email: 'Hillard.Barrows1@hotmail.com',
-  },
-  {
-    name: 'Dariana Weimann',
-    company: 'Schowalter - Donnelly',
-    email: 'Colleen80@gmail.com',
-  },
-  {
-    name: 'Dr. Christy Herman',
-    company: 'VonRueden - Labadie',
-    email: 'Lilyan98@gmail.com',
-  },
-  {
-    name: 'Katelin Schuster',
-    company: 'Jacobson - Smitham',
-    email: 'Erich_Brekke76@gmail.com',
-  },
-  {
-    name: 'Melyna Macejkovic',
-    company: 'Schuster LLC',
-    email: 'Kylee4@yahoo.com',
-  },
-  {
-    name: 'Pinkie Rice',
-    company: 'Wolf, Trantow and Zulauf',
-    email: 'Fiona.Kutch@hotmail.com',
-  },
-  {
-    name: 'Brain Kreiger',
-    company: 'Lueilwitz Group',
-    email: 'Rico98@hotmail.com',
-  },
-];
-
+const data: RowData[] = [{
+    status: "success",
+    commit: "Fixed xyz",
+    branch: "main",
+    triggered_by: "Tibebe Demissie",
+    duration: "5m 02s",
+    time: "3 hours ago"
+  }
+]
 export function TableSort() {
   const [search, setSearch] = useState('');
   const [sortedData, setSortedData] = useState(data);
@@ -175,11 +114,11 @@ export function TableSort() {
     setSortedData(sortData(data, { sortBy, reversed: reverseSortDirection, search: value }));
   };
 
-  const rows = sortedData.map((row) => (
-    <Table.Tr key={row.name}>
-      <Table.Td>{row.name}</Table.Td>
-      <Table.Td>{row.email}</Table.Td>
-      <Table.Td>{row.company}</Table.Td>
+  const rows = sortedData.map((row, index) => (
+    <Table.Tr key={index}>
+      { Object.keys(row).map((value)=>{
+        return <Table.Td>{row[value]}</Table.Td>
+      })}
     </Table.Tr>
   ));
 
@@ -195,27 +134,15 @@ export function TableSort() {
       <Table horizontalSpacing="md" verticalSpacing="xs" miw={700} layout="fixed">
         <Table.Tbody>
           <Table.Tr>
-            <Th
-              sorted={sortBy === 'name'}
+            {cols.map((col) => {
+              return <Th
+              sorted={sortBy === col}
               reversed={reverseSortDirection}
-              onSort={() => setSorting('name')}
+              onSort={() => setSorting(col)}
             >
-              Name
+              {col}
             </Th>
-            <Th
-              sorted={sortBy === 'email'}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting('email')}
-            >
-              Email
-            </Th>
-            <Th
-              sorted={sortBy === 'company'}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting('company')}
-            >
-              Company
-            </Th>
+            })}
           </Table.Tr>
         </Table.Tbody>
         <Table.Tbody>
