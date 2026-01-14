@@ -1,17 +1,18 @@
 "use client";
 import '@mantine/core/styles.css';
 
-import { AppShell, ColorSchemeScript, Group, mantineHtmlProps, MantineProvider, NavLink, Space, Stack, Text, Title } from "@mantine/core";
+import { AppShell, ColorSchemeScript, darken, Group, mantineHtmlProps, MantineProvider, NavLink, ScrollArea, Space, Stack, Text, Title } from "@mantine/core";
 import { theme } from "@/theme";
 import { IconFolder, IconLayoutDashboard, IconSettings } from '@tabler/icons-react';
 import { HeaderContent, HeaderContext } from '@/src/context/HeaderContext';
 import { useState } from 'react';
 import { AppCrumbs } from '@/src/components/AppCrumbs';
+import { NavbarSimple } from '@/src/components/Navbar/Navbar';
+import { useNavBarState } from '@/src/store/store';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [headerContent, setHeaderContent] = useState<HeaderContent>({})
-  const navbarWidth = 250
-  const headerHeight = 56
+  const { navbarWidth, headerHeight, docked } = useNavBarState()
 
 
   const defaultHeader = {
@@ -25,6 +26,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     ...defaultHeader,
     ...headerContent,
   };
+
+  const nav = [{
+    label: "Dashboard",
+    link: "/",
+    icon: IconLayoutDashboard,
+  },
+{
+    label: "Projects",
+    link: "/projects",
+    icon: IconFolder,
+  },
+  {
+    label: "Settings",
+      link: "/settings",
+      icon: IconSettings,
+    },
+
+]
+
   return (
       <html lang="en" {...mantineHtmlProps}>
       <head>
@@ -39,11 +59,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <MantineProvider theme={theme}>
           <HeaderContext.Provider value={{ setHeader: setHeaderContent}} >
           <AppShell
-            padding="md"
-            navbar={{ width: navbarWidth, breakpoint: "sm", collapsed: { mobile: true } }}
+            navbar={{ width: navbarWidth, breakpoint: 'sm', collapsed:{
+                desktop: docked
+            } }}
             header={{ height: headerHeight }}
+              styles={{
+            main: {
+              height: `calc(100dvh - ${headerHeight}px)`,
+            },
+          }}
           >
-
             <AppShell.Header>
               <Group >
                 <Group w={navbarWidth} h={headerHeight} justify="center" align="center">
@@ -63,28 +88,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </Group>
             </AppShell.Header>
 
+          <AppShell.Navbar w={navbarWidth} p="xs">
+              <NavbarSimple data={nav} />
+          </AppShell.Navbar>
 
-            <AppShell.Navbar>
-              <NavLink
-                label="Dashboard"
-                href='/'
-                leftSection={<IconLayoutDashboard stroke={1} />}
-                variant="light"
-              />
-              <NavLink
-                label="Projects"
-                href='/projects'
-                leftSection={<IconFolder stroke={1} />}
-                variant="light"
-              />
-              <NavLink
-                label="Settings"
-                href='/settings'
-                leftSection={<IconSettings stroke={1} />}
-                variant="light"
-              />
-            </AppShell.Navbar>
-
+          
             <AppShell.Main>
                 {children}
             </AppShell.Main>

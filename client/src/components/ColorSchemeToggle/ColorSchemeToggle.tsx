@@ -3,8 +3,8 @@
 import { Button, Group, useMantineColorScheme } from '@mantine/core';
 
 export function ColorSchemeToggle() {
-  const { setColorScheme } = useMantineColorScheme();
-
+  const { setColorScheme, colorScheme } = useMantineColorScheme();
+  console.log(colorScheme)
   return (
     <Group justify="center" mt="xl">
       <Button onClick={() => setColorScheme('light')}>Light</Button>

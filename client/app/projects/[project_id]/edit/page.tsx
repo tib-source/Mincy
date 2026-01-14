@@ -1,91 +1,76 @@
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge, ColorMode, NodeChange, EdgeChange, Connection, Node, Edge, Background, Controls, BackgroundVariant } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { MantineColorScheme, useMantineColorScheme } from '@mantine/core';
+import { ActionIcon, Anchor, Box, Button, ButtonGroup, Flex, Group, MantineColorScheme,NavLink,Text, useMantineColorScheme } from '@mantine/core';
 import { GitCheckoutNode } from '@/src/nodes/GitCheckoutNode';
+import { TriggerNode } from '@/src/nodes/TriggerNode';
+import { ComponentList } from '@/src/components/ComponentList/ComponentList';
+import { nodeRegistry } from '@/src/nodes/registry';
+import { HeaderContent } from '@/src/context/HeaderContext';
+import { IconArrowBackUp, IconArrowLeft, IconChevronLeft, IconDeviceFloppy, IconHome2, IconPencil, IconSquareRoundedCheck } from '@tabler/icons-react';
+import { useHeader } from '@/src/hooks/useHeader';
+import { useNavBarState } from '@/src/store/store';
+import Link from 'next/link';
+import { FlowCanvas } from '@/src/components/Canvas/FlowCanvas';
 
 
-const nodeTypes = {
-  GitCheckoutNode
-};
-
-const initialNodes = [
-  {
-    id: 'n1',
-    position: { x: 0, y: 0 },
-    data: { label: 'Node 1' },
-    type: 'GitCheckoutNode',
-  },
-  {
-    id: 'n2',
-    position: { x: 100, y: 100 },
-    data: { label: 'Node 2' },
-  },
-];
- 
-const initialEdges = [
-  {
-    id: 'n1-n2',
-    source: 'n1',
-    target: 'n2',
-  },
-];
-
-function getFlowTheme (theme: MantineColorScheme): ColorMode{
-    let flowTheme: ColorMode = "system"
-    switch(theme){
-        case "auto":
-            flowTheme = "system"
-            break;
-        case "dark":
-            flowTheme = "dark"
-            break;
-        case "light":
-            flowTheme = "dark"   
-    }
-    return flowTheme
-}
 
 export default function ProjectEditPage() {
-    let theme = useMantineColorScheme().colorScheme
-    let flowTheme = getFlowTheme(theme)
-    const [nodes, setNodes] = useState(initialNodes);
-    const [edges, setEdges] = useState(initialEdges);
+    const projectData = {
+      name: "Maker",
+      link: "/projects/1"
+    }
+    const projectEditHeader : HeaderContent = {
+      left: <Group>
+        <ActionIcon variant="subtle" aria-label="Settings" href={projectData.link} component={Link}>
+          <IconChevronLeft stroke={1.5} />
+        </ActionIcon>
+        <Flex align="center">
+          <Text fz="h3">
+            {projectData.name}
+          </Text>
+          <ActionIcon variant="transparent" color="gray" aria-label="Settings">
+            <IconPencil style={{ width: '70%', height: '70%' }} stroke={1.5} />
+          </ActionIcon>
+        </Flex>
+      </Group>,
+      right: <Group  justify="center">
+      <Button leftSection={<IconArrowBackUp size={14} />} variant="default">
+        Undo
+      </Button>
+
+      <Button variant="default" leftSection={<IconSquareRoundedCheck size={14} />}>Validate</Button>
+
+      <Button
+        leftSection={<IconDeviceFloppy size={14} />}
+      >
+        Save Changes
+      </Button>
+      </Group>
+    }
+
+    useHeader(projectEditHeader)
 
 
-    const onNodesChange = useCallback(
-      (changes: NodeChange<Node>[]) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
-      [],
-    );
+
+    const { setDocked } = useNavBarState()
+
+    useEffect(()=>{
+      setDocked(true)
+
+      return ()=> setDocked(false)
+    }, [])
 
 
-    const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-    [],
-  );
-  const onConnect = useCallback(
-    (params: Connection) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
-      [],
-    );
 
   return (
-    <div style={{ width: "100%", height: 755
-     }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        fitView
-        colorMode={flowTheme}
-      >
-        <Background  variant={BackgroundVariant.Dots} />
-        <Controls />
-        </ReactFlow>
-    </div>
+    <Flex
+      h="100%"
+    >
+      <ComponentList />
+      <FlowCanvas />
+    </Flex>
   );
 }

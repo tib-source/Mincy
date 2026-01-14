@@ -1,16 +1,17 @@
-import { useCallback } from "react";
+import { BaseNode, NodeExtraProp } from "./Base/BaseNode";
+import { IconGitCommit } from "@tabler/icons-react";
 
-export function GitCheckoutNode() {
-  const onChange = useCallback((evt) => {
-    console.log(evt.target.value);
-  }, []);
+export function GitCheckoutNode({preview}: NodeExtraProp) {
+  // const onChange = useCallback((evt) => {
+  //   console.log(evt.target.value);
+  // }, []);
  
   return (
-    <div className="text-updater-node">
-      <div>
-        <label htmlFor="text">Text:</label>
-        <input id="text" name="text" onChange={onChange} className="nodrag" />
-      </div>
-    </div>
+    <BaseNode 
+      name="Git Checkout"
+      icon={<IconGitCommit/>}
+      valid={true}
+      preview={preview}
+    /> 
   );
 }

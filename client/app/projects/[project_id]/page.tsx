@@ -1,9 +1,10 @@
 import { TableSort } from "@/src/components/SortableTable/SortableTable";
 import { Anchor, Badge, Breadcrumbs, Button, Container, Flex, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import Link from "next/link";
 
 export default function ProjectPage() {
   return (
-    <Container fluid>
+    <Container fluid p="lg">
       <Flex justify="space-between">
         <Stack flex={4}>
           <Title ta="center" fz={50} fw={200} order={1}>
@@ -19,8 +20,8 @@ export default function ProjectPage() {
           </Text>
         </Stack>
 
-        <Group flex={2} align="flex-start" justify="flex-end" p="md" gap={5}>
-          <Button variant="light">Settings</Button>
+        <Group flex={2} align="flex-start" justify="flex-end" pt="md" gap={5}>
+          <Button component={Link} href="/projects/1/edit" variant="light">Edit</Button>
           <Button>Trigger Run</Button>
         </Group>
       </Flex>
