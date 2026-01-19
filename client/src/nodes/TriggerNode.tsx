@@ -1,9 +1,13 @@
-import { Input } from "@mantine/core";
-import { BaseNode, NodeExtraProp } from "./Base/BaseNode";
-import { IconCalendar, IconGitCommit, IconGitPullRequest, IconPlayerPlay, IconRocket, IconTag, IconWebhook } from "@tabler/icons-react";
+import { Accordion,Text, Badge, Box, Button, Flex, Stack, Switch, TagsInput, rgba } from "@mantine/core";
+import { BaseNode } from "./Base/BaseNode";
+import { IconCalendar, IconGitCommit, IconGitPullRequest, IconPlayerPlay, IconPlus, IconTag, IconWebhook } from "@tabler/icons-react";
 import { NodeDefinition } from "./registry";
 import { NodeProps } from "@xyflow/react";
 import { useState } from "react";
+import { Collapsable } from "../components/Collapsable/Collapsable";
+import { useDesignerStore } from "../store/store";
+import { triggerAsyncId } from "async_hooks";
+
 
 
 export const TriggerNodeDefinition: NodeDefinition =   {
@@ -18,6 +22,28 @@ export const TriggerNodeDefinition: NodeDefinition =   {
 
 export type TriggerType = 'manual' | 'commit' | 'schedule' | 'webhook' | 'tag' | 'pull_request'
 
+export interface BaseTriggerConfig {
+  type: TriggerType;
+  enabled: boolean;
+}
+
+export interface ManualTriggerConfig extends BaseTriggerConfig {
+  type: 'manual';
+}
+
+export interface ScheduledTriggerConfig extends BaseTriggerConfig {
+  type: 'schedule';
+  cronSchedule: string;
+}
+
+export interface CommitTriggerConfig extends BaseTriggerConfig {
+  type: "commit";
+  branches: string[];
+}
+
+export type TriggerConfig = ManualTriggerConfig | ScheduledTriggerConfig | CommitTriggerConfig;
+
+
 interface TriggerOptions{
   type: TriggerType;
   label: string;
@@ -26,20 +52,143 @@ interface TriggerOptions{
 }
 
 const triggerOptions: TriggerOptions[] = [
-  { type: 'manual', label: 'Manual', icon: <IconPlayerPlay className="w-4 h-4" />, description: 'Trigger manually via UI or API' },
-  { type: 'commit', label: 'On Push', icon: <IconGitCommit className="w-4 h-4" />, description: 'When code is pushed to branch' },
-  { type: 'pull_request', label: 'Pull Request', icon: <IconGitPullRequest className="w-4 h-4" />, description: 'On PR open, update, or merge' },
-  { type: 'schedule', label: 'Scheduled', icon: <IconCalendar className="w-4 h-4" />, description: 'Run on a cron schedule' },
-  { type: 'webhook', label: 'Webhook', icon: <IconWebhook className="w-4 h-4" />, description: 'Trigger via external webhook' },
-  { type: 'tag', label: 'On Tag', icon: <IconTag className="w-4 h-4" />, description: 'When a tag is created' },
+  { type: 'manual', label: 'Manual', icon: <IconPlayerPlay size={10}/>, description: 'Trigger manually via UI or API' },
+  { type: 'commit', label: 'On Push', icon: <IconGitCommit size={10}/>, description: 'When code is pushed to branch' },
+  { type: 'pull_request', label: 'Pull Request', icon: <IconGitPullRequest size={10}/>, description: 'On PR open, update, or merge' },
+  { type: 'schedule', label: 'Scheduled', icon: <IconCalendar size={10}/>, description: 'Run on a cron schedule' },
+  { type: 'webhook', label: 'Webhook', icon: <IconWebhook size={15}/>, description: 'Trigger via external webhook' },
+  { type: 'tag', label: 'On Tag', icon: <IconTag size={15}/>, description: 'When a tag is created' },
 ]
-export function TriggerNode({selected}: NodeProps) {
-  const [enabledTiggers, setEnabledTriggers ] = useState<TriggerType[]>([])
+
+interface Triggers { 
+  triggers: TriggerConfig[],
+}
+export interface TriggerNodeData {
+  config?: Triggers;
+}
+
+interface TriggerEditorProps<T>{
+  trigger: T,
+  triggerInfo: TriggerOptions,
+  updateTrigger: (trigger: T, updates: Partial<T>) => void,
+}
+
+
+export function CommitTriggerEditor({trigger, updateTrigger}: TriggerEditorProps<CommitTriggerConfig>){
+
+  const handleBranchRemove = (item: string) => {
+    updateTrigger(trigger, {
+      branches: trigger.branches.filter((branch) => branch !== item )
+    })
+  }
+
+  const handleBranchAdd = (branches: string[]) => {
+    updateTrigger(trigger, {
+    branches: [...branches]
+    })
+  }
+
+  return <Box >
+        <TagsInput
+          label="Branches"
+          description="Branches whose commits should trigger this"
+          placeholder="Enter branches..."
+          value={trigger.branches}
+          onChange={handleBranchAdd}
+          />
+    </Box>
+}
+
+
+export function TriggerNode({id, selected , data }:  NodeProps) {
+  const [enabledTiggers, setEnabledTriggers ] = useState<TriggerOptions[]>([triggerOptions[0], triggerOptions[3]])
+  const { updateNodeData } = useDesignerStore()
+  const config: Triggers = data?.config ?? { triggers: [{ type: "manual", enabled: true }, {type: "commit", branches: ["main"]}], };
+
+
+  const updateNode = (updates: Partial<TriggerNodeData>) => {
+    updateNodeData(id, updates)
+  }
+
+  const updateTrigger = (trigger: TriggerConfig, updates: Partial<TriggerConfig>) => {
+  updateNode({
+    config: {
+      triggers: config.triggers.map((t) => t.type === trigger.type ? { ...t, ...updates} : t)
+    }
+  })
+}
+
 
   const details = (
-    <>
-        <Input/>
-    </>
+    <Stack  gap="sm">
+        <Flex>
+          {enabledTiggers.map((trigger)=>
+            <Badge key={trigger.type} size="xs" variant="light" leftSection={trigger.icon}>{trigger.label}</Badge>
+          )}
+        </Flex>
+
+            <Accordion styles={(theme)=>({
+              control: {
+                background: theme.black,
+                borderRadius: "var(--mantine-radius-md",
+                margin : 0 ,
+                height: 40
+              },
+              panel: {
+                background: theme.black,
+                borderRadius: "var(--mantine-radius-md"
+              },
+            })} multiple chevronPosition="left" variant="contained">
+            {config.triggers.map((trigger) => {
+              const triggerInfo = triggerOptions.find((t) => t.type === trigger.type)!;
+
+              return (
+                <Accordion.Item key={trigger.type} value={trigger.type}>
+                  <Accordion.Control>
+                    <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+                      <Text fw={500}>{triggerInfo.label}</Text>
+                      <Switch
+                        checked={trigger.enabled}
+                        onChange={() => updateTrigger(trigger, { enabled: !trigger.enabled })}
+                      />
+                    </Flex>
+                  </Accordion.Control>
+
+                  <Accordion.Panel>
+                    {(() => {
+                      switch (trigger.type) {
+                        case "commit":
+                          return (
+                            <CommitTriggerEditor
+                              trigger={trigger}
+                              updateTrigger={updateTrigger}
+                              triggerInfo={triggerInfo}
+                            />
+                          );
+                        case "manual":
+                          return <Text c="dimmed">Pipeline can be ran manually</Text>;
+                        case "schedule":
+                          return <Text>Scheduled trigger editor here</Text>;
+                        default:
+                          return <Text c="dimmed">No editor implemented for {trigger.type}</Text>;
+                      }
+                    })()}
+                  </Accordion.Panel>
+                </Accordion.Item>
+              );
+            })}
+          </Accordion>
+
+
+        <Button fullWidth variant="outline" size="compact-md" bdrs="sm" style={{
+          borderStyle: "dashed",
+          borderWidth: 1,
+          fontSize: 12
+        }} justify="center" leftSection={<IconPlus size={15}/>}>
+          
+          Add Trigger
+          </Button>
+    </Stack>
   )
  
   return (
@@ -50,7 +199,8 @@ export function TriggerNode({selected}: NodeProps) {
         hasInput={false}
         color={TriggerNodeDefinition.color}
         selected={selected}
-
+        minwidth={300}
+        maxWidth={300}
     /> 
   );
 }

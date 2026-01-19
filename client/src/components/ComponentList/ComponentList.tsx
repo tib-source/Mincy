@@ -4,11 +4,11 @@ import { Box, Button, Text, ScrollArea, Stack, UnstyledButton, Center, Divider, 
 import navClass from "@/src/components/Navbar/Navbar.module.css";
 import { Search } from "../SearchInput/Search";
 import { useComponentTree } from "@/src/hooks/useComponentTree";
-import { IconChevronCompactRight, IconChevronDown, IconChevronRight, IconGripVertical } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronRight, IconGripVertical } from "@tabler/icons-react";
 import { useState } from "react";
 import classes from "./ComponentList.module.css"
 import { ComponentHeader } from "../ComponentHeader/ComponentHeader";
-import { useHover } from '@mantine/hooks';
+import { Collapsable } from "../Collapsable/Collapsable";
 
 interface ComponentListProps {
   componentList: React.ReactNode[];
@@ -24,12 +24,6 @@ export function ComponentList() {
   const { navbarWidth } = useNavBarState()
 
 
-  const toggleCategories = (category: string) => {
-    setExpandedCategories( prev => 
-      prev.includes(category) ? prev.filter(c => c !== category)
-      : [...prev, category]
-    )
-  }
 
 
   return (
@@ -48,23 +42,20 @@ export function ComponentList() {
       <Divider />
       <Stack p="md" gap="sm">
         {categories.map((category, index) => (
-          <div key={category}>
-            <Button
+          <Collapsable
+          key={category}
+          defaultOpen={true}
+          iconOpen={<IconChevronDown width={15} />}
+          iconClose={ <IconChevronRight width={15} />}
+          trigger={<Button
             px={2}
             py={1.5}
             fz="md"
             c="dimmed"
             variant="transparent"
-            onClick={() => toggleCategories(category)} 
-            leftSection={expandedCategories.includes(category) ? (
-                <IconChevronDown width={15} />
-              ) : (
-                <IconChevronRight width={15} />
-              )}> {category}</Button>
-
-            
-            {
-              expandedCategories.includes(category) && (
+              > {category} </Button>
+                }
+              >
               <Stack
                 key={index}
                 gap={10}
@@ -87,20 +78,10 @@ export function ComponentList() {
                   ))
                  }
 
-                </Stack> )
-            }
-          </div>
+                </Stack>
+          </Collapsable>
         ))}
       </Stack>
     </ScrollArea>
   );
 }
-
-
-
-
-//         {nodeRegistry.map((node, index) => {
-//   return <Button key={index} className={navClass.link} leftSection={<node.icon/>} variant="default" justify="flex-start">
-//       {node.label}
-// </Button>
-//   })}

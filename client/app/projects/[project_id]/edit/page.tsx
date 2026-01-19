@@ -11,9 +11,10 @@ import { nodeRegistry } from '@/src/nodes/registry';
 import { HeaderContent } from '@/src/context/HeaderContext';
 import { IconArrowBackUp, IconArrowLeft, IconChevronLeft, IconDeviceFloppy, IconHome2, IconPencil, IconSquareRoundedCheck } from '@tabler/icons-react';
 import { useHeader } from '@/src/hooks/useHeader';
-import { useNavBarState } from '@/src/store/store';
+import { useDesignerStore, useNavBarState } from '@/src/store/store';
 import Link from 'next/link';
 import { FlowCanvas } from '@/src/components/Canvas/FlowCanvas';
+import { useWorkflowDAG } from '@/src/hooks/useWorkflowDag';
 
 
 
@@ -22,6 +23,8 @@ export default function ProjectEditPage() {
       name: "Maker",
       link: "/projects/1"
     }
+    
+
     const projectEditHeader : HeaderContent = {
       left: <Group>
         <ActionIcon variant="subtle" aria-label="Settings" href={projectData.link} component={Link}>
@@ -52,8 +55,11 @@ export default function ProjectEditPage() {
     }
 
     useHeader(projectEditHeader)
+    const nodes = useDesignerStore(state => state.nodes)
+    const edges = useDesignerStore(state => state.edges)
 
-
+    //TODO : have this sent to supabase and it create a pipeline under a user. Agent should then be able to run it  
+    useEffect(()=> useWorkflowDAG(), [])
 
     const { setDocked } = useNavBarState()
 

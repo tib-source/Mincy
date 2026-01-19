@@ -22,7 +22,10 @@ export type DesignerState = {
   onConnect: OnConnect;
   setNodes: (nodes: AppNode[]) => void;
   setEdges: (edges: Edge[]) => void;
+  updateNodeData: (id: string, patch: any) => void;
 };
+
+
 export const useDesignerStore = create<DesignerState>((set, get)=>({
     nodes: [],
     edges: [],
@@ -47,7 +50,13 @@ export const useDesignerStore = create<DesignerState>((set, get)=>({
     setEdges: (edges) => {
         set({ edges });
     },
-
+    updateNodeData: (id, patch) => {
+        set((state)=> ({
+            nodes: state.nodes.map((node)=>{
+                return node.id === id ? {...node, data: {...node.data, ...patch}} : node
+            })
+        }))
+    }
 }))
 
 
@@ -72,10 +81,3 @@ export type AppState = {
     theme: MantineColorScheme;
     setTheme: (value: MantineColorScheme) => void
 }
-
-// export const useAppState = create<AppState>((set)=>({
-//     theme: useMantineColorScheme().colorScheme,
-//     setTheme: (value) => set({
-//         theme: value
-//     }) 
-// }))

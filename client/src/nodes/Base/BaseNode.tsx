@@ -19,6 +19,8 @@ interface NodeProp {
   preview?: boolean;
   selected: boolean;
   node: NodeDefinition;
+  minwidth?: number;
+  maxWidth?: number;
 
 }
 
@@ -31,6 +33,8 @@ export function BaseNode({
   hasOutput = true,
   preview = false,
   selected= false,
+  minwidth,
+  maxWidth
 }: NodeProp) {
 
   const theme = useMantineTheme()
@@ -38,6 +42,8 @@ export function BaseNode({
     <Paper
       className={classes.node}
       withBorder
+      miw={minwidth}
+      maw={maxWidth}
       bd={ `1px solid ${!valid ? theme.colors.red[7] : selected ? theme.colors.blue[2] : "var(--mantine-color-default-border)"}` }
       style={(theme)=> ({
         pointerEvents: preview ? "none" : "auto",
