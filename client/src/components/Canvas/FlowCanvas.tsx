@@ -71,7 +71,6 @@ export function FlowCanvas(){
         return null;
     }
 
-    console.log(theme, flowTheme)
 
 
     const nodeTypes = Object.fromEntries(nodeRegistry.map(node=>[node.type, node.component]))
@@ -88,8 +87,10 @@ export function FlowCanvas(){
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
-          fitView
           colorMode={flowTheme}
+          defaultViewport={{
+            zoom: 1,
+            x: 400, y:200 }}
         >
           <Background variant={BackgroundVariant.Dots} />
           <Controls />

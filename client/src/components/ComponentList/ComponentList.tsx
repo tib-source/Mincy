@@ -1,35 +1,106 @@
 import { nodeRegistry } from "@/src/nodes/registry";
 import { useNavBarState } from "@/src/store/store";
-import { Box, Button, Text, ScrollArea, Stack, UnstyledButton, Center, Divider } from "@mantine/core";
+import { Box, Button, Text, ScrollArea, Stack, UnstyledButton, Center, Divider, Flex, Group } from "@mantine/core";
+import navClass from "@/src/components/Navbar/Navbar.module.css";
+import { Search } from "../SearchInput/Search";
+import { useComponentTree } from "@/src/hooks/useComponentTree";
+import { IconChevronCompactRight, IconChevronDown, IconChevronRight, IconGripVertical } from "@tabler/icons-react";
+import { useState } from "react";
+import classes from "./ComponentList.module.css"
+import { ComponentHeader } from "../ComponentHeader/ComponentHeader";
+import { useHover } from '@mantine/hooks';
 
 interface ComponentListProps {
   componentList: React.ReactNode[];
 }
 
 export function ComponentList() {
-    const { navbarWidth} = useNavBarState()
+  const {
+    categories,
+    categoryMap
+  } = useComponentTree(nodeRegistry)
+
+  const [expandedCategories, setExpandedCategories] = useState(categories)
+  const { navbarWidth } = useNavBarState()
+
+
+  const toggleCategories = (category: string) => {
+    setExpandedCategories( prev => 
+      prev.includes(category) ? prev.filter(c => c !== category)
+      : [...prev, category]
+    )
+  }
+
+
   return (
     <ScrollArea
-      w={ navbarWidth }
+      w={navbarWidth}
+      className={navClass.nav}
       style={{
         borderRight: "1px solid var(--mantine-color-default-border)",
         overflowY: "auto",
       }}
     >
-        <Box w="100%" p="md" style={{
-            backgroundColor: "var(--mantine-color-default-border)"
-        }}>
-            <Text c="dimmed">Compoent Library</Text>
-        </Box>
-        <Divider/>
-      <Stack mt="md">
-              {nodeRegistry.map((node, index) => {
-        return <Button key={index} size="md" leftSection={<node.icon/>} variant="default" justify="flex-start">
-            {node.label}
-      </Button>
-        })}
+      <Box w="100%" p="md">
+        <Text c="dimmed" mb="sm">Compoent Library</Text>
+        <Search />
+      </Box>
+      <Divider />
+      <Stack p="md" gap="sm">
+        {categories.map((category, index) => (
+          <div key={category}>
+            <Button
+            px={2}
+            py={1.5}
+            fz="md"
+            c="dimmed"
+            variant="transparent"
+            onClick={() => toggleCategories(category)} 
+            leftSection={expandedCategories.includes(category) ? (
+                <IconChevronDown width={15} />
+              ) : (
+                <IconChevronRight width={15} />
+              )}> {category}</Button>
+
+            
+            {
+              expandedCategories.includes(category) && (
+              <Stack
+                key={index}
+                gap={10}
+                >
+                  {categoryMap[category].map((node, index) => (
+                      <ComponentHeader
+                        node={node}
+                        key={node.label}
+                        showDescription={true}
+                        draggable={true}
+                        RightIcon={<IconGripVertical
+                          width={15}
+                          className={classes.grip}
+                          style={{
+                          transition: 'opacity 0.2s ease',
+                          }}
+                      />}
+                    />
+
+                  ))
+                 }
+
+                </Stack> )
+            }
+          </div>
+        ))}
       </Stack>
     </ScrollArea>
   );
 }
 
+
+
+
+//         {nodeRegistry.map((node, index) => {
+//   return <Button key={index} className={navClass.link} leftSection={<node.icon/>} variant="default" justify="flex-start">
+//       {node.label}
+// </Button>
+//   })}

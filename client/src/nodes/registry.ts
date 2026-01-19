@@ -1,7 +1,8 @@
 import React, { JSX } from "react";
-import { TriggerNode } from "./TriggerNode";
-import { GitCheckoutNode } from "./GitCheckoutNode";
+import { TriggerNode, TriggerNodeDefinition } from "./TriggerNode";
+import { GitCheckoutNode, GitCheckoutNodeDefinition } from "./GitCheckoutNode";
 import { IconGitCommit, IconPlayerPlay } from "@tabler/icons-react";
+import { MantineColor } from "@mantine/core";
 
 
 export type NodeDefinition = {
@@ -9,20 +10,13 @@ export type NodeDefinition = {
   label: string;
   component: React.ComponentType<any>;
   icon: React.ComponentType<any>;
+  category: string;
+  color: string;
+  description: string; 
 };
 
 
 export const nodeRegistry: NodeDefinition[] = [
-  {
-    type: "TriggerNode",
-    label: "Trigger",
-    icon: IconPlayerPlay,
-    component: TriggerNode,
-  },
-  {
-    type: "GitCheckoutNode",
-    label: "Git Checkout",
-    icon: IconGitCommit,
-    component: GitCheckoutNode,
-  },
+  TriggerNodeDefinition,
+  GitCheckoutNodeDefinition
 ];

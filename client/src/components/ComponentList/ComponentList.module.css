@@ -1,0 +1,29 @@
+.item {
+  display: flex;
+  align-items: center;
+  border-radius: var(--mantine-radius-md);
+  cursor: grab;
+  background-color: var(--mantine-color-body);
+  border: 1px solid transparent;
+  padding: 0.5rem 0.7rem;
+
+  transition: all 150ms ease;
+
+    .grip{
+        opacity: 0;
+    }
+}
+
+.item:hover {
+  background-color: rgba(
+    var(--mantine-color-default-hover),
+    1
+  );
+  border-color: var(--mantine-color-default-hover);
+
+  .grip{
+        opacity: 100;
+    }
+
+}
+

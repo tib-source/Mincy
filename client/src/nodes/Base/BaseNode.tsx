@@ -1,49 +1,53 @@
-import { Badge, Flex, Group, Indicator, Paper, Text } from "@mantine/core";
+import { Badge, Flex, Group, Indicator, Paper, rgba, Text, useMantineTheme } from "@mantine/core";
 import classes from "./BaseNode.module.css"
 import { Handle, Position } from "@xyflow/react";
+import { NodeDefinition, nodeRegistry } from "../registry";
+import { ComponentHeader } from "@/src/components/ComponentHeader/ComponentHeader";
+import { error } from "console";
 
 export interface NodeExtraProp {
     preview: boolean
 }
 
 interface NodeProp {
-  icon: React.ReactNode;
-  name: string;
   valid: boolean;
   details?: React.ReactNode;
-
   horizontal?: boolean;
-
-  inputHandle?: boolean;
-  outputHandle?: boolean;
-
+  hasInput?: boolean;
+  hasOutput?: boolean;
+  color?: string;
   preview?: boolean;
+  selected: boolean;
+  node: NodeDefinition;
+
 }
 
 export function BaseNode({
-  icon,
-  name,
   valid,
+  node,
   details,
   horizontal = true,
-  inputHandle = true,
-  outputHandle = true,
+  hasInput = true,
+  hasOutput = true,
   preview = false,
+  selected= false,
 }: NodeProp) {
+
+  const theme = useMantineTheme()
   return (
     <Paper
       className={classes.node}
       withBorder
-      style={{
+      bd={ `1px solid ${!valid ? theme.colors.red[7] : selected ? theme.colors.blue[2] : "var(--mantine-color-default-border)"}` }
+      style={(theme)=> ({
         pointerEvents: preview ? "none" : "auto",
-      }}
+      })}
     >
-      <Group className={classes.node_header} justify="space-between">
-        <Flex justify="flex-start">
-          {icon}
-          <Text>{name}</Text>
-        </Flex>
-        {valid === false && (
+      <ComponentHeader 
+        node={node}
+        showDescription={false}
+        draggable={false}
+        RightIcon={valid === false ? (
           <Badge
             variant="dot"
             bd={0}
@@ -51,23 +55,26 @@ export function BaseNode({
             color="red"
             style={{ backgroundColor: "transparent" }}
           />
-        )}
-      </Group>
+        ) : <></>}
+
+      />
 
       {!preview && details && (
         <div className={classes.extra_content}>{details}</div>
       )}
 
-      {!preview && inputHandle && (
+      {!preview && hasInput && (
         <Handle
           type="target"
+          style={{ background: node.color }}
           position={horizontal ? Position.Left : Position.Bottom}
         />
       )}
 
-      {!preview && outputHandle && (
+      {!preview && hasOutput && (
         <Handle
           type="source"
+          style={{ background: node.color }}
           position={horizontal ? Position.Right : Position.Top}
         />
       )}
