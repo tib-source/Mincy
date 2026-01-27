@@ -1,20 +1,9 @@
-import { useState } from 'react';
 import {
-  Icon2fa,
-  IconBellRinging,
-  IconDatabaseImport,
-  IconFingerprint,
-  IconKey,
   IconLogout,
-  IconMacro,
-  IconReceipt2,
-  IconSettings,
-  IconSwitchHorizontal,
 } from '@tabler/icons-react';
-import { Avatar, Code, Group, NavLink } from '@mantine/core';
+import { Avatar, NavLink } from '@mantine/core';
 // import { MantineLogo } from '@mantinex/mantine-logo';
 import classes from './Navbar.module.css';
-import { INTERNALS } from 'next/dist/server/web/spec-extension/request';
 import { usePathname } from 'next/navigation'
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
