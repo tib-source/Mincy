@@ -11,13 +11,14 @@ import {
   IconSettings,
   IconSwitchHorizontal,
 } from '@tabler/icons-react';
-import { Code, Group, NavLink } from '@mantine/core';
+import { Avatar, Code, Group, NavLink } from '@mantine/core';
 // import { MantineLogo } from '@mantinex/mantine-logo';
 import classes from './Navbar.module.css';
 import { INTERNALS } from 'next/dist/server/web/spec-extension/request';
 import { usePathname } from 'next/navigation'
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
+import { useGithubProfile } from '@/src/hooks/useGithubProfile';
 
 export interface NavigationData{
     label: string;
@@ -33,17 +34,21 @@ export interface NavProps{
 export function NavbarSimple({ data }: NavProps) {
     const pathname = usePathname()
 
-  const links = data.map((item) => (
-    <NavLink
-      component={Link}
-      className={classes.link}
-      href={item.link}
-      key={item.label}
-      label={item.label}
-      leftSection={<item.icon className={classes.linkIcon} size={16} stroke={1.5} />}
-      active={pathname === item.link || pathname.startsWith(item.link + '/')}
-    />
-  ));
+    const { data : profileData, isLoading: profileLoading} = useGithubProfile()
+
+    const links = data.map((item) => (
+      <NavLink
+        component={Link}
+        className={classes.link}
+        href={item.link}
+        key={item.label}
+        label={item.label}
+        leftSection={<item.icon className={classes.linkIcon} size={16} stroke={1.5} />}
+        active={pathname === item.link || pathname.startsWith(item.link + '/')}
+      />
+    ));
+
+  
 
   async function signOut() {
     const supabase = await createClient();
@@ -62,10 +67,17 @@ export function NavbarSimple({ data }: NavProps) {
       </div>
 
       <div className={classes.footer}>
-        <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-          <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-          <span>Change account</span>
-        </a>
+          { profileLoading == false ? (
+                    <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
+                      <Avatar
+                        src={profileData.avatar_url}
+                        radius="xl"
+                        size={24}
+                        mr="sm"
+                      />
+                    <span>{profileData?.name}</span>
+                  </a>
+          ) : <></>}
 
         <a href="#" className={classes.link} onClick={() => signOut() }>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
