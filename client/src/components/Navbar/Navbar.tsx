@@ -17,6 +17,7 @@ import classes from './Navbar.module.css';
 import { INTERNALS } from 'next/dist/server/web/spec-extension/request';
 import { usePathname } from 'next/navigation'
 import Link from 'next/link';
+import { createClient } from '@/utils/supabase/client';
 
 export interface NavigationData{
     label: string;
@@ -44,6 +45,12 @@ export function NavbarSimple({ data }: NavProps) {
     />
   ));
 
+  async function signOut() {
+    const supabase = await createClient();
+    supabase.auth.signOut()
+    
+  }
+
   return (
     <nav className={classes.navbar}>
       <div className={classes.navbarMain}>
@@ -60,7 +67,7 @@ export function NavbarSimple({ data }: NavProps) {
           <span>Change account</span>
         </a>
 
-        <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
+        <a href="#" className={classes.link} onClick={() => signOut() }>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>Logout</span>
         </a>
