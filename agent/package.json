@@ -1,27 +1,23 @@
 {
-  "name": "mincy-agent",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "bun --watch index.ts",
-    "start": "bun index.ts",
-    "build": "bun build index.ts --outdir ./dist --target bun",
-    "build:production": "bun build index.ts --outdir ./dist --target bun --minify",
-    "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist",
-    "lint": "bun run typecheck",
-    "test": "bun test",
-    "test:watch": "bun test --watch"
-  },
-  "dependencies": {
-    "@mincy/shared": "workspace:*"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "typescript": "^5.0.0"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+	"name": "mincy-agent",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "bun --watch index.ts",
+		"start": "bun index.ts",
+		"build": "bun build index.ts --outdir ./dist --target bun",
+		"build:production": "bun build index.ts --outdir ./dist --target bun --minify",
+		"typecheck": "tsc --noEmit",
+		"clean": "rm -rf dist",
+		"lint": "bun run typecheck",
+		"test": "bun test",
+		"test:watch": "bun test --watch"
+	},
+	"dependencies": {
+		"@mincy/shared": "workspace:*"
+	},
+	"devDependencies": {
+		"typescript": "^5.0.0"
+	}
 }

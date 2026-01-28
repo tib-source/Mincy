@@ -1,41 +1,38 @@
 import { useDesignerStore } from "../store/store";
 
-
 interface Node {
-  id: string;
-  type?: string;
-  config: any;
-  dependsOn: number;
-  next: string[];
+	id: string;
+	type?: string;
+	config: any;
+	dependsOn: number;
+	next: string[];
 }
 
-
-export interface Workflow{
-    id: number;
-    project_id: number;
-    jobs: Node[]
-    environment?: JSON;
+export interface Workflow {
+	id: number;
+	project_id: number;
+	jobs: Node[];
+	environment?: JSON;
 }
 
-export function useWorkflowDAG(){
-    const { nodes, edges } = useDesignerStore.getState();
+export function useWorkflowDAG() {
+	const { nodes, edges } = useDesignerStore.getState();
 
-    let workflow: Node[] = [];
+	const workflow: Node[] = [];
 
-    nodes.map((node)=>{
-        const step: Node = {
-            id: node.id,
-            type: node.type,
-            config: node.data?.config,
-            dependsOn: 0,
-            next: edges.filter((edges)=>{
-                return edges.source == node.id 
-            }).map((edge)=> edge.target)
-        }
+	nodes.map((node) => {
+		const step: Node = {
+			id: node.id,
+			type: node.type,
+			config: node.data?.config,
+			dependsOn: 0,
+			next: edges
+				.filter((edges) => {
+					return edges.source == node.id;
+				})
+				.map((edge) => edge.target),
+		};
 
-        workflow.push(step)
-
-    })
-
-
+		workflow.push(step);
+	});
 }

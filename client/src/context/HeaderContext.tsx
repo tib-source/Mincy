@@ -1,13 +1,13 @@
-import { createContext } from "react"
+import { createContext } from "react";
 
+export type HeaderContent = {
+	left?: React.ReactNode;
+	center?: React.ReactNode;
+	right?: React.ReactNode;
+};
 
-export type HeaderContent = { 
-    left?: React.ReactNode,
-    center?: React.ReactNode,
-    right?: React.ReactNode
-}
-
-
-export const HeaderContext = createContext<{ setHeader: (content: HeaderContent) => void}>({
-    setHeader: () => {},
-})
+export const HeaderContext = createContext<{
+	setHeader: (content: HeaderContent) => void;
+}>({
+	setHeader: () => {},
+});

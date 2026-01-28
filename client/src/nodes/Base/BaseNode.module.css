@@ -1,10 +1,8 @@
-
-
-.node_header{
-    padding: 0.5em;
-    padding-right: 1rem;
+.node_header {
+	padding: 0.5em;
+	padding-right: 1rem;
 }
-.extra_content{
-    border-top: 1px solid var(--mantine-color-default-border);
-    padding: 1rem;
+.extra_content {
+	border-top: 1px solid var(--mantine-color-default-border);
+	padding: 1rem;
 }
