@@ -1,11 +1,11 @@
 import { useContext, useEffect } from "react";
-import { HeaderContent, HeaderContext } from "../context/HeaderContext";
+import { type HeaderContent, HeaderContext } from "../context/HeaderContext";
 
-export function useHeader( content: HeaderContent){
-    const { setHeader } = useContext(HeaderContext)
+export function useHeader(content: HeaderContent) {
+	const { setHeader } = useContext(HeaderContext);
 
-    useEffect(()=> {
-        setHeader(content);
-        return ()=> setHeader({});
-    }, [])
+	useEffect(() => {
+		setHeader(content);
+		return () => setHeader({});
+	}, []);
 }

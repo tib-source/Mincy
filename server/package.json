@@ -1,15 +1,19 @@
 {
-  "name": "mincy-server",
-  "scripts": {
-    "dev": "bun run --hot src/index.ts"
-  },
-  "dependencies": {
-    "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.75.0",
-    "@mincy/shared": "workspace:*",
-    "hono": "^4.9.11"
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
-  }
+	"name": "mincy-server",
+	"type": "module",
+	"scripts": {
+		"dev": "bun --hot src/index.ts",
+		"start": "bun src/index.ts",
+		"build": "bun build src/index.ts --outdir dist --target bun",
+		"test": "bun test"
+	},
+	"dependencies": {
+		"@mincy/shared": "workspace:*",
+		"@supabase/ssr": "^0.7.0",
+		"@supabase/supabase-js": "^2.75.0",
+		"hono": "^4.9.11"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	}
 }

@@ -1,99 +1,107 @@
+import {
+	Box,
+	type MantineColorScheme,
+	useMantineColorScheme,
+} from "@mantine/core";
+import {
+	Background,
+	BackgroundVariant,
+	type ColorMode,
+	Controls,
+	ReactFlow,
+} from "@xyflow/react";
+import { useEffect, useState } from "react";
 import { nodeRegistry } from "@/src/nodes/registry";
 import { useDesignerStore } from "@/src/store/store";
-import { Box, MantineColorScheme, useMantineColorScheme } from "@mantine/core";
-import { ReactFlow, Background, BackgroundVariant, Controls, ColorMode } from "@xyflow/react";
-import { useEffect, useState } from "react";
-
 
 const initialNodes = [
-  {
-    id: 'n2',
-    position: { x: 0, y: 0 },
-    data: { label: 'Node 1' },
-    type: 'GitCheckoutNode',
-  },
-  {
-    id: 'n1',
-    position: { x: 100, y: 100 },
-    data: { label: 'Node 1' },
-    type: 'TriggerNode',
-  },
-];
- 
-const initialEdges = [
-  {
-    id: 'n1-n2',
-    source: 'n1',
-    target: 'n2',
-  },
+	{
+		id: "n2",
+		position: { x: 0, y: 0 },
+		data: { label: "Node 1" },
+		type: "GitCheckoutNode",
+	},
+	{
+		id: "n1",
+		position: { x: 100, y: 100 },
+		data: { label: "Node 1" },
+		type: "TriggerNode",
+	},
 ];
 
-function getFlowTheme (theme: MantineColorScheme): ColorMode{
-    let flowTheme: ColorMode = 'system'
-    switch(theme){
-        case "auto":
-            flowTheme = 'system'
-            break;
-        case "dark":
-            flowTheme = 'dark'
-            break;
-        case "light":
-            flowTheme = 'light' 
-    }
-    return flowTheme
+const initialEdges = [
+	{
+		id: "n1-n2",
+		source: "n1",
+		target: "n2",
+	},
+];
+
+function getFlowTheme(theme: MantineColorScheme): ColorMode {
+	let flowTheme: ColorMode = "system";
+	switch (theme) {
+		case "auto":
+			flowTheme = "system";
+			break;
+		case "dark":
+			flowTheme = "dark";
+			break;
+		case "light":
+			flowTheme = "light";
+	}
+	return flowTheme;
 }
 
+export function FlowCanvas() {
+	const {
+		nodes,
+		edges,
+		onNodesChange,
+		onEdgesChange,
+		onConnect,
+		setNodes,
+		setEdges,
+	} = useDesignerStore();
+	const [mounted, setMounted] = useState(false);
 
-export function FlowCanvas(){
-    const {
-        nodes,
-        edges,
-        onNodesChange,
-        onEdgesChange,
-        onConnect,
-        setNodes,
-        setEdges
-    } = useDesignerStore()
-    const [mounted, setMounted] = useState(false);
+	const theme = useMantineColorScheme().colorScheme;
+	const flowTheme: ColorMode = getFlowTheme(theme);
+	useEffect(() => {
+		setNodes(initialNodes);
+		setEdges(initialEdges);
+	}, []);
 
-    let theme = useMantineColorScheme().colorScheme
-    let flowTheme: ColorMode = getFlowTheme(theme)
-    useEffect(()=>{
-        setNodes(initialNodes)
-        setEdges(initialEdges)
-    },[])
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+	if (!mounted) {
+		return null;
+	}
 
-    if (!mounted) {
-        return null;
-    }
+	const nodeTypes = Object.fromEntries(
+		nodeRegistry.map((node) => [node.type, node.component]),
+	);
 
-
-
-    const nodeTypes = Object.fromEntries(nodeRegistry.map(node=>[node.type, node.component]))
-
-    return <Box
-        flex={1}
-        h="100%"
-        pos="relative"
-      >
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          colorMode={flowTheme}
-          defaultViewport={{
-            zoom: 1,
-            x: 400, y:200 }}
-        >
-          <Background variant={BackgroundVariant.Dots} />
-          <Controls />
-        </ReactFlow>
-      </Box>
+	return (
+		<Box flex={1} h="100%" pos="relative">
+			<ReactFlow
+				nodes={nodes}
+				edges={edges}
+				onNodesChange={onNodesChange}
+				onEdgesChange={onEdgesChange}
+				onConnect={onConnect}
+				nodeTypes={nodeTypes}
+				colorMode={flowTheme}
+				defaultViewport={{
+					zoom: 1,
+					x: 400,
+					y: 200,
+				}}
+			>
+				<Background variant={BackgroundVariant.Dots} />
+				<Controls />
+			</ReactFlow>
+		</Box>
+	);
 }
