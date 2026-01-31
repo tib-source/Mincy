@@ -2,7 +2,7 @@ import { Avatar, NavLink } from "@mantine/core";
 import { IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useGithubProfile } from "@/src/hooks/useGithubProfile";
+import { useGithubProfile } from "@/src/hooks/query/useGithubProfile";
 import { createClient } from "@/utils/supabase/client";
 // import { MantineLogo } from '@mantinex/mantine-logo';
 import classes from "./Navbar.module.css";

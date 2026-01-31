@@ -1,35 +1,52 @@
+"use client";
 import {
 	Badge,
 	Button,
 	Card,
+	Center,
 	Container,
 	Flex,
 	Group,
-	Input,
-	Stack,
+	Loader,
 	Text,
 	Title,
 } from "@mantine/core";
 import {
-	IconEdit,
 	IconPencil,
 	IconPlus,
-	IconSearch,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
+import { useDisclosure } from "@mantine/hooks";
+import { ProjectCreateModal } from "@/src/components/ProjectCreateModal/ProjectCreateModal";
+import { useQuery } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 
-export default async function ProjectsPage() {
-	const supabase = await createClient();
+export default function ProjectsPage() {
+	const [ opened, { open, close }] = useDisclosure(false)
+    const supabase = createClient();
+	const { data, isLoading, error } = useQuery({
+		queryKey: ["projects"],
+		queryFn: async () => {
+		const { data, error } = await supabase.from("Projects").select("*");
+		if (error) throw error;
+		return data;
+		},
+	});
 
-	// const { data: { user } } = await supabase.auth.getUser()
-	// if (!user) return []
 
-	const { data } = await supabase.from("Projects").select("*");
+	if (error) {
+		console.log(error)
+	
+		notifications.show({
+		message: error.message
+	})
+
+}
 
 	return (
 		<Container fluid>
+			<ProjectCreateModal opened={opened} onClose={close} title="New Project" centered/>
 			<Group
 				justify="space-between"
 				styles={{
@@ -43,11 +60,18 @@ export default async function ProjectsPage() {
 					<Title order={1}>Projects</Title>
 					<Text>Manage and monitor your CI/CD pipelines.</Text>
 				</div>
-				<Button>
+				<Button onClick={open}>
 					<IconPlus />
 					New Project
 				</Button>
 			</Group>
+			
+			
+			{ isLoading && (
+				<Center>
+					<Loader type="dots"/>
+				</Center>
+			)}
 
 			{data?.map((project, index) => {
 				return (
