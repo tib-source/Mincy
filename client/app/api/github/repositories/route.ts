@@ -12,7 +12,7 @@ export async function GET() {
 	}
 	const { githubClient } = result;
 
-	const profile = await githubClient.getProfile();
+	const profile = await githubClient.getRepos();
 
 	return NextResponse.json(profile);
 }

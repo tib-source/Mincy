@@ -69,24 +69,39 @@ export type Database = {
 			};
 			PipelineRun: {
 				Row: {
+					branch: string | null;
+					commit_sha: string | null;
 					created_at: string;
+					finished_at: string | null;
 					id: number;
 					logs: number | null;
 					project_id: number | null;
+					status: Database["public"]["Enums"]["PipelineStatus"];
+					triggered_by: Database["public"]["Enums"]["TriggerType"] | null;
 					workflow_id: number | null;
 				};
 				Insert: {
+					branch?: string | null;
+					commit_sha?: string | null;
 					created_at?: string;
+					finished_at?: string | null;
 					id?: number;
 					logs?: number | null;
 					project_id?: number | null;
+					status: Database["public"]["Enums"]["PipelineStatus"];
+					triggered_by?: Database["public"]["Enums"]["TriggerType"] | null;
 					workflow_id?: number | null;
 				};
 				Update: {
+					branch?: string | null;
+					commit_sha?: string | null;
 					created_at?: string;
+					finished_at?: string | null;
 					id?: number;
 					logs?: number | null;
 					project_id?: number | null;
+					status?: Database["public"]["Enums"]["PipelineStatus"];
+					triggered_by?: Database["public"]["Enums"]["TriggerType"] | null;
 					workflow_id?: number | null;
 				};
 				Relationships: [
@@ -115,25 +130,31 @@ export type Database = {
 			};
 			Projects: {
 				Row: {
-					created_at: string;
-					description: string | null;
+					cloneUrl: string;
+					createdAt: string;
+					description: string;
 					id: number;
-					name: string | null;
-					owner: string | null;
+					name: string;
+					org: string;
+					provider: string;
 				};
 				Insert: {
-					created_at?: string;
-					description?: string | null;
+					cloneUrl: string;
+					createdAt?: string;
+					description: string;
 					id?: number;
-					name?: string | null;
-					owner?: string | null;
+					name: string;
+					org?: string;
+					provider: string;
 				};
 				Update: {
-					created_at?: string;
-					description?: string | null;
+					cloneUrl?: string;
+					createdAt?: string;
+					description?: string;
 					id?: number;
-					name?: string | null;
-					owner?: string | null;
+					name?: string;
+					org?: string;
+					provider?: string;
 				};
 				Relationships: [];
 			};
@@ -143,6 +164,7 @@ export type Database = {
 					environment: Json | null;
 					id: number;
 					jobs: Json | null;
+					pipeline: Json | null;
 					project_id: number | null;
 				};
 				Insert: {
@@ -150,6 +172,7 @@ export type Database = {
 					environment?: Json | null;
 					id?: number;
 					jobs?: Json | null;
+					pipeline?: Json | null;
 					project_id?: number | null;
 				};
 				Update: {
@@ -157,6 +180,7 @@ export type Database = {
 					environment?: Json | null;
 					id?: number;
 					jobs?: Json | null;
+					pipeline?: Json | null;
 					project_id?: number | null;
 				};
 				Relationships: [
@@ -177,7 +201,8 @@ export type Database = {
 			[_ in never]: never;
 		};
 		Enums: {
-			[_ in never]: never;
+			PipelineStatus: "queued" | "running" | "passed" | "failed";
+			TriggerType: "manual" | "cron" | "push";
 		};
 		CompositeTypes: {
 			[_ in never]: never;
@@ -307,6 +332,9 @@ export type CompositeTypes<
 
 export const Constants = {
 	public: {
-		Enums: {},
+		Enums: {
+			PipelineStatus: ["queued", "running", "passed", "failed"],
+			TriggerType: ["manual", "cron", "push"],
+		},
 	},
 } as const;

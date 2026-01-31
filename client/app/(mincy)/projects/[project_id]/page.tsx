@@ -1,12 +1,9 @@
 import {
-	Anchor,
 	Badge,
-	Breadcrumbs,
 	Button,
 	Container,
 	Flex,
 	Group,
-	Paper,
 	Stack,
 	Text,
 	Title,
