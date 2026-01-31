@@ -36,5 +36,5 @@ export function useWorkflowDAG() {
 		workflow.push(step);
 	});
 
-	console.log(workflow)
+	console.log(workflow);
 }

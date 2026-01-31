@@ -15,7 +15,6 @@
 		"lint": "bunx biome lint --write",
 		"format": "bunx biome format --write",
 		"gen:types": "bunx supabase gen types typescript --schema public --project-id xguaudrvdjmxteufzxvt > shared/src/database.types.ts"
-
 	},
 	"dependencies": {
 		"@types/dockerode": "^3.3.44",
