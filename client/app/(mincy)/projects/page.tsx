@@ -1,49 +1,23 @@
 "use client";
 import {
-	ActionIcon,
-	Avatar,
-	Badge,
-	Box,
 	Button,
-	Card,
 	Center,
 	Container,
-	Divider,
-	Flex,
-	Grid,
 	Group,
 	Loader,
-	LoadingOverlay,
-	rem,
 	SimpleGrid,
 	Stack,
 	Text,
 	Title,
-	UnstyledButton,
 } from "@mantine/core";
-import { upperFirst, useDisclosure } from "@mantine/hooks";
+import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import {
-	IconBrandGithub,
-	IconCircleX,
-	IconGitCommit,
-	IconLoader,
-	IconLoader2,
-	IconMedicalCrossCircle,
-	IconPencil,
-	IconPlus,
-	IconTicket,
-	IconX,
-} from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { ProjectCreateModal } from "@/src/components/ProjectCreateModal/ProjectCreateModal";
 import { createClient } from "@/utils/supabase/client";
 import type { Tables } from "@mincy/shared";
-import { useGithubRepo } from "@/src/hooks/query/github";
 import { ProjectCard } from "@/src/components/ProjectCard/ProjectCard";
-import { Suspense } from "react";
-import { ProjectCardSkeleton } from "@/src/components/ProjectCard/ProjectCardSkeleton";
 
 export default function ProjectsPage() {
 	const [opened, { open, close }] = useDisclosure(false);
@@ -91,10 +65,8 @@ export default function ProjectsPage() {
 			)}
 
 			<SimpleGrid mt={"sm"} cols={2}>
-				{data?.map((project, index) => (
-					<Suspense fallback={<ProjectCardSkeleton />}>
-						<ProjectCard project={project} key={project.name} />
-					</Suspense>
+				{data?.map((project) => (
+					<ProjectCard key={project.id} project={project} />
 				))}
 			</SimpleGrid>
 		</Container>

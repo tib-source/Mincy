@@ -4,7 +4,6 @@ import {
 	Box,
 	Button,
 	Flex,
-	rgba,
 	Stack,
 	Switch,
 	TagsInput,
@@ -20,9 +19,7 @@ import {
 	IconWebhook,
 } from "@tabler/icons-react";
 import type { NodeProps } from "@xyflow/react";
-import { triggerAsyncId } from "async_hooks";
 import { useState } from "react";
-import { Collapsable } from "../components/Collapsable/Collapsable";
 import { useDesignerStore } from "../store/store";
 import { BaseNode } from "./Base/BaseNode";
 import type { NodeDefinition } from "./registry";
@@ -203,7 +200,7 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 			</Flex>
 
 			<Accordion
-				styles={(theme) => ({
+				styles={() => ({
 					control: {
 						background: "var(--mantine-color-body)",
 						borderRadius: "var(--mantine-radius-md",

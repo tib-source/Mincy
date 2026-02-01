@@ -2,7 +2,6 @@ import { mkdir } from "node:fs/promises";
 import { PassThrough } from "node:stream";
 import type { Job, Tables } from "@mincy/shared";
 import Docker from "dockerode";
-import pino from "pino";
 import { logger } from "../..";
 import Agent from "./baseAgent";
 

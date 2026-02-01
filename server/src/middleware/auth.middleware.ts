@@ -1,5 +1,5 @@
 import type { Database } from "@mincy/shared";
-import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Context, MiddlewareHandler } from "hono";
 import { env } from "hono/adapter";

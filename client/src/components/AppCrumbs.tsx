@@ -6,8 +6,13 @@ export type Crumb = {
 };
 
 export function AppCrumbs({ crumbs }: { crumbs: Crumb[] }) {
-	const items = crumbs.map((item, index) => (
-		<Anchor href={item.href} key={index}>
+	const items = crumbs.map((item) => (
+		<Anchor
+			href={item.href}
+			key={item.href}
+			tt={"none"}
+			c={"var(--mantine-primary-color-light-color)"}
+		>
 			{item.title}
 		</Anchor>
 	));

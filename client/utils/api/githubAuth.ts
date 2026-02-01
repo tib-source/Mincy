@@ -1,4 +1,3 @@
-import { createServerClient } from "@supabase/ssr";
 import { createGitHubClient } from "@/src/client/gitClient";
 import { createClient } from "../supabase/server";
 

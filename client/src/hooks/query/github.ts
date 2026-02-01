@@ -1,4 +1,4 @@
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
 	getGithubProfile,
 	getGithubRepo,
@@ -20,7 +20,7 @@ export function useGithubRepos() {
 }
 
 export function useGithubRepo(owner: string, repo: string) {
-	return useSuspenseQuery({
+	return useQuery({
 		queryKey: [`github-${owner}-${repo}`],
 		queryFn: () => getGithubRepo(owner, repo),
 	});

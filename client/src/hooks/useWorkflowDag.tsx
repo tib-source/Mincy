@@ -28,7 +28,7 @@ export function useWorkflowDAG() {
 			dependsOn: 0,
 			next: edges
 				.filter((edges) => {
-					return edges.source == node.id;
+					return edges.source === node.id;
 				})
 				.map((edge) => edge.target),
 		};

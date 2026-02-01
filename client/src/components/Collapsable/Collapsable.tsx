@@ -1,19 +1,8 @@
-import {
-	Box,
-	Button,
-	ButtonFactory,
-	ButtonProps,
-	Collapse,
-	type CollapseProps,
-	Group,
-	Text,
-} from "@mantine/core";
+import { Box, Collapse, type CollapseProps } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react";
-import { triggerAsyncId } from "async_hooks";
 import type React from "react";
-import { cloneElement, ReactElement, type ReactNode } from "react";
-import { TriggerType } from "@/src/nodes/TriggerNode";
+import { cloneElement, type ReactNode } from "react";
 
 export type CollapsableProps = {
 	defaultOpen?: boolean;

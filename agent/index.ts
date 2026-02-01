@@ -1,6 +1,5 @@
 import { tmpdir } from "node:os";
 import pino from "pino";
-import Agent from "./src/agent/baseAgent";
 import DockerAgent from "./src/agent/DockerAgent";
 import { AgentConfig } from "./src/config";
 import { loadTomlConfig } from "./src/util";

@@ -1,5 +1,5 @@
-import { Avatar, Code, Group, NavLink } from "@mantine/core";
-import { IconLogout, IconMacro } from "@tabler/icons-react";
+import { Avatar, Button, NavLink } from "@mantine/core";
+import { IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useGithubProfile } from "@/src/hooks/query/github";
@@ -46,28 +46,28 @@ export function NavbarSimple({ data }: NavProps) {
 			<div className={classes.navbarMain}>{links}</div>
 
 			<div className={classes.footer}>
-				{profileLoading == false ? (
-					<a
-						href="#"
-						className={classes.link}
-						onClick={(event) => event.preventDefault()}
+				{profileData && (
+					<Button
+						leftSection={
+							<Avatar src={profileData?.avatar_url} radius="xl" size={20} />
+						}
+						fullWidth
+						justify="flex-start"
+						variant="transparent"
 					>
-						<Avatar
-							src={profileData?.avatar_url}
-							radius="xl"
-							size={24}
-							mr="sm"
-						/>
-						<span>{profileData?.name}</span>
-					</a>
-				) : (
-					<></>
+						{profileData?.name}
+					</Button>
 				)}
 
-				<a href="#" className={classes.link} onClick={() => signOut()}>
-					<IconLogout className={classes.linkIcon} stroke={1.5} />
-					<span>Logout</span>
-				</a>
+				<Button
+					leftSection={<IconLogout stroke={1.5} />}
+					fullWidth
+					justify="flex-start"
+					variant="subtle"
+					onClick={() => signOut()}
+				>
+					Logout
+				</Button>
 			</div>
 		</nav>
 	);

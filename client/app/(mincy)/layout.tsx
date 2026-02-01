@@ -1,34 +1,17 @@
 "use client";
 import "@mantine/core/styles.css";
 
-import {
-	AppShell,
-	ColorSchemeScript,
-	darken,
-	Group,
-	MantineProvider,
-	mantineHtmlProps,
-	NavLink,
-	ScrollArea,
-	Space,
-	Stack,
-	Text,
-	Title,
-} from "@mantine/core";
-import { Notifications } from "@mantine/notifications";
+import { AppShell, Group, Text, Title } from "@mantine/core";
 import {
 	IconFolder,
 	IconLayoutDashboard,
 	IconSettings,
 } from "@tabler/icons-react";
-import { Provider } from "@xyflow/react/dist/esm/contexts/NodeIdContext";
 import { useState } from "react";
 import { AppCrumbs } from "@/src/components/AppCrumbs";
 import { NavbarSimple } from "@/src/components/Navbar/Navbar";
 import { type HeaderContent, HeaderContext } from "@/src/context/HeaderContext";
-import { Providers } from "@/src/providers";
 import { useNavBarState } from "@/src/store/store";
-import { theme } from "@/theme";
 
 export default function RootLayout({
 	children,

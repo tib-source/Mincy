@@ -1,21 +1,9 @@
-import {
-	Box,
-	Button,
-	Center,
-	Divider,
-	Flex,
-	Group,
-	ScrollArea,
-	Stack,
-	Text,
-	UnstyledButton,
-} from "@mantine/core";
+import { Box, Button, Divider, ScrollArea, Stack, Text } from "@mantine/core";
 import {
 	IconChevronDown,
 	IconChevronRight,
 	IconGripVertical,
 } from "@tabler/icons-react";
-import { useState } from "react";
 import navClass from "@/src/components/Navbar/Navbar.module.css";
 import { useComponentTree } from "@/src/hooks/useComponentTree";
 import { nodeRegistry } from "@/src/nodes/registry";
@@ -24,17 +12,9 @@ import { Collapsable } from "../Collapsable/Collapsable";
 import { ComponentHeader } from "../ComponentHeader/ComponentHeader";
 import { Search } from "../SearchInput/Search";
 import classes from "./ComponentList.module.css";
-
-interface ComponentListProps {
-	componentList: React.ReactNode[];
-}
-
 export function ComponentList() {
 	const { categories, categoryMap } = useComponentTree(nodeRegistry);
-
-	const [expandedCategories, setExpandedCategories] = useState(categories);
 	const { navbarWidth } = useNavBarState();
-
 	return (
 		<ScrollArea
 			w={navbarWidth}
@@ -65,7 +45,7 @@ export function ComponentList() {
 							</Button>
 						}
 					>
-						<Stack key={index} gap={10}>
+						<Stack key={category} gap={10}>
 							{categoryMap[category].map((node, index) => (
 								<ComponentHeader
 									node={node}

@@ -9,7 +9,6 @@ import {
 	Divider,
 	Avatar,
 	Loader,
-	LoadingOverlay,
 } from "@mantine/core";
 import { upperFirst } from "@mantine/hooks";
 import {
@@ -21,14 +20,17 @@ import {
 import Link from "next/link";
 import type { Tables } from "@mincy/shared";
 import { timeAgo } from "@/utils/api/helpers";
-import { Suspense } from "react";
+import { ProjectCardSkeleton } from "./ProjectCardSkeleton";
 
 interface ProjectCardProps {
 	project: Tables<"Projects">;
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
-	const { data: repoData } = useGithubRepo(project.org, project.name);
+	const { data: repoData, isLoading } = useGithubRepo(
+		project.org,
+		project.name,
+	);
 
 	const statusColorMapping = {
 		passing: "green",
@@ -41,6 +43,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
 		failing: <IconCircleX size={15} strokeWidth={1} />,
 		running: <Loader size={12} strokeOpacity={0.5} />,
 	};
+
+	if (isLoading) {
+		return <ProjectCardSkeleton />;
+	}
 
 	return (
 		<Card
@@ -58,12 +64,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 						</Text>
 						<Group gap={5} pt={3}>
 							<IconBrandGithub size={15} strokeOpacity={0.5} />
-							<Text
-								c="dimmed"
-								component={Link}
-								size={"xs"}
-								href={"https://github.com/" + `${project.org}/${project.name}`}
-							>
+							<Text c="dimmed" size={"xs"}>
 								{project.org + "/" + project.name}
 							</Text>
 						</Group>

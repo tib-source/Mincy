@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createProjectSchema } from "@/src/dto/project";
-import { getGithubClient } from "@/utils/api/githubAuth";
 import { parseBody } from "@/utils/api/helpers";
 import { getSession } from "@/utils/api/getSession";
 
@@ -20,7 +19,7 @@ export async function POST(req: Request) {
 		.eq("name", body.name)
 		.maybeSingle();
 
-	if (existing?.org == body.org) {
+	if (existing?.org === body.org) {
 		return NextResponse.json(
 			{ error: "Project already exists" },
 			{ status: 400 },

@@ -1,13 +1,13 @@
 import { MantineProvider } from "@mantine/core";
-import { Notifications, notifications } from "@mantine/notifications";
+import { Notifications } from "@mantine/notifications";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { theme } from "@/theme";
 import { createClient } from "@/utils/supabase/client";
 
-// TODO: this is too slow
+// TODO: this is too slow, users can sometimes access screens they shouldn't
 export function Providers({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
 	const supabase = createClient();
@@ -43,7 +43,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 				subscription.unsubscribe();
 			}
 		};
-	}, [router]);
+	}, []);
 
 	return (
 		<QueryClientProvider client={queryClient}>

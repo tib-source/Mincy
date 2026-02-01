@@ -118,10 +118,10 @@ export function TableSort() {
 		);
 	};
 
-	const rows = sortedData.map((row, index) => (
-		<Table.Tr key={index}>
-			{Object.keys(row).map((value, index) => {
-				return <Table.Td key={index}>{row[value]}</Table.Td>;
+	const rows = sortedData.map((row) => (
+		<Table.Tr key={row.time}>
+			{Object.keys(row).map((value) => {
+				return <Table.Td key={value}>{row[value]}</Table.Td>;
 			})}
 		</Table.Tr>
 	));
@@ -143,10 +143,10 @@ export function TableSort() {
 			>
 				<Table.Tbody>
 					<Table.Tr>
-						{cols.map((col, index) => {
+						{cols.map((col) => {
 							return (
 								<Th
-									key={index}
+									key={col}
 									sorted={sortBy === col}
 									reversed={reverseSortDirection}
 									onSort={() => setSorting(col)}

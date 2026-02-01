@@ -1,41 +1,12 @@
 "use client";
 
-import {
-	addEdge,
-	applyEdgeChanges,
-	applyNodeChanges,
-	Background,
-	BackgroundVariant,
-	ColorMode,
-	Connection,
-	Controls,
-	Edge,
-	EdgeChange,
-	Node,
-	NodeChange,
-	ReactFlow,
-} from "@xyflow/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import "@xyflow/react/dist/style.css";
-import {
-	ActionIcon,
-	Anchor,
-	Box,
-	Button,
-	ButtonGroup,
-	Flex,
-	Group,
-	MantineColorScheme,
-	NavLink,
-	Text,
-	useMantineColorScheme,
-} from "@mantine/core";
+import { ActionIcon, Button, Flex, Group, Text } from "@mantine/core";
 import {
 	IconArrowBackUp,
-	IconArrowLeft,
 	IconChevronLeft,
 	IconDeviceFloppy,
-	IconHome2,
 	IconPencil,
 	IconSquareRoundedCheck,
 } from "@tabler/icons-react";
@@ -45,10 +16,9 @@ import { ComponentList } from "@/src/components/ComponentList/ComponentList";
 import type { HeaderContent } from "@/src/context/HeaderContext";
 import { useHeader } from "@/src/hooks/useHeader";
 import { useWorkflowDAG } from "@/src/hooks/useWorkflowDag";
-import { GitCheckoutNode } from "@/src/nodes/GitCheckoutNode";
-import { nodeRegistry } from "@/src/nodes/registry";
-import { TriggerNode } from "@/src/nodes/TriggerNode";
 import { useDesignerStore, useNavBarState } from "@/src/store/store";
+import { DnDProvider } from "@/src/context/DnDContext";
+import { ReactFlowProvider } from "@xyflow/react";
 
 export default function ProjectEditPage() {
 	const projectData = {
@@ -112,8 +82,12 @@ export default function ProjectEditPage() {
 
 	return (
 		<Flex h="100%">
-			<ComponentList />
-			<FlowCanvas />
+			<DnDProvider>
+				<ReactFlowProvider>
+					<ComponentList />
+					<FlowCanvas />
+				</ReactFlowProvider>
+			</DnDProvider>
 		</Flex>
 	);
 }

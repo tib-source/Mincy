@@ -16,7 +16,23 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"correctness": {
+				"noUnusedImports": {
+					"level": "warn",
+					"fix": "safe"
+				},
+				"useExhaustiveDependencies": {
+					"level": "info",
+					"fix": "none"
+				}
+			},
+			"suspicious": {
+				"noDoubleEquals": {
+					"fix": "safe",
+					"level": "warn"
+				}
+			}
 		},
 		"includes": ["**", "!**/*.module.css"]
 	},
