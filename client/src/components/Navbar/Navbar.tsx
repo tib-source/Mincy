@@ -1,8 +1,8 @@
-import { Avatar, NavLink } from "@mantine/core";
-import { IconLogout } from "@tabler/icons-react";
+import { Avatar, Code, Group, NavLink } from "@mantine/core";
+import { IconLogout, IconMacro } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useGithubProfile } from "@/src/hooks/query/useGithubProfile";
+import { useGithubProfile } from "@/src/hooks/query/github";
 import { createClient } from "@/utils/supabase/client";
 // import { MantineLogo } from '@mantinex/mantine-logo';
 import classes from "./Navbar.module.css";
@@ -44,10 +44,6 @@ export function NavbarSimple({ data }: NavProps) {
 	return (
 		<nav className={classes.navbar}>
 			<div className={classes.navbarMain}>
-				{/* <Group className={classes.header} justify="space-between">
-          <IconMacro size={28} />
-          <Code fw={700}>v3.1.2</Code>
-        </Group> */}
 				{links}
 			</div>
 
@@ -59,7 +55,7 @@ export function NavbarSimple({ data }: NavProps) {
 						onClick={(event) => event.preventDefault()}
 					>
 						<Avatar
-							src={profileData.avatar_url}
+							src={profileData?.avatar_url}
 							radius="xl"
 							size={24}
 							mr="sm"

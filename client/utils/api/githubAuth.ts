@@ -2,15 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { createGitHubClient } from "@/src/client/gitClient";
 import { createClient } from "../supabase/server";
 
-type GitHubClientRequest =
-	| {
-			ok: true;
-			githubClient: ReturnType<typeof createGitHubClient>;
-			supabase: Awaited<ReturnType<typeof createClient>>;
-	  }
-	| { ok: false; error: string };
 
-export async function getGithubClient(): Promise<GitHubClientRequest> {
+
+export async function getGithubClient(){
 	const supabase = await createClient();
 	const {
 		data: { session },
@@ -18,12 +12,10 @@ export async function getGithubClient(): Promise<GitHubClientRequest> {
 	const user = await supabase.auth.getUser();
 
 	if (!session?.provider_token) {
-		return { ok: false, error: "Not authenticated" };
+        throw new Error("Not authenticated");
 	}
 
 	return {
-		ok: true,
 		githubClient: createGitHubClient({ accessToken: session.provider_token }),
-		supabase: supabase,
 	};
 }

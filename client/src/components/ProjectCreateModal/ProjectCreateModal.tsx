@@ -5,6 +5,7 @@ import {
 	Button,
 	type ComboboxStringItem,
 	Group,
+	LoadingOverlay,
 	Modal,
 	type ModalProps,
 	Tabs,
@@ -15,7 +16,7 @@ import {
 	IconBrandGithubFilled,
 } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
-import { useGithubRepos } from "@/src/hooks/query/useGithubRepos";
+import { useGithubRepos } from "@/src/hooks/query/github";
 
 interface GithubOptions extends ComboboxStringItem {
 	image: string;
@@ -30,7 +31,8 @@ interface GithubOptions extends ComboboxStringItem {
 }
 
 import type { RenderAutocompleteOption } from "@mantine/core";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { GitHubRepo } from "@/src/client/gitClient";
 
 const renderAutocompleteOption: RenderAutocompleteOption = ({ option }) => {
 	const githubOption = option as GithubOptions;
@@ -50,22 +52,23 @@ const renderAutocompleteOption: RenderAutocompleteOption = ({ option }) => {
 
 export function ProjectCreateModal(props: ModalProps) {
 	const { data: repos, isLoading } = useGithubRepos();
-	const [selectedRepo, setSelectedRepo] = useState<GithubOptions | null>(null);
-	console.log(repos);
+	const [selectedRepo, setSelectedRepo] = useState<GitHubRepo | null>(null);
 	const repoList = useMemo(() => {
 		if (Array.isArray(repos)) {
 			return repos.map((repo) => ({
 				value: repo.name,
-				description: repo.description ?? "",
 				...repo,
-			})) as GithubOptions[];
+			}));
 		}
 
 		return [];
 	}, [repos]);
 
+    const queryClient = useQueryClient()
+
+
 	const { isPending, mutate } = useMutation({
-		mutationFn: async (repo: GithubOptions) => {
+		mutationFn: async (repo: GitHubRepo) => {
 			const res = await fetch("/api/projects", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -81,6 +84,11 @@ export function ProjectCreateModal(props: ModalProps) {
 			if (!res.ok) throw await res.json();
 			return res.json();
 		},
+        onSuccess: async () => {
+                await queryClient.invalidateQueries({ queryKey: ['projects'] })
+                props.onClose()
+
+            }
 	});
 
 	const handleCreate = () => {

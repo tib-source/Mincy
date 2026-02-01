@@ -2,15 +2,16 @@ import { NextResponse } from "next/server";
 import { createProjectSchema } from "@/src/dto/project";
 import { getGithubClient } from "@/utils/api/githubAuth";
 import { parseBody } from "@/utils/api/helpers";
+import { getSession } from "@/utils/api/getSession";
 
 export async function POST(req: Request) {
-	const result = await getGithubClient();
+	const result = await getSession();
 	if (!result.ok) {
 		return new Response(JSON.stringify({ error: result.error }), {
 			status: 401,
 		});
 	}
-	const { githubClient, supabase } = result;
+	const { supabase } = result;
 	const body = await parseBody(req, createProjectSchema);
 
 	const { data: existing } = await supabase
