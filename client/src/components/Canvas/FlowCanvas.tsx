@@ -2,6 +2,7 @@ import {
 	Box,
 	type MantineColorScheme,
 	useMantineColorScheme,
+	useMantineTheme,
 } from "@mantine/core";
 import {
 	Background,
@@ -9,11 +10,13 @@ import {
 	type ColorMode,
 	Controls,
 	ReactFlow,
+	useReactFlow,
 } from "@xyflow/react";
-import { useEffect, useState } from "react";
+import { type DragEvent, useCallback, useEffect, useState } from "react";
 import { nodeRegistry } from "@/src/nodes/registry";
-import { useDesignerStore } from "@/src/store/store";
-
+import { type AppNode, useDesignerStore } from "@/src/store/store";
+import { useDnD } from "@/src/context/DnDContext";
+import { nanoid } from "nanoid";
 const initialNodes = [
 	{
 		id: "n2",
@@ -63,9 +66,13 @@ export function FlowCanvas() {
 		setEdges,
 	} = useDesignerStore();
 	const [mounted, setMounted] = useState(false);
+	const { type } = useDnD();
 
-	const theme = useMantineColorScheme().colorScheme;
-	const flowTheme: ColorMode = getFlowTheme(theme);
+	const theme = useMantineTheme();
+	const colorScheme = useMantineColorScheme();
+	const flowTheme: ColorMode = getFlowTheme(colorScheme.colorScheme);
+	const { screenToFlowPosition } = useReactFlow();
+
 	useEffect(() => {
 		setNodes(initialNodes);
 		setEdges(initialEdges);
@@ -74,6 +81,38 @@ export function FlowCanvas() {
 	useEffect(() => {
 		setMounted(true);
 	}, []);
+
+	const onDragOver = useCallback((event: DragEvent) => {
+		event.preventDefault();
+		event.dataTransfer.dropEffect = "move";
+	}, []);
+
+	const onDrop = useCallback(
+		(event: DragEvent) => {
+			event.preventDefault();
+
+			if (!type) {
+				return;
+			}
+
+			const position = screenToFlowPosition({
+				x: event.clientX,
+				y: event.clientY,
+			});
+
+			const newNode: AppNode = {
+				id: nanoid(10),
+				type,
+				position,
+				data: {
+					label: `${type} node`,
+				},
+			};
+
+			setNodes(nodes.concat(newNode));
+		},
+		[screenToFlowPosition, type],
+	);
 
 	if (!mounted) {
 		return null;
@@ -93,13 +132,20 @@ export function FlowCanvas() {
 				onConnect={onConnect}
 				nodeTypes={nodeTypes}
 				colorMode={flowTheme}
+				onDrop={onDrop}
+				onDragOver={onDragOver}
 				defaultViewport={{
 					zoom: 1,
 					x: 400,
 					y: 200,
 				}}
 			>
-				<Background variant={BackgroundVariant.Dots} />
+				<Background
+					style={{
+						backgroundColor: "var(--mantine-color-body)",
+					}}
+					variant={BackgroundVariant.Dots}
+				/>
 				<Controls />
 			</ReactFlow>
 		</Box>

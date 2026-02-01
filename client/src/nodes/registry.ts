@@ -1,9 +1,7 @@
-import { MantineColor } from "@mantine/core";
-import { IconGitCommit, IconPlayerPlay } from "@tabler/icons-react";
 import type React from "react";
-import { JSX } from "react";
-import { GitCheckoutNode, GitCheckoutNodeDefinition } from "./GitCheckoutNode";
-import { TriggerNode, TriggerNodeDefinition } from "./TriggerNode";
+import { GitCheckoutNodeDefinition } from "./GitCheckoutNode";
+import { TriggerNodeDefinition } from "./TriggerNode";
+import { ScriptNodeDefinition } from "./ScriptNode";
 
 export type NodeDefinition = {
 	type: string;
@@ -18,4 +16,5 @@ export type NodeDefinition = {
 export const nodeRegistry: NodeDefinition[] = [
 	TriggerNodeDefinition,
 	GitCheckoutNodeDefinition,
+	ScriptNodeDefinition,
 ];

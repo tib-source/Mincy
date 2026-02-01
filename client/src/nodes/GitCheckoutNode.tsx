@@ -1,6 +1,6 @@
 import { IconGitCommit } from "@tabler/icons-react";
 import type { NodeProps } from "@xyflow/react";
-import { BaseNode, NodeExtraProp } from "./Base/BaseNode";
+import { BaseNode } from "./Base/BaseNode";
 import type { NodeDefinition } from "./registry";
 
 export const GitCheckoutNodeDefinition: NodeDefinition = {

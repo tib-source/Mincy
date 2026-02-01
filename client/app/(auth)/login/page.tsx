@@ -1,8 +1,7 @@
 "use client";
-import { Box, Button, Flex, Group, Paper, Text } from "@mantine/core";
+import { Button, Flex, Group, Paper, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconBrandBitbucket, IconBrandGithub } from "@tabler/icons-react";
-import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function AuthenticationForm() {

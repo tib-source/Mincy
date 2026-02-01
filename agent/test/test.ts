@@ -1,5 +1,3 @@
-import DockerAgent from "../src/agent/DockerAgent";
-
 export const simpleWorkflow = {
 	id: 1,
 	project_id: 1,

@@ -1,17 +1,7 @@
-import {
-	Badge,
-	Flex,
-	Group,
-	Indicator,
-	Paper,
-	rgba,
-	Text,
-	useMantineTheme,
-} from "@mantine/core";
+import { Badge, Paper, useMantineTheme } from "@mantine/core";
 import { Handle, Position } from "@xyflow/react";
-import { error } from "console";
 import { ComponentHeader } from "@/src/components/ComponentHeader/ComponentHeader";
-import { type NodeDefinition, nodeRegistry } from "../registry";
+import type { NodeDefinition } from "../registry";
 import classes from "./BaseNode.module.css";
 
 export interface NodeExtraProp {
@@ -41,7 +31,7 @@ export function BaseNode({
 	hasOutput = true,
 	preview = false,
 	selected = false,
-	minwidth,
+	minwidth = 200,
 	maxWidth,
 }: NodeProp) {
 	const theme = useMantineTheme();
@@ -52,13 +42,13 @@ export function BaseNode({
 			miw={minwidth}
 			maw={maxWidth}
 			bd={`1px solid ${!valid ? theme.colors.red[7] : selected ? theme.colors.blue[2] : "var(--mantine-color-default-border)"}`}
-			style={(theme) => ({
+			style={() => ({
 				pointerEvents: preview ? "none" : "auto",
 			})}
 		>
 			<ComponentHeader
 				node={node}
-				showDescription={false}
+				showDescription
 				draggable={false}
 				RightIcon={
 					valid === false ? (

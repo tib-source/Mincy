@@ -4,7 +4,6 @@ import {
 	Box,
 	Button,
 	Flex,
-	rgba,
 	Stack,
 	Switch,
 	TagsInput,
@@ -20,9 +19,7 @@ import {
 	IconWebhook,
 } from "@tabler/icons-react";
 import type { NodeProps } from "@xyflow/react";
-import { triggerAsyncId } from "async_hooks";
 import { useState } from "react";
-import { Collapsable } from "../components/Collapsable/Collapsable";
 import { useDesignerStore } from "../store/store";
 import { BaseNode } from "./Base/BaseNode";
 import type { NodeDefinition } from "./registry";
@@ -163,7 +160,7 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 		triggerOptions[3],
 	]);
 	const { updateNodeData } = useDesignerStore();
-	const config: Triggers = data?.config ?? {
+	const config: Triggers = (data?.config as Triggers) ?? {
 		triggers: [
 			{ type: "manual", enabled: true },
 			{ type: "commit", branches: ["main"] },
@@ -181,7 +178,7 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 		updateNode({
 			config: {
 				triggers: config.triggers.map((t) =>
-					t.type === trigger.type ? { ...t, ...updates } : t,
+					t.type === trigger.type ? ({ ...t, ...updates } as TriggerConfig) : t,
 				),
 			},
 		});
@@ -203,15 +200,15 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 			</Flex>
 
 			<Accordion
-				styles={(theme) => ({
+				styles={() => ({
 					control: {
-    					background: "var(--mantine-color-body)",
+						background: "var(--mantine-color-body)",
 						borderRadius: "var(--mantine-radius-md",
 						margin: 0,
 						height: 40,
 					},
 					panel: {
-    					background: "var(--mantine-color-body)",
+						background: "var(--mantine-color-body)",
 						borderRadius: "var(--mantine-radius-md",
 					},
 				})}
@@ -262,7 +259,7 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 										default:
 											return (
 												<Text c="dimmed">
-													No editor implemented for {trigger.type}
+													No editor implemented for {trigger}
 												</Text>
 											);
 									}

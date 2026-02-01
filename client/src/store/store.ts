@@ -1,4 +1,4 @@
-import { type MantineColorScheme, useMantineColorScheme } from "@mantine/core";
+import type { MantineColorScheme } from "@mantine/core";
 import {
 	addEdge,
 	applyEdgeChanges,
@@ -10,7 +10,6 @@ import {
 	type OnNodesChange,
 } from "@xyflow/react";
 import { create } from "zustand";
-import { theme } from "@/theme";
 
 export type AppNode = Node;
 
