@@ -2,7 +2,7 @@ import { Box, Center, Flex, Group, rgba, Text } from "@mantine/core";
 import type { NodeDefinition } from "@/src/nodes/registry";
 import classes from "./../ComponentList/ComponentList.module.css";
 import { useDnD } from "@/src/context/DnDContext";
-import { DragEvent } from "react";
+import type { DragEvent } from "react";
 
 interface ComponentHeaderProps {
 	node: NodeDefinition;

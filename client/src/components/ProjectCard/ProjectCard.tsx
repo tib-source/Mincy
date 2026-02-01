@@ -21,6 +21,7 @@ import Link from "next/link";
 import type { Tables } from "@mincy/shared";
 import { timeAgo } from "@/utils/api/helpers";
 import { ProjectCardSkeleton } from "./ProjectCardSkeleton";
+import { useMemo } from "react";
 
 interface ProjectCardProps {
 	project: Tables<"Projects">;
@@ -43,6 +44,17 @@ export function ProjectCard({ project }: ProjectCardProps) {
 		failing: <IconCircleX size={15} strokeWidth={1} />,
 		running: <Loader size={12} strokeOpacity={0.5} />,
 	};
+
+	// TODO: temporary while actual workflow status gets implemented
+	const statuses: ("passing" | "failing" | "running")[] = [
+		"passing",
+		"failing",
+		"running",
+	];
+	const randomStatus = useMemo(
+		() => statuses[Math.floor(Math.random() * statuses.length)],
+		[statuses],
+	);
 
 	if (isLoading) {
 		return <ProjectCardSkeleton />;
@@ -73,11 +85,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
 						variant="light"
 						tt="none"
 						fw={100}
-						color={statusColorMapping[project.status]}
+						color={statusColorMapping[randomStatus]}
 						size="lg"
-						leftSection={statusIconMapping[project.status]}
+						leftSection={statusIconMapping[randomStatus]}
 					>
-						{upperFirst(project.status)}
+						{upperFirst(randomStatus)}
 					</Badge>
 				</Group>
 				<Text size="sm" c="dimmed" truncate="end" lineClamp={1}>
@@ -88,7 +100,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 					<Group>
 						<Avatar src={repoData?.owner?.avatar_url} size={"sm"} />
 						<Text size="xs" c={"dimmed"}>
-							{timeAgo(repoData?.pushed_at)}
+							{timeAgo(repoData?.pushed_at || "")}
 						</Text>
 					</Group>
 					<Badge

@@ -160,7 +160,7 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 		triggerOptions[3],
 	]);
 	const { updateNodeData } = useDesignerStore();
-	const config: Triggers = data?.config ?? {
+	const config: Triggers = (data?.config as Triggers) ?? {
 		triggers: [
 			{ type: "manual", enabled: true },
 			{ type: "commit", branches: ["main"] },
@@ -178,7 +178,7 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 		updateNode({
 			config: {
 				triggers: config.triggers.map((t) =>
-					t.type === trigger.type ? { ...t, ...updates } : t,
+					t.type === trigger.type ? ({ ...t, ...updates } as TriggerConfig) : t,
 				),
 			},
 		});
@@ -259,7 +259,7 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 										default:
 											return (
 												<Text c="dimmed">
-													No editor implemented for {trigger.type}
+													No editor implemented for {trigger}
 												</Text>
 											);
 									}

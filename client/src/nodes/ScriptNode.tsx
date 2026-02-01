@@ -1,4 +1,4 @@
-import { IconCommand, IconGitCommit, IconTerminal } from "@tabler/icons-react";
+import { IconTerminal } from "@tabler/icons-react";
 import type { NodeProps } from "@xyflow/react";
 import { BaseNode } from "./Base/BaseNode";
 import type { NodeDefinition } from "./registry";

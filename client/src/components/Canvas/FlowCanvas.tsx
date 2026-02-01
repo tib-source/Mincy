@@ -12,9 +12,9 @@ import {
 	ReactFlow,
 	useReactFlow,
 } from "@xyflow/react";
-import { DragEvent, useCallback, useEffect, useState } from "react";
+import { type DragEvent, useCallback, useEffect, useState } from "react";
 import { nodeRegistry } from "@/src/nodes/registry";
-import { AppNode, useDesignerStore } from "@/src/store/store";
+import { type AppNode, useDesignerStore } from "@/src/store/store";
 import { useDnD } from "@/src/context/DnDContext";
 import { nanoid } from "nanoid";
 const initialNodes = [
