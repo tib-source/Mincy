@@ -27,7 +27,6 @@ export type GitHubRepo = {
 	pushed_at: string;
 };
 
-
 export function createGitHubClient({ accessToken }: GithubClientOptions) {
 	const baseUrl = "https://api.github.com";
 
@@ -35,10 +34,8 @@ export function createGitHubClient({ accessToken }: GithubClientOptions) {
 		path: string,
 		options: RequestInit = {},
 	): Promise<T> {
-
 		let url = `${baseUrl}${path}`;
-		let results: unknown[] = [];
-
+		const results: unknown[] = [];
 
 		while (true) {
 			const res = await fetch(url, {
@@ -77,8 +74,7 @@ export function createGitHubClient({ accessToken }: GithubClientOptions) {
 	return {
 		getProfile: () => request<GitHubUser>("/user"),
 
-		getRepos: () =>
-			request<GitHubRepo[]>("/user/repos?per_page=100"),
+		getRepos: () => request<GitHubRepo[]>("/user/repos?per_page=100"),
 
 		getRepo: (owner: string, repo: string) =>
 			request<GitHubRepo>(`/repos/${owner}/${repo}`),

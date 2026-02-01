@@ -2,9 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createGitHubClient } from "@/src/client/gitClient";
 import { createClient } from "../supabase/server";
 
-
-
-export async function getGithubClient(){
+export async function getGithubClient() {
 	const supabase = await createClient();
 	const {
 		data: { session },
@@ -12,7 +10,7 @@ export async function getGithubClient(){
 	const user = await supabase.auth.getUser();
 
 	if (!session?.provider_token) {
-        throw new Error("Not authenticated");
+		throw new Error("Not authenticated");
 	}
 
 	return {

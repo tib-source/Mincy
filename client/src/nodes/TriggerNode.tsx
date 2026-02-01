@@ -205,13 +205,13 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 			<Accordion
 				styles={(theme) => ({
 					control: {
-    					background: "var(--mantine-color-body)",
+						background: "var(--mantine-color-body)",
 						borderRadius: "var(--mantine-radius-md",
 						margin: 0,
 						height: 40,
 					},
 					panel: {
-    					background: "var(--mantine-color-body)",
+						background: "var(--mantine-color-body)",
 						borderRadius: "var(--mantine-radius-md",
 					},
 				})}

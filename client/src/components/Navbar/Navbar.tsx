@@ -43,9 +43,7 @@ export function NavbarSimple({ data }: NavProps) {
 
 	return (
 		<nav className={classes.navbar}>
-			<div className={classes.navbarMain}>
-				{links}
-			</div>
+			<div className={classes.navbarMain}>{links}</div>
 
 			<div className={classes.footer}>
 				{profileLoading == false ? (

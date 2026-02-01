@@ -7,8 +7,7 @@ import { useEffect, useState } from "react";
 import { theme } from "@/theme";
 import { createClient } from "@/utils/supabase/client";
 
-
-// TODO: this is too slow 
+// TODO: this is too slow
 export function Providers({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
 	const supabase = createClient();

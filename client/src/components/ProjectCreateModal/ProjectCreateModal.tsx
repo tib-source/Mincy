@@ -32,7 +32,7 @@ interface GithubOptions extends ComboboxStringItem {
 
 import type { RenderAutocompleteOption } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { GitHubRepo } from "@/src/client/gitClient";
+import type { GitHubRepo } from "@/src/client/gitClient";
 
 const renderAutocompleteOption: RenderAutocompleteOption = ({ option }) => {
 	const githubOption = option as GithubOptions;
@@ -64,8 +64,7 @@ export function ProjectCreateModal(props: ModalProps) {
 		return [];
 	}, [repos]);
 
-    const queryClient = useQueryClient()
-
+	const queryClient = useQueryClient();
 
 	const { isPending, mutate } = useMutation({
 		mutationFn: async (repo: GitHubRepo) => {
@@ -84,11 +83,10 @@ export function ProjectCreateModal(props: ModalProps) {
 			if (!res.ok) throw await res.json();
 			return res.json();
 		},
-        onSuccess: async () => {
-                await queryClient.invalidateQueries({ queryKey: ['projects'] })
-                props.onClose()
-
-            }
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ["projects"] });
+			props.onClose();
+		},
 	});
 
 	const handleCreate = () => {
