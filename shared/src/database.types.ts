@@ -18,21 +18,21 @@ export type Database = {
 				Row: {
 					capacity: number | null;
 					created_at: string;
-					id: number;
+					id: string;
 					name: string | null;
 					type: string | null;
 				};
 				Insert: {
 					capacity?: number | null;
 					created_at?: string;
-					id?: number;
+					id?: string;
 					name?: string | null;
 					type?: string | null;
 				};
 				Update: {
 					capacity?: number | null;
 					created_at?: string;
-					id?: number;
+					id?: string;
 					name?: string | null;
 					type?: string | null;
 				};
@@ -41,21 +41,21 @@ export type Database = {
 			Logs: {
 				Row: {
 					created_at: string;
-					id: number;
-					job_id: number | null;
-					workflow_id: number;
+					id: string;
+					job_id: string | null;
+					workflow_id: string;
 				};
 				Insert: {
 					created_at?: string;
-					id?: number;
-					job_id?: number | null;
-					workflow_id: number;
+					id?: string;
+					job_id?: string | null;
+					workflow_id: string;
 				};
 				Update: {
 					created_at?: string;
-					id?: number;
-					job_id?: number | null;
-					workflow_id?: number;
+					id?: string;
+					job_id?: string | null;
+					workflow_id?: string;
 				};
 				Relationships: [
 					{
@@ -69,42 +69,52 @@ export type Database = {
 			};
 			PipelineRun: {
 				Row: {
+					agent_id: string | null;
 					branch: string | null;
 					commit_sha: string | null;
 					created_at: string;
 					finished_at: string | null;
-					id: number;
-					logs: number | null;
-					project_id: number | null;
+					id: string;
+					logs: string | null;
+					project_id: string | null;
 					status: Database["public"]["Enums"]["PipelineStatus"];
 					triggered_by: Database["public"]["Enums"]["TriggerType"] | null;
-					workflow_id: number | null;
+					workflow_id: string | null;
 				};
 				Insert: {
+					agent_id?: string | null;
 					branch?: string | null;
 					commit_sha?: string | null;
 					created_at?: string;
 					finished_at?: string | null;
-					id?: number;
-					logs?: number | null;
-					project_id?: number | null;
+					id?: string;
+					logs?: string | null;
+					project_id?: string | null;
 					status: Database["public"]["Enums"]["PipelineStatus"];
 					triggered_by?: Database["public"]["Enums"]["TriggerType"] | null;
-					workflow_id?: number | null;
+					workflow_id?: string | null;
 				};
 				Update: {
+					agent_id?: string | null;
 					branch?: string | null;
 					commit_sha?: string | null;
 					created_at?: string;
 					finished_at?: string | null;
-					id?: number;
-					logs?: number | null;
-					project_id?: number | null;
+					id?: string;
+					logs?: string | null;
+					project_id?: string | null;
 					status?: Database["public"]["Enums"]["PipelineStatus"];
 					triggered_by?: Database["public"]["Enums"]["TriggerType"] | null;
-					workflow_id?: number | null;
+					workflow_id?: string | null;
 				};
 				Relationships: [
+					{
+						foreignKeyName: "PipelineRun_agent_id_fkey";
+						columns: ["agent_id"];
+						isOneToOne: false;
+						referencedRelation: "Agents";
+						referencedColumns: ["id"];
+					},
 					{
 						foreignKeyName: "PipelineRun_logs_fkey";
 						columns: ["logs"];
@@ -133,28 +143,31 @@ export type Database = {
 					cloneUrl: string;
 					createdAt: string;
 					description: string;
-					id: number;
+					id: string;
 					name: string;
 					org: string;
 					provider: string;
+					user_id: string | null;
 				};
 				Insert: {
 					cloneUrl: string;
 					createdAt?: string;
 					description: string;
-					id?: number;
+					id?: string;
 					name: string;
 					org?: string;
 					provider: string;
+					user_id?: string | null;
 				};
 				Update: {
 					cloneUrl?: string;
 					createdAt?: string;
 					description?: string;
-					id?: number;
+					id?: string;
 					name?: string;
 					org?: string;
 					provider?: string;
+					user_id?: string | null;
 				};
 				Relationships: [];
 			};
@@ -162,31 +175,31 @@ export type Database = {
 				Row: {
 					created_at: string;
 					environment: Json | null;
-					id: number;
+					id: string;
 					jobs: Json | null;
 					pipeline: Json | null;
-					project_id: number | null;
+					projectId: string | null;
 				};
 				Insert: {
 					created_at?: string;
 					environment?: Json | null;
-					id?: number;
+					id?: string;
 					jobs?: Json | null;
 					pipeline?: Json | null;
-					project_id?: number | null;
+					projectId?: string | null;
 				};
 				Update: {
 					created_at?: string;
 					environment?: Json | null;
-					id?: number;
+					id?: string;
 					jobs?: Json | null;
 					pipeline?: Json | null;
-					project_id?: number | null;
+					projectId?: string | null;
 				};
 				Relationships: [
 					{
-						foreignKeyName: "Workflow_project_id_fkey";
-						columns: ["project_id"];
+						foreignKeyName: "Workflow_projectId_fkey";
+						columns: ["projectId"];
 						isOneToOne: false;
 						referencedRelation: "Projects";
 						referencedColumns: ["id"];
