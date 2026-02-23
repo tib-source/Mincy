@@ -18,21 +18,21 @@ export type Database = {
         Row: {
           capacity: number | null
           created_at: string
-          id: number
+          id: string
           name: string | null
           type: string | null
         }
         Insert: {
           capacity?: number | null
           created_at?: string
-          id?: number
+          id?: string
           name?: string | null
           type?: string | null
         }
         Update: {
           capacity?: number | null
           created_at?: string
-          id?: number
+          id?: string
           name?: string | null
           type?: string | null
         }
@@ -41,21 +41,21 @@ export type Database = {
       Logs: {
         Row: {
           created_at: string
-          id: number
-          job_id: number | null
-          workflow_id: number
+          id: string
+          job_id: string | null
+          workflow_id: string
         }
         Insert: {
           created_at?: string
-          id?: number
-          job_id?: number | null
-          workflow_id: number
+          id?: string
+          job_id?: string | null
+          workflow_id: string
         }
         Update: {
           created_at?: string
-          id?: number
-          job_id?: number | null
-          workflow_id?: number
+          id?: string
+          job_id?: string | null
+          workflow_id?: string
         }
         Relationships: [
           {
@@ -69,43 +69,43 @@ export type Database = {
       }
       PipelineRun: {
         Row: {
-          agent_id: number | null
+          agent_id: string | null
           branch: string | null
           commit_sha: string | null
           created_at: string
           finished_at: string | null
-          id: number
-          logs: number | null
+          id: string
+          logs: string | null
           project_id: string | null
           status: Database["public"]["Enums"]["PipelineStatus"]
           triggered_by: Database["public"]["Enums"]["TriggerType"] | null
-          workflow_id: number | null
+          workflow_id: string | null
         }
         Insert: {
-          agent_id?: number | null
+          agent_id?: string | null
           branch?: string | null
           commit_sha?: string | null
           created_at?: string
           finished_at?: string | null
-          id?: number
-          logs?: number | null
+          id?: string
+          logs?: string | null
           project_id?: string | null
           status: Database["public"]["Enums"]["PipelineStatus"]
           triggered_by?: Database["public"]["Enums"]["TriggerType"] | null
-          workflow_id?: number | null
+          workflow_id?: string | null
         }
         Update: {
-          agent_id?: number | null
+          agent_id?: string | null
           branch?: string | null
           commit_sha?: string | null
           created_at?: string
           finished_at?: string | null
-          id?: number
-          logs?: number | null
+          id?: string
+          logs?: string | null
           project_id?: string | null
           status?: Database["public"]["Enums"]["PipelineStatus"]
           triggered_by?: Database["public"]["Enums"]["TriggerType"] | null
-          workflow_id?: number | null
+          workflow_id?: string | null
         }
         Relationships: [
           {
@@ -175,7 +175,7 @@ export type Database = {
         Row: {
           created_at: string
           environment: Json | null
-          id: number
+          id: string
           jobs: Json | null
           pipeline: Json | null
           projectId: string | null
@@ -183,7 +183,7 @@ export type Database = {
         Insert: {
           created_at?: string
           environment?: Json | null
-          id?: number
+          id?: string
           jobs?: Json | null
           pipeline?: Json | null
           projectId?: string | null
@@ -191,7 +191,7 @@ export type Database = {
         Update: {
           created_at?: string
           environment?: Json | null
-          id?: number
+          id?: string
           jobs?: Json | null
           pipeline?: Json | null
           projectId?: string | null
