@@ -14,7 +14,13 @@
 		"types": "bun --cwd shared run build",
 		"lint": "bunx biome lint --write",
 		"format": "bunx biome format --write",
-		"gen:types": "bunx supabase gen types typescript --schema public --project-id xguaudrvdjmxteufzxvt > shared/src/database.types.ts"
+		"gen:types": "bunx supabase gen types typescript --schema public --project-id xguaudrvdjmxteufzxvt > shared/src/database.types.ts",
+		"db:new": "supabase migration new",
+		"db:migrate": "supabase db push",
+		"db:fetch": "supabase migration fetch",
+		"db:types": "npm run gen:types",
+		"supabase:init": "supabase init",
+		"supabase:start": "supabase start"
 	},
 	"dependencies": {
 		"@types/dockerode": "^3.3.44",
