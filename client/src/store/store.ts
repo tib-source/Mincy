@@ -10,6 +10,7 @@ import {
 	type OnNodesChange,
 } from "@xyflow/react";
 import { create } from "zustand";
+import type { Tables } from "@mincy/shared";
 
 export type AppNode = Node;
 
@@ -80,3 +81,39 @@ export type AppState = {
 	theme: MantineColorScheme;
 	setTheme: (value: MantineColorScheme) => void;
 };
+
+export const useAppState = create<AppState>((set) => ({
+	theme: "light",
+	setTheme: (value) =>
+		set({
+			theme: value,
+		}),
+}));
+
+export type ProjectDetailsState = {
+	currentProject: Tables<"Projects"> | null;
+	isLoading: boolean;
+	error: string | null;
+	setCurrentProject: (project: Tables<"Projects"> | null) => void;
+	setIsLoading: (loading: boolean) => void;
+	setError: (error: string | null) => void;
+	clearProject: () => void;
+};
+
+export const useProjectStore = create<ProjectDetailsState>((set) => ({
+	currentProject: null,
+	isLoading: false,
+	error: null,
+	setCurrentProject: (project) => {
+		set({ currentProject: project, error: null });
+	},
+	setIsLoading: (loading) => {
+		set({ isLoading: loading });
+	},
+	setError: (error) => {
+		set({ error });
+	},
+	clearProject: () => {
+		set({ currentProject: null, error: null, isLoading: false });
+	},
+}));

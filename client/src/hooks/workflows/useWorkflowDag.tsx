@@ -1,4 +1,4 @@
-import { useDesignerStore } from "../store/store";
+import { useDesignerStore } from "../../store/store";
 
 interface Node {
 	id: string;

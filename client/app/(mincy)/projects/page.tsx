@@ -18,18 +18,12 @@ import { ProjectCreateModal } from "@/src/components/ProjectCreateModal/ProjectC
 import { createClient } from "@/utils/supabase/client";
 import type { Tables } from "@mincy/shared";
 import { ProjectCard } from "@/src/components/ProjectCard/ProjectCard";
+import { useAllProjects } from "@/src/hooks/projects/useProject";
 
 export default function ProjectsPage() {
 	const [opened, { open, close }] = useDisclosure(false);
 	const supabase = createClient();
-	const { data, isLoading, error } = useQuery<Tables<"Projects">[]>({
-		queryKey: ["projects"],
-		queryFn: async () => {
-			const { data, error } = await supabase.from("Projects").select("*");
-			if (error) throw error;
-			return data;
-		},
-	});
+	const { data, isLoading, error } = useAllProjects()
 
 	if (error) {
 		console.log(error);

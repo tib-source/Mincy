@@ -1,4 +1,4 @@
-import { useGithubRepo } from "@/src/hooks/query/github";
+import { useGithubRepo } from "@/src/hooks/github/useGithubRepo";
 import {
 	Card,
 	Stack,
@@ -63,7 +63,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 	return (
 		<Card
 			component={Link}
-			href={`/projects/${project.name}`}
+			href={`/projects/${project.id}`}
 			padding="md"
 			radius="md"
 			withBorder
