@@ -22,6 +22,7 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { useProject } from "@/src/hooks/projects/useProject";
 import { useParams } from "next/navigation";
 import { useUpdateWorkflow } from "@/src/hooks/workflows/useUpdateWorkflow";
+import { notifications } from "@mantine/notifications";
 
 export default function ProjectEditPage() {
 	const pars = useParams<{project_id: string}>()
@@ -31,10 +32,22 @@ export default function ProjectEditPage() {
 
 	const nodes = useDesignerStore((state) => state.nodes);
 	const edges = useDesignerStore((state) => state.edges);
-	const { mutate: savePipeline, isPending: savingPending, error: saveError} = useUpdateWorkflow(projectId, {
+	const { mutate: savePipeline, isPending: savingPending, error: saveError, isSuccess} = useUpdateWorkflow(projectId, {
 		nodes,
 		edges
 	})
+
+	useEffect(() => {
+        if (error) {
+            notifications.show({ message: error.message, color: "red" });
+        }
+    }, [error]);
+
+	useEffect(() => {
+        if (isSuccess) {
+            notifications.show({ title: "Project Saved", message: "Local changes saved successfully", color: "green" });
+        }
+    }, [isSuccess]);
 
 
 	const projectEditHeader: HeaderContent = {

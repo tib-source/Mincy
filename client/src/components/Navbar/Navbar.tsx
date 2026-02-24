@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useGithubProfile } from "@/src/hooks/github/useGithubProfile";
 import { createClient } from "@/utils/supabase/client";
-// import { MantineLogo } from '@mantinex/mantine-logo';
 import classes from "./Navbar.module.css";
+import { useState } from "react";
+import { notifications } from "@mantine/notifications";
 
 export interface NavigationData {
 	label: string;
@@ -20,6 +21,7 @@ export interface NavProps {
 export function NavbarSimple({ data }: NavProps) {
 	const pathname = usePathname();
 
+	const [isRedirecting, setIsRedirecting] = useState(false)
 	const { data: profileData, isLoading: profileLoading } = useGithubProfile();
 
 	const links = data.map((item) => (
@@ -37,8 +39,17 @@ export function NavbarSimple({ data }: NavProps) {
 	));
 
 	async function signOut() {
+		setIsRedirecting(true)
 		const supabase = await createClient();
-		supabase.auth.signOut();
+		const { error } = await supabase.auth.signOut()
+		if (error){
+			setIsRedirecting(false)
+			notifications.show({
+				message: error.message,
+				color: 'red'
+			})
+		}
+		window.location.href = '/login';
 	}
 
 	return (
@@ -64,6 +75,7 @@ export function NavbarSimple({ data }: NavProps) {
 					fullWidth
 					justify="flex-start"
 					variant="subtle"
+					loading={isRedirecting}
 					onClick={() => signOut()}
 				>
 					Logout

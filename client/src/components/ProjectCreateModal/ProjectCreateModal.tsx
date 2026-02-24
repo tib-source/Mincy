@@ -16,7 +16,7 @@ import {
 	IconBrandGithubFilled,
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
-import { showNotification, useNotifications } from "@mantine/notifications";
+import { notifications, showNotification } from "@mantine/notifications";
 import { useGithubRepos } from "@/src/hooks/github/useGithubRepos";
 
 interface GithubOptions extends ComboboxStringItem {
@@ -75,14 +75,18 @@ export function ProjectCreateModal(props: ModalProps) {
 	useEffect(() => {
 		if (isSuccess) {
 			props.onClose();
+			notifications.show({
+				title: "Project Created",
+				message: `${selectedRepo?.full_name} has been created`,
+				color: "green"
+			})
 		}
 	}, [isSuccess]);
 
 	useEffect(() => {
 		if (error) {
 			const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-			console.error("Project creation error:", error, "Message:", errorMessage);
-			showNotification({
+			notifications.show({
 				title: "Error creating project",
 				message: errorMessage,
 				color: "red",
@@ -114,6 +118,7 @@ export function ProjectCreateModal(props: ModalProps) {
 				<Tabs.Panel value="github" p={"md"}>
 					<Autocomplete
 						data={repoList}
+						error={error?.message}
 						onChange={(val) => {
 							const repo = repoList.find((r) => r.value === val) ?? null;
 							setSelectedRepo(repo);
