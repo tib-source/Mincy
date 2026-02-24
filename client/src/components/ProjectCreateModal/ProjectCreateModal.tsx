@@ -1,3 +1,5 @@
+"use client";
+
 import {
 	Autocomplete,
 	Avatar,
@@ -13,8 +15,9 @@ import {
 	IconBrandBitbucketFilled,
 	IconBrandGithubFilled,
 } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
-import { useGithubRepos } from "@/src/hooks/query/github";
+import { useEffect, useMemo, useState } from "react";
+import { showNotification, useNotifications } from "@mantine/notifications";
+import { useGithubRepos } from "@/src/hooks/github/useGithubRepos";
 
 interface GithubOptions extends ComboboxStringItem {
 	image: string;
@@ -29,8 +32,8 @@ interface GithubOptions extends ComboboxStringItem {
 }
 
 import type { RenderAutocompleteOption } from "@mantine/core";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { GitHubRepo } from "@/src/client/gitClient";
+import { useCreateProject } from "@/src/hooks/projects/useCreateProject";
 
 const renderAutocompleteOption: RenderAutocompleteOption = ({ option }) => {
 	const githubOption = option as GithubOptions;
@@ -62,35 +65,32 @@ export function ProjectCreateModal(props: ModalProps) {
 		return [];
 	}, [repos]);
 
-	const queryClient = useQueryClient();
-
-	const { isPending, mutate } = useMutation({
-		mutationFn: async (repo: GitHubRepo) => {
-			const res = await fetch("/api/projects", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					name: repo.name,
-					description: repo.description ?? "",
-					org: repo.owner.login,
-					provider: "github",
-					cloneUrl: repo.git_url,
-				}),
-			});
-
-			if (!res.ok) throw await res.json();
-			return res.json();
-		},
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ["projects"] });
-			props.onClose();
-		},
-	});
+	const { mutate, isPending, isSuccess, error } = useCreateProject();
 
 	const handleCreate = () => {
 		if (!selectedRepo) return;
 		mutate(selectedRepo);
 	};
+
+	useEffect(() => {
+		if (isSuccess) {
+			props.onClose();
+		}
+	}, [isSuccess]);
+
+	useEffect(() => {
+		if (error) {
+			const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+			console.error("Project creation error:", error, "Message:", errorMessage);
+			showNotification({
+				title: "Error creating project",
+				message: errorMessage,
+				color: "red",
+				autoClose: 5000,
+			});
+		}
+	}, [error]);
+
 
 	return (
 		<Modal {...props}>

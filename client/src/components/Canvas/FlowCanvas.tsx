@@ -9,6 +9,7 @@ import {
 	BackgroundVariant,
 	type ColorMode,
 	Controls,
+	Edge,
 	ReactFlow,
 	useReactFlow,
 } from "@xyflow/react";
@@ -17,28 +18,10 @@ import { nodeRegistry } from "@/src/nodes/registry";
 import { type AppNode, useDesignerStore } from "@/src/store/store";
 import { useDnD } from "@/src/context/DnDContext";
 import { nanoid } from "nanoid";
-const initialNodes = [
-	{
-		id: "n2",
-		position: { x: 0, y: 0 },
-		data: { label: "Node 1" },
-		type: "GitCheckoutNode",
-	},
-	{
-		id: "n1",
-		position: { x: 100, y: 100 },
-		data: { label: "Node 1" },
-		type: "TriggerNode",
-	},
-];
+import { useWorkflow } from "@/src/hooks/workflows/useWorkflows";
+import { useParams } from "next/navigation";
+import { PipelineSchema } from "@/src/client/workflow";
 
-const initialEdges = [
-	{
-		id: "n1-n2",
-		source: "n1",
-		target: "n2",
-	},
-];
 
 function getFlowTheme(theme: MantineColorScheme): ColorMode {
 	let flowTheme: ColorMode = "system";
@@ -73,10 +56,18 @@ export function FlowCanvas() {
 	const flowTheme: ColorMode = getFlowTheme(colorScheme.colorScheme);
 	const { screenToFlowPosition } = useReactFlow();
 
+	const projectId = useParams<{project_id: string}>().project_id
+	const { data: workflow } = useWorkflow(projectId)
+	
+
 	useEffect(() => {
-		setNodes(initialNodes);
-		setEdges(initialEdges);
-	}, []);
+		if (!workflow)
+			return
+
+		const { nodes, edges } = PipelineSchema.parse(workflow?.pipeline);
+		setNodes(nodes);
+		setEdges(edges);
+	}, [workflow, setNodes, setEdges]);
 
 	useEffect(() => {
 		setMounted(true);

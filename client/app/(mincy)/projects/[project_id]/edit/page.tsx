@@ -15,16 +15,27 @@ import { FlowCanvas } from "@/src/components/Canvas/FlowCanvas";
 import { ComponentList } from "@/src/components/ComponentList/ComponentList";
 import type { HeaderContent } from "@/src/context/HeaderContext";
 import { useHeader } from "@/src/hooks/useHeader";
-import { useWorkflowDAG } from "@/src/hooks/useWorkflowDag";
+import { useWorkflowDAG } from "@/src/hooks/workflows/useWorkflowDag";
 import { useDesignerStore, useNavBarState } from "@/src/store/store";
 import { DnDProvider } from "@/src/context/DnDContext";
 import { ReactFlowProvider } from "@xyflow/react";
+import { useProject } from "@/src/hooks/projects/useProject";
+import { useParams } from "next/navigation";
+import { useUpdateWorkflow } from "@/src/hooks/workflows/useUpdateWorkflow";
 
 export default function ProjectEditPage() {
-	const projectData = {
-		name: "Maker",
-		link: "/projects/1",
-	};
+	const pars = useParams<{project_id: string}>()
+	const projectId = pars.project_id
+	const {data: project, isLoading, error} = useProject(projectId)
+
+
+	const nodes = useDesignerStore((state) => state.nodes);
+	const edges = useDesignerStore((state) => state.edges);
+	const { mutate: savePipeline, isPending: savingPending, error: saveError} = useUpdateWorkflow(projectId, {
+		nodes,
+		edges
+	})
+
 
 	const projectEditHeader: HeaderContent = {
 		left: (
@@ -32,16 +43,13 @@ export default function ProjectEditPage() {
 				<ActionIcon
 					variant="subtle"
 					aria-label="Settings"
-					href={projectData.link}
+					href={`/projects/${project?.id}`}
 					component={Link}
 				>
 					<IconChevronLeft stroke={1.5} />
 				</ActionIcon>
 				<Flex align="center">
-					<Text fz="h3">{projectData.name}</Text>
-					<ActionIcon variant="transparent" color="gray" aria-label="Settings">
-						<IconPencil style={{ width: "70%", height: "70%" }} stroke={1.5} />
-					</ActionIcon>
+					<Text fz="h3">{project?.name}</Text>
 				</Flex>
 			</Group>
 		),
@@ -58,7 +66,7 @@ export default function ProjectEditPage() {
 					Validate
 				</Button>
 
-				<Button leftSection={<IconDeviceFloppy size={14} />}>
+				<Button onClick={() => savePipeline()} loading={savingPending} leftSection={<IconDeviceFloppy size={14} />}>
 					Save Changes
 				</Button>
 			</Group>
@@ -66,9 +74,6 @@ export default function ProjectEditPage() {
 	};
 
 	useHeader(projectEditHeader);
-	const nodes = useDesignerStore((state) => state.nodes);
-	const edges = useDesignerStore((state) => state.edges);
-
 	//TODO : have this sent to supabase and it create a pipeline under a user. Agent should then be able to run it
 	useEffect(() => useWorkflowDAG(), []);
 
@@ -76,7 +81,6 @@ export default function ProjectEditPage() {
 
 	useEffect(() => {
 		setDocked(true);
-
 		return () => setDocked(false);
 	}, []);
 

@@ -1,3 +1,4 @@
+"use client"
 import {
 	Badge,
 	Button,
@@ -10,8 +11,14 @@ import {
 } from "@mantine/core";
 import Link from "next/link";
 import { TableSort } from "@/src/components/SortableTable/SortableTable";
+import { useProject } from "@/src/hooks/projects/useProject";
+import { useParams, useSearchParams } from "next/navigation";
 
 export default function ProjectPage() {
+	const pars = useParams<{project_id: string}>()
+	const projectId = pars.project_id
+	const {data: project, isLoading, error} = useProject(projectId)
+
 	return (
 		<Container fluid p="lg">
 			<Flex justify="space-between">
@@ -31,7 +38,7 @@ export default function ProjectPage() {
 				</Stack>
 
 				<Group flex={2} align="flex-start" justify="flex-end" pt="md" gap={5}>
-					<Button component={Link} href="/projects/1/edit" variant="light">
+					<Button component={Link} href={`/projects/${project?.id}/edit`} variant="light">
 						Edit
 					</Button>
 					<Button>Trigger Run</Button>

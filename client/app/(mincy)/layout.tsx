@@ -26,7 +26,6 @@ export default function RootLayout({
 			<AppCrumbs
 				crumbs={[
 					{ title: "Projects", href: "/projects" },
-					{ title: "Maker", href: "/projects/1" },
 				]}
 			/>
 		),
