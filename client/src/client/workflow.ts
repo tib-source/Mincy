@@ -1,6 +1,14 @@
 import { createClient } from "@/utils/supabase/client";
 import type { Json, Tables } from "@mincy/shared";
 
+import { z } from "zod";
+
+export const PipelineSchema = z.object({
+  nodes: z.array(z.any()).default([]),
+  edges: z.array(z.any()).default([]),
+});
+
+export type WorkflowPipeline = z.infer<typeof PipelineSchema>;
 
 export async function getWorkflowForProject(projectId: string): Promise<Tables<"Workflow"> | undefined>{
     const supabase = await createClient();

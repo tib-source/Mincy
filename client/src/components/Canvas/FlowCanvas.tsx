@@ -20,6 +20,7 @@ import { useDnD } from "@/src/context/DnDContext";
 import { nanoid } from "nanoid";
 import { useWorkflow } from "@/src/hooks/workflows/useWorkflows";
 import { useParams } from "next/navigation";
+import { PipelineSchema } from "@/src/client/workflow";
 
 
 function getFlowTheme(theme: MantineColorScheme): ColorMode {
@@ -60,9 +61,13 @@ export function FlowCanvas() {
 	
 
 	useEffect(() => {
-		setNodes(workflow?.pipeline?.nodes ?? []);
-		setEdges(workflow?.pipeline?.edges ?? []);
-	}, [workflow]);
+		if (!workflow)
+			return
+
+		const { nodes, edges } = PipelineSchema.parse(workflow?.pipeline);
+		setNodes(nodes);
+		setEdges(edges);
+	}, [workflow, setNodes, setEdges]);
 
 	useEffect(() => {
 		setMounted(true);
