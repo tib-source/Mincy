@@ -138,6 +138,27 @@ export type Database = {
           },
         ]
       }
+      profile: {
+        Row: {
+          github_provider_refresh_token: string | null
+          github_provider_token: string | null
+          id: string
+          login: string
+        }
+        Insert: {
+          github_provider_refresh_token?: string | null
+          github_provider_token?: string | null
+          id: string
+          login: string
+        }
+        Update: {
+          github_provider_refresh_token?: string | null
+          github_provider_token?: string | null
+          id?: string
+          login?: string
+        }
+        Relationships: []
+      }
       Projects: {
         Row: {
           cloneUrl: string
@@ -177,21 +198,21 @@ export type Database = {
           environment: Json | null
           id: string
           pipeline: Json | null
-          projectId: string | null
+          projectId: string
         }
         Insert: {
           created_at?: string
           environment?: Json | null
           id?: string
           pipeline?: Json | null
-          projectId?: string | null
+          projectId: string
         }
         Update: {
           created_at?: string
           environment?: Json | null
           id?: string
           pipeline?: Json | null
-          projectId?: string | null
+          projectId?: string
         }
         Relationships: [
           {

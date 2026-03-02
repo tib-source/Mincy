@@ -3,26 +3,28 @@ import { Button, Flex, Group, Paper, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconBrandBitbucket, IconBrandGithub } from "@tabler/icons-react";
 import { createClient } from "@/utils/supabase/client";
+import { useState } from "react";
 
 export default function AuthenticationForm() {
+	const [isRedirecting, setIsRedirecting] = useState(false);
 	async function signInWithGithub() {
+		setIsRedirecting(true);
 		const supabase = await createClient();
 
 		const { data, error } = await supabase.auth.signInWithOAuth({
 			provider: "github",
 			options: {
-				redirectTo: `${window.location.origin}/api/auth/oauth?next=/`,
+				scopes: "read:user",
+				redirectTo: `${window.location.origin}/api/auth/oauth`,
 			},
 		});
 
-		if (error?.message) {
-			notifications.show({
-				position: "bottom-right",
-				message: error.message,
-				autoClose: true,
-			});
-		}
+		if (error) {
+            setIsRedirecting(false);
+            notifications.show({ message: error.message, color: 'red' });
+        }
 	}
+
 
 	return (
 		<Flex
@@ -42,6 +44,7 @@ export default function AuthenticationForm() {
 						onClick={() => signInWithGithub()}
 						leftSection={<IconBrandGithub />}
 						variant="default"
+						loading={isRedirecting}
 						radius="xl"
 					>
 						{" "}
