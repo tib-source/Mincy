@@ -4,9 +4,21 @@ import DockerAgent from "./src/agent/DockerAgent";
 import { AgentConfig } from "./src/config";
 import { loadTomlConfig } from "./src/util";
 import { simpleWorkflow } from "./test/test";
+import { createHash, randomBytes } from "node:crypto";
+import Agent from "./src/agent/baseAgent";
+
+let AGENT_TOKEN = Bun.env.AGENT_TOKEN;
+
+
+if (!AGENT_TOKEN){
+	const token = randomBytes(32).toString('hex')
+	const hashed = createHash('sha256').update(token).digest('hex')
+	AGENT_TOKEN = token
+	console.log( token ,hashed, "meow")
+}
 
 export const logger = pino({
-	base: null, // removes pid, hostname, name
+	base: null,
 	level: "info",
 	transport: {
 		target: "pino-pretty",
@@ -14,17 +26,12 @@ export const logger = pino({
 	},
 });
 
-const AGENT_CONFIG_DIR = Bun.env.MINCY_AGENT_CONFIG;
-const rawConfig = await loadTomlConfig(AGENT_CONFIG_DIR!);
-const config = AgentConfig.safeParse(rawConfig);
-console.log(config);
+const base_agent = new Agent(
+	'agent-1',
+	'base-agent',
+	5,
+	'/tmp/workdir',
+	AGENT_TOKEN
+)
 
-const testAgent = new DockerAgent("testing", "TestAgent", 5, tmpdir());
-
-testAgent.execute(simpleWorkflow);
-
-process.on("SIGINT", () => {
-	console.log("Stopping agent");
-	testAgent.stop();
-	process.exit();
-});
+await base_agent.register()

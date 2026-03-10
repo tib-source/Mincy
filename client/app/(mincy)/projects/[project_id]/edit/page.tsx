@@ -36,7 +36,7 @@ export default function ProjectEditPage() {
 		nodes,
 		edges
 	})
-
+	useWorkflowDAG()
 	useEffect(() => {
         if (error) {
             notifications.show({ message: error.message, color: "red" });

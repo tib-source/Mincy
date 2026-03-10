@@ -13,11 +13,15 @@ import Link from "next/link";
 import { TableSort } from "@/src/components/SortableTable/SortableTable";
 import { useProject } from "@/src/hooks/projects/useProject";
 import { useParams, useSearchParams } from "next/navigation";
+import { useRunWorkflow } from "@/src/hooks/workflows/useRunPipeline";
+import { useWorkflow } from "@/src/hooks/workflows/useWorkflows";
 
 export default function ProjectPage() {
 	const pars = useParams<{project_id: string}>()
 	const projectId = pars.project_id
 	const {data: project, isLoading, error} = useProject(projectId)
+	const {data: workflow } = useWorkflow(project?.id)
+	const runWorkflow = useRunWorkflow(project?.id, workflow?.id)
 
 	return (
 		<Container fluid p="lg">
@@ -41,7 +45,7 @@ export default function ProjectPage() {
 					<Button component={Link} href={`/projects/${project?.id}/edit`} variant="light">
 						Edit
 					</Button>
-					<Button>Trigger Run</Button>
+					<Button onClick={()=> runWorkflow.mutate()} loading={runWorkflow.isPending}>Trigger Run</Button>
 				</Group>
 			</Flex>
 
