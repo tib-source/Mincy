@@ -28,12 +28,12 @@ export async function GET(request: Request) {
 				.eq("id", session.user.id)
 				.select()
 				.single();
-				}
+			
 			
 			if (error){
 				throw error
 			}
-				
+		}
 			
 		const host =
 			request.headers.get("x-forwarded-host") || request.headers.get("host");
