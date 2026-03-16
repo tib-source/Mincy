@@ -206,6 +206,7 @@ export type Database = {
           created_at: string
           environment: Json | null
           id: string
+          jobs: Json | null
           pipeline: Json | null
           projectId: string
         }
@@ -213,6 +214,7 @@ export type Database = {
           created_at?: string
           environment?: Json | null
           id?: string
+          jobs?: Json | null
           pipeline?: Json | null
           projectId: string
         }
@@ -220,6 +222,7 @@ export type Database = {
           created_at?: string
           environment?: Json | null
           id?: string
+          jobs?: Json | null
           pipeline?: Json | null
           projectId?: string
         }
@@ -263,7 +266,7 @@ export type Database = {
     }
     Enums: {
       AgentStatus: "active" | "paused" | "stopped"
-      PipelineStatus: "queued" | "running" | "passed" | "failed"
+      PipelineStatus: "queued" | "running" | "passed" | "failed" | "pending"
       TriggerType: "manual" | "cron" | "push"
     }
     CompositeTypes: {
@@ -393,7 +396,7 @@ export const Constants = {
   public: {
     Enums: {
       AgentStatus: ["active", "paused", "stopped"],
-      PipelineStatus: ["queued", "running", "passed", "failed"],
+      PipelineStatus: ["queued", "running", "passed", "failed", "pending"],
       TriggerType: ["manual", "cron", "push"],
     },
   },

@@ -1,3 +1,5 @@
+import { getProjectById } from "@/actions/projects";
+import { getWorkflowWithId } from "@/actions/workflow";
 import { validateAgentToken } from "@/utils/agents/validateAgentToken";
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -9,7 +11,7 @@ export async function GET(request: NextRequest){
     if (!agent){
         return NextResponse.json(
             { message: "Invalid credentials" },
-            { status: 404 },
+            { status: 401 },
         );}
     
     const supabase = await createClient()
@@ -19,7 +21,6 @@ export async function GET(request: NextRequest){
         }
     )
 
-    console.log(data, error)
 
     if (error){
         console.error(error)
@@ -27,6 +28,18 @@ export async function GET(request: NextRequest){
             error
         }, {status: 400})
     }
+    
+    if (!data || (Array.isArray(data) && data.length === 0)) {
+        return new NextResponse(null, { status: 204})
+    }
+    let job = data[0]
+    let project = await getProjectById(job.project_id || "")
+    let workflow = await getWorkflowWithId(job.workflow_id)
+    
 
-    return NextResponse.json({data}, { status: 201})
+    return NextResponse.json({
+        workflow,
+        project,
+        ...job
+    }, { status: 200})
 }

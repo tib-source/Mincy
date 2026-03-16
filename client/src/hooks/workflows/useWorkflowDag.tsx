@@ -1,19 +1,6 @@
+import { Job } from "@mincy/shared/dist/types";
 import { useDesignerStore } from "../../store/store";
 
-interface Job {
-	id: string;
-	type?: string;
-	config: any;
-	dependsOn: string[];
-	next: string[];
-}
-
-export interface Workflow {
-	id: number;
-	project_id: number;
-	jobs: Job[];
-	environment?: JSON;
-}
 
 export function useWorkflowDAG() {
 	const { nodes, edges } = useDesignerStore.getState();

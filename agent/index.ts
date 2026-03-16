@@ -6,16 +6,9 @@ import { loadTomlConfig } from "./src/util";
 import { simpleWorkflow } from "./test/test";
 import { createHash, randomBytes } from "node:crypto";
 import Agent from "./src/agent/baseAgent";
+import { exit } from "node:process";
 
 let AGENT_TOKEN = Bun.env.AGENT_TOKEN;
-
-
-if (!AGENT_TOKEN){
-	const token = randomBytes(32).toString('hex')
-	const hashed = createHash('sha256').update(token).digest('hex')
-	AGENT_TOKEN = token
-	console.log( token ,hashed, "meow")
-}
 
 export const logger = pino({
 	base: null,
@@ -25,6 +18,16 @@ export const logger = pino({
 		options: { colorize: true },
 	},
 });
+
+if (!AGENT_TOKEN){
+	const token = randomBytes(32).toString('hex')
+	const hashed = createHash('sha256').update(token).digest('hex')
+	AGENT_TOKEN = token
+	logger.info(`TOKEN: ${token}, HASHED: ${hashed}`)
+	exit(1)
+}
+
+
 
 const base_agent = new Agent(
 	'agent-1',

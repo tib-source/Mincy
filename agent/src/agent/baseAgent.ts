@@ -1,7 +1,9 @@
-import type { Tables } from "@mincy/shared";
-import pino from "pino";
+import type { Job, Tables } from "@mincy/shared";
 import { logger } from "../..";
 
+export type Run =  {
+	workflow : Job[]
+} & Tables<"PipelineRun">
 class Agent {
 	id: string;
 	name: string;
@@ -29,16 +31,17 @@ class Agent {
 		if (!res.ok) {
 			throw Error("Agent failed to register");
 		}
-		if (res.ok)
+		if (res.ok){
 			logger.info("Agent registered successfully")
 			this.startHeartBeat();
 			this.startJobPoll();
+		}
 	}
 
-	execute(workflow: Tables<"Workflow">) {
-		throw Error(
-			"This is the base agent, something must've gone really bad to get here",
-		);
+	execute(workflow) {
+		// throw Error(
+		// 	"This is the base agent, something must've gone really bad to get here",
+		// );
 	}
 
 	async heartbeat() {
@@ -56,8 +59,11 @@ class Agent {
 
 	startJobPoll(){
 		if (this.jobPollId) return;
-		this.jobPollId = setInterval(() => {
-			this.findJob()
+		this.jobPollId = setInterval(async () => {
+			let job = await this.findJob()
+			if (job)
+				this.execute(job)
+
 		}, this.pollInterval);
 	}
 	
@@ -68,18 +74,23 @@ class Agent {
 		}
 	}
 
-	async findJob(){
+	async findJob(): Promise<Tables<'PipelineRun'> | undefined> {
 		if (this.jobPollId){
 			const res = await this.sendAuthenticatedRequest(`${this.server}/api/agents/job`);
 			if (!res.ok) {
-				logger.info("No jobs available");
 				logger.error(res.text)
-
-			}else{
+			} 
+			
+			if (res.status == 204){
+				logger.info("No jobs available");
+			} else{
+				let job: Tables<'PipelineRun'> = await res.json()
 				logger.info("Job aquired")
-				logger.info(await res.json())
-
+				logger.info(job)
+				return job
 			}
+
+			return undefined
 		}
 	}
 
@@ -87,7 +98,9 @@ class Agent {
 		return fetch(url, {
 			...request,
 			headers: {
-				"authorization": `Bearer ${this.token}`
+				...request?.headers,
+				"authorization": `Bearer ${this.token}`,
+				"Content-Type": "application/json"
 			},
 		})
 	}
