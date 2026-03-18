@@ -140,22 +140,46 @@ export type Database = {
       }
       profile: {
         Row: {
-          github_provider_refresh_token: string | null
-          github_provider_token: string | null
           id: string
           login: string
         }
         Insert: {
-          github_provider_refresh_token?: string | null
-          github_provider_token?: string | null
           id: string
           login: string
         }
         Update: {
-          github_provider_refresh_token?: string | null
-          github_provider_token?: string | null
           id?: string
           login?: string
+        }
+        Relationships: []
+      }
+      secrets: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          encrypted_value: string
+          iv: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          encrypted_value: string
+          iv: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          encrypted_value?: string
+          iv?: string
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
