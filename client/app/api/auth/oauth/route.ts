@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { storeSecret } from "@/utils/api/secrets";
+import { GITHUB_SECRET_NAMES } from "@/utils/api/secretNames";
 
 export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
@@ -19,13 +20,16 @@ export async function GET(request: Request) {
 			throw new Error('Authentication with GitHub Failed. No tokens captured')
 		}
 
-		// Store tokens encrypted via the secrets edge function
-		if (session.provider_token) {
-			await storeSecret("github_access_token", session.provider_token);
-		}
-		if (session.provider_refresh_token) {
-			await storeSecret("github_refresh_token", session.provider_refresh_token);
-		}
+		await Promise.all([
+			session.provider_token
+				? storeSecret(GITHUB_SECRET_NAMES.ACCESS_TOKEN, session.provider_token)
+				: null,
+			session.provider_refresh_token
+				? storeSecret(GITHUB_SECRET_NAMES.REFRESH_TOKEN, session.provider_refresh_token)
+				: null,
+		]).catch((err) => {
+			console.error("Failed to store tokens in secrets:", err);
+		});
 
 		const host =
 			request.headers.get("x-forwarded-host") || request.headers.get("host");
@@ -35,7 +39,6 @@ export async function GET(request: Request) {
 		return NextResponse.redirect(redirectUrl);
 	}
 
-	// Fallback for errors
 	const host = request.headers.get("host");
 	return NextResponse.redirect(`https://${host}/login`);
 }

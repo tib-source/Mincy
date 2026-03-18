@@ -13,7 +13,10 @@ async function withGithubClient<T>(
 		const { githubClient } = await getGithubClient();
 		return await fn(githubClient);
 	} catch (err) {
-		if (err instanceof GitHubTokenExpiredError) {
+		if (
+			err instanceof GitHubTokenExpiredError ||
+			(err instanceof Error && err.message === "Bad credentials")
+		) {
 			redirect("/login");
 		}
 		throw err;

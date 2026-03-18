@@ -19,16 +19,32 @@ function jsonResponse(data: unknown, status = 200) {
 	});
 }
 
+function toBase64(bytes: Uint8Array): string {
+	let binary = "";
+	for (let i = 0; i < bytes.length; i++) {
+		binary += String.fromCharCode(bytes[i]);
+	}
+	return btoa(binary);
+}
+
+let cachedKey: CryptoKey | null = null;
+
 async function getEncryptionKey(): Promise<CryptoKey> {
+	if (cachedKey) return cachedKey;
+
 	const raw = Deno.env.get("SECRETS_ENCRYPTION_KEY");
 	if (!raw) {
 		throw new Error("SECRETS_ENCRYPTION_KEY is not set");
 	}
 	const keyBytes = Uint8Array.from(atob(raw), (c) => c.charCodeAt(0));
-	return crypto.subtle.importKey("raw", keyBytes, { name: ALGORITHM }, false, [
-		"encrypt",
-		"decrypt",
-	]);
+	cachedKey = await crypto.subtle.importKey(
+		"raw",
+		keyBytes,
+		{ name: ALGORITHM },
+		false,
+		["encrypt", "decrypt"],
+	);
+	return cachedKey;
 }
 
 async function encrypt(
@@ -45,8 +61,8 @@ async function encrypt(
 	);
 
 	return {
-		encrypted: btoa(String.fromCharCode(...new Uint8Array(ciphertext))),
-		iv: btoa(String.fromCharCode(...iv)),
+		encrypted: toBase64(new Uint8Array(ciphertext)),
+		iv: toBase64(iv),
 	};
 }
 
@@ -64,44 +80,37 @@ async function decrypt(encrypted: string, iv: string): Promise<string> {
 	return new TextDecoder().decode(decrypted);
 }
 
-function getServiceClient() {
-	const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-	const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-	return createClient(supabaseUrl, serviceRoleKey);
-}
+const serviceClient = createClient(
+	Deno.env.get("SUPABASE_URL")!,
+	Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+);
 
 async function getAuthenticatedUserId(req: Request): Promise<string> {
 	const authHeader = req.headers.get("authorization");
-	if (!authHeader) throw new Error("Missing authorization header");
+	if (!authHeader) throw new Error("Unauthorized");
 
-	const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-	const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-	const userClient = createClient(supabaseUrl, anonKey, {
-		global: { headers: { Authorization: authHeader } },
-	});
+	const userClient = createClient(
+		Deno.env.get("SUPABASE_URL")!,
+		Deno.env.get("SUPABASE_ANON_KEY")!,
+		{ global: { headers: { Authorization: authHeader } } },
+	);
 
-	const {
-		data: { user },
-		error,
-	} = await userClient.auth.getUser();
+	const { data: { user }, error } = await userClient.auth.getUser();
 	if (error || !user) throw new Error("Unauthorized");
 	return user.id;
 }
 
-// --- Handlers ---
-
-async function handleStore(req: Request) {
-	const userId = await getAuthenticatedUserId(req);
-	const { name, value } = await req.json();
-
+async function handleStore(
+	userId: string,
+	{ name, value }: { name: string; value: string },
+) {
 	if (!name || !value) {
 		return jsonResponse({ error: "name and value are required" }, 400);
 	}
 
 	const { encrypted, iv } = await encrypt(value);
-	const supabase = getServiceClient();
 
-	const { error } = await supabase
+	const { error } = await serviceClient
 		.from("secrets")
 		.upsert(
 			{
@@ -121,16 +130,12 @@ async function handleStore(req: Request) {
 	return jsonResponse({ success: true });
 }
 
-async function handleGet(req: Request) {
-	const userId = await getAuthenticatedUserId(req);
-	const { name } = await req.json();
-
+async function handleGet(userId: string, { name }: { name: string }) {
 	if (!name) {
 		return jsonResponse({ error: "name is required" }, 400);
 	}
 
-	const supabase = getServiceClient();
-	const { data, error } = await supabase
+	const { data, error } = await serviceClient
 		.from("secrets")
 		.select("encrypted_value, iv")
 		.eq("user_id", userId)
@@ -149,16 +154,12 @@ async function handleGet(req: Request) {
 	return jsonResponse({ value: decryptedValue });
 }
 
-async function handleDelete(req: Request) {
-	const userId = await getAuthenticatedUserId(req);
-	const { name } = await req.json();
-
+async function handleDelete(userId: string, { name }: { name: string }) {
 	if (!name) {
 		return jsonResponse({ error: "name is required" }, 400);
 	}
 
-	const supabase = getServiceClient();
-	const { error } = await supabase
+	const { error } = await serviceClient
 		.from("secrets")
 		.delete()
 		.eq("user_id", userId)
@@ -177,16 +178,17 @@ Deno.serve(async (req) => {
 	}
 
 	try {
-		const url = new URL(req.url);
-		const action = url.searchParams.get("action");
+		const userId = await getAuthenticatedUserId(req);
+		const body = await req.json();
+		const { action, ...params } = body;
 
 		switch (action) {
 			case "store":
-				return await handleStore(req);
+				return await handleStore(userId, params);
 			case "get":
-				return await handleGet(req);
+				return await handleGet(userId, params);
 			case "delete":
-				return await handleDelete(req);
+				return await handleDelete(userId, params);
 			default:
 				return jsonResponse({ error: "Invalid action. Use: store, get, delete" }, 400);
 		}
