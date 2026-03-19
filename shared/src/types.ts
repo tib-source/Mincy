@@ -1,17 +1,25 @@
 import type { LogEvent } from "pino";
 
 
-export interface Job {
+export interface Step {
 	id: string;
 	type?: string;
-	config: any;
+	data: Record<string, unknown>;
+	status: string;
 	dependsOn: string[];
 	next: string[];
 }
 
+export interface JobDefinition {
+  steps: Step[];
+  source_hash: string;
+  calculated_at: string;
+}
+
+
 export interface Workflow {
 	id: number;
 	project_id: number;
-	jobs: Job[];
 	environment?: JSON;
+	jobs: JobDefinition;
 }

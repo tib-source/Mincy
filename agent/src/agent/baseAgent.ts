@@ -1,109 +1,116 @@
 import type { Job, Tables } from "@mincy/shared";
 import { logger } from "../..";
+import type { Executor } from "../executors/executor";
 
 export type Run =  {
-	workflow : Job[]
+	workflow : Job[],
+	project: Tables<'Projects'>
 } & Tables<"PipelineRun">
-class Agent {
-	id: string;
-	name: string;
-	capacity: number;
-	token: string;
-	server: string = "localhost:3000";
-	pollInterval: number = 3000;
-	heartbeatId: NodeJS.Timeout | null = null;
-	jobPollId: NodeJS.Timeout | null = null;
 
-	workdir: string;
+export default class Agent {
+    readonly id: string;
+    readonly name: string;
+    readonly capacity: number;
+    readonly token: string;
+    readonly workdir: string;
+    readonly server: string = "localhost:3000";
+    readonly pollInterval: number = 3000;
 
-	constructor(id: string, name: string, capacity: number, workdir: string, token: string) {
-		this.id = id;
-		this.name = name;
-		this.capacity = capacity;
-		this.workdir = workdir;
-		this.token = token
-	}
+    private executor: Executor;
+    private heartbeatId: NodeJS.Timeout | null = null;
+    private jobPollId: NodeJS.Timeout | null = null;
 
-	async register() {
-		const res = await this.sendAuthenticatedRequest(`${this.server}/api/agents/register`, {
-			method: "POST",
-		});
-		if (!res.ok) {
-			throw Error("Agent failed to register");
-		}
-		if (res.ok){
-			logger.info("Agent registered successfully")
-			this.startHeartBeat();
-			this.startJobPoll();
-		}
-	}
+    constructor(
+        id: string,
+        name: string,
+        capacity: number,
+        workdir: string,
+        token: string,
+        executor: Executor,
+    ) {
+        this.id = id;
+        this.name = name;
+        this.capacity = capacity;
+        this.workdir = workdir;
+        this.token = token;
+        this.executor = executor;
+    }
 
-	execute(workflow) {
-		// throw Error(
-		// 	"This is the base agent, something must've gone really bad to get here",
-		// );
-	}
+    async register(): Promise<void> {
+        const res = await this.sendAuthenticatedRequest(`${this.server}/api/agents/register`, {
+            method: "POST",
+        });
 
-	async heartbeat() {
-		const res = await this.sendAuthenticatedRequest(`${this.server}/api/agents/heartbeat`);
-		if (!res.ok) {
-			console.log("Warning: failed to send heart beat");
-		}
-		logger.info("Heartbeat successfully sent")
-	}
+        if (!res.ok) throw new Error("Agent failed to register");
 
-	startHeartBeat() {
-		if (this.heartbeatId) return;
-		this.heartbeatId = setInterval(() => this.heartbeat(), this.pollInterval);
-	}
+        logger.info("Agent registered successfully");
+        this.startHeartbeat();
+        this.startJobPoll();
+    }
 
-	startJobPoll(){
-		if (this.jobPollId) return;
-		this.jobPollId = setInterval(async () => {
-			let job = await this.findJob()
-			if (job)
-				this.execute(job)
+    async execute(run: Run): Promise<void> {
+        await this.executor.execute(run);
+    }
 
-		}, this.pollInterval);
-	}
-	
-	stop() {
-		if (this.heartbeatId) {
-			clearInterval(this.heartbeatId);
-			this.heartbeatId = null;
-		}
-	}
+    stop(): void {
+        if (this.heartbeatId) {
+            clearInterval(this.heartbeatId);
+            this.heartbeatId = null;
+        }
+        if (this.jobPollId) {
+            clearInterval(this.jobPollId);
+            this.jobPollId = null;
+        }
+    }
 
-	async findJob(): Promise<Tables<'PipelineRun'> | undefined> {
-		if (this.jobPollId){
-			const res = await this.sendAuthenticatedRequest(`${this.server}/api/agents/job`);
-			if (!res.ok) {
-				logger.error(res.text)
-			} 
-			
-			if (res.status == 204){
-				logger.info("No jobs available");
-			} else{
-				let job: Tables<'PipelineRun'> = await res.json()
-				logger.info("Job aquired")
-				logger.info(job)
-				return job
-			}
+    private startHeartbeat(): void {
+        if (this.heartbeatId) return;
+        this.heartbeatId = setInterval(() => this.heartbeat(), this.pollInterval);
+    }
 
-			return undefined
-		}
-	}
+    private startJobPoll(): void {
+        if (this.jobPollId) return;
+        this.jobPollId = setInterval(async () => {
+            const run = await this.findJob();
+            if (run) await this.execute(run);
+        }, this.pollInterval);
+    }
 
-	sendAuthenticatedRequest(url: string, request?: RequestInit){
-		return fetch(url, {
-			...request,
-			headers: {
-				...request?.headers,
-				"authorization": `Bearer ${this.token}`,
-				"Content-Type": "application/json"
-			},
-		})
-	}
+    private async heartbeat(): Promise<void> {
+        const res = await this.sendAuthenticatedRequest(`${this.server}/api/agents/heartbeat`);
+        if (!res.ok) {
+            logger.warn("Failed to send heartbeat");
+            return;
+        }
+        logger.info("Heartbeat sent");
+    }
+
+    private async findJob(): Promise<Run | undefined> {
+        const res = await this.sendAuthenticatedRequest(`${this.server}/api/agents/job`);
+
+        if (!res.ok) {
+            logger.error(`Job poll failed: ${await res.text()}`);
+            return undefined;
+        }
+
+        if (res.status === 204) {
+            logger.info("No jobs available");
+            return undefined;
+        }
+
+        const run: Run = await res.json();
+        logger.info({ run }, "Job acquired");
+        return run;
+    }
+
+    private sendAuthenticatedRequest(url: string, init?: RequestInit): Promise<Response> {
+        return fetch(url, {
+            ...init,
+            headers: {
+                ...init?.headers,
+                Authorization: `Bearer ${this.token}`,
+                "Content-Type": "application/json",
+            },
+        });
+    }
 }
-
-export default Agent;

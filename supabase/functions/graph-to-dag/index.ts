@@ -4,8 +4,7 @@ Deno.serve(async (req) => {
   const payload = await req.json()
   const { record, old_record, type } = payload
 
-  // 1. PREVENTION: If this update was triggered by the function itself 
-  // (i.e., we just updated the 'job' column), skip execution.
+  // prevent cyclical update
   if (type === 'UPDATE' && JSON.stringify(record.pipeline) === JSON.stringify(old_record?.pipeline)) {
     return new Response("Ignoring internal update", { status: 200 })
   }
@@ -13,13 +12,14 @@ Deno.serve(async (req) => {
   const { nodes, edges } = record.pipeline || { nodes: [], edges: [] }
 
   try {
-    // 2. DAG Generation
     const steps = topologicalSort(nodes, edges).map(node => ({
       id: node.id,
       type: node.type,
       data: node.data,
-      // Default config if not specified in node
-      executor: node.executor || { image: "node:20-slim" } 
+      executor: node.executor?.image || { image: "node:20-slim" },
+      status: "queued", // TODO: make this an enum
+      dependsOn: edges.filter( e => e.target == node.id).map(e => e.source),
+      isControl: node.category
     }))
 
     const jobDefinition = {
@@ -28,7 +28,6 @@ Deno.serve(async (req) => {
       source_hash: btoa(JSON.stringify(record.pipeline)).substring(0, 8) // Optional fingerprint
     }
 
-    // 3. Write back to Supabase
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -52,6 +51,7 @@ Deno.serve(async (req) => {
 })
 
 // Helper: Kahn's Algorithm
+// reference : https://www.geeksforgeeks.org/dsa/topological-sorting-indegree-based-solution/
 function topologicalSort(nodes: any[], edges: any[]) {
   const sorted = []
   const inDegree = new Map()
