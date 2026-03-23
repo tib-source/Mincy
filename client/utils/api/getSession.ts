@@ -9,9 +9,8 @@ export async function getSession(): Promise<GetSessionRequest> {
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
-	const user = await supabase.auth.getUser();
 
-	if (!session?.provider_token) {
+	if (!session) {
 		return {
 			ok: false,
 			error: "Not authenticated",
