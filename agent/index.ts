@@ -3,8 +3,10 @@ import { createHash, randomBytes } from "node:crypto";
 import Agent from "./src/agent/baseAgent";
 import { exit } from "node:process";
 import DockerExecutor from "./src/executors/dockerExecutor";
+import { BatchLogger } from "./src/logger/logger";
 
 let AGENT_TOKEN = Bun.env.AGENT_TOKEN;
+let SERVER_URL = Bun.env.SERVER_URL || "http://localhost:3000";
 
 export const logger = pino({
 	base: null,
@@ -24,7 +26,7 @@ if (!AGENT_TOKEN){
 }
 
 let workDir = '/tmp/workdir'
-const docker = new DockerExecutor(workDir)
+const docker = new DockerExecutor(workDir, SERVER_URL, AGENT_TOKEN)
 
 
 const base_agent = new Agent(
@@ -33,7 +35,8 @@ const base_agent = new Agent(
 	5,
 	workDir,
 	AGENT_TOKEN,
-	docker
+	docker,
+	SERVER_URL
 )
 
 await base_agent.register()

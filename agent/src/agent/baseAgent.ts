@@ -13,10 +13,10 @@ export default class Agent {
     readonly capacity: number;
     readonly token: string;
     readonly workdir: string;
-    readonly server: string = "localhost:3000";
     readonly pollInterval: number = 3000;
+    readonly server: string;
+    readonly executor: Executor;
 
-    private executor: Executor;
     private heartbeatId: NodeJS.Timeout | null = null;
     private jobPollId: NodeJS.Timeout | null = null;
 
@@ -27,6 +27,7 @@ export default class Agent {
         workdir: string,
         token: string,
         executor: Executor,
+        server: string
     ) {
         this.id = id;
         this.name = name;
@@ -34,6 +35,7 @@ export default class Agent {
         this.workdir = workdir;
         this.token = token;
         this.executor = executor;
+        this.server = server;
     }
 
     async register(): Promise<void> {

@@ -3,8 +3,9 @@ import { PassThrough } from "node:stream";
 import Docker from "dockerode";
 import type { Job } from "@mincy/shared";
 import { logger } from "../..";
-import type { Executor } from "./executor";
+import type { Executor, JobContext } from "./executor";
 import type { Run } from "../agent/baseAgent";
+import { BatchLogger } from "../logger/logger";
 
 const DEFAULT_IMAGE = "debian:latest";
 
@@ -13,27 +14,41 @@ export default class DockerExecutor implements Executor {
     cleanup(){}
     streamLogs(){}
 
-    prepare(): void {}
+    prepare(): void {};
     workdir: string;
+    
+    readonly server: string;
+    readonly token: string;
 
-    constructor(workdir: string){
+    constructor(workdir: string, server: string, token: string) {
         this.workdir = workdir
+        this.server = server
+        this.token = token
     }
 
-    async execute(workflow: Run): Promise<void> {
-        const docker = new Docker();
-        const hashedId = Bun.hash(`${workflow.id}_${workflow.project_id}_${Date.now()}`);
+    async execute(run: Run): Promise<void> {
+        const docker = new Docker({
+            socketPath: process.env.DOCKER_SOCKET || '/var/run/docker.sock'
+        });
+        const hashedId = Bun.hash(`${run.id}_${run.project_id}}`);
         const workdir = `${this.workdir}/${hashedId}`;
-
         await mkdir(workdir, { recursive: true });
 
-        for (let job of workflow.workflow.jobs.steps) {
-            this.runJob(docker, job, workdir, hashedId);
+
+        for (let job of run.workflow.jobs.steps) {
+            const context: JobContext = {
+                workflowId: run.workflow.id,
+                jobId: job.id,
+                runId: run.id
+            }
+
+            this.runJob(context, docker, job, workdir, hashedId);
         }
     }
 
-    private async runJob(docker: Docker, job: Job, workdir: string, hashedId: bigint | number): Promise<void> {
+    private async runJob(context: JobContext, docker: Docker, job: Job, workdir: string, hashedId: bigint | number): Promise<void> {
         
+        const jobLogger = new BatchLogger(context, this.token, this.server, 10, 1000)
         if (!job.data?.config && !job.data?.config?.cmd){
             return
         }
@@ -45,15 +60,15 @@ export default class DockerExecutor implements Executor {
         const stdout = new PassThrough();
         const stderr = new PassThrough();
 
-        this.pipeToLogger(stdout, "info");
-        this.pipeToLogger(stderr, "error");
+        this.pipeToLogger(stdout, "info", jobLogger);
+        this.pipeToLogger(stderr, "error", jobLogger);
         logger.info(job.data.config.cmd)
         await new Promise<void>((resolve, reject) => {
             docker.createContainer(
                 {
                     Image: image,
                     Cmd: job.data.config.cmd,
-                    name: `${job.id}_${hashedId}_${Date.now()}`,
+                    name: `mincy_${hashedId}_${job.id}`,
                     WorkingDir: "/workspace",
                     HostConfig: {
                         Binds: [`${workdir}:/workspace`],
@@ -76,12 +91,15 @@ export default class DockerExecutor implements Executor {
                 },
             );
         });
+        jobLogger.flush();
     }
 
-    private pipeToLogger(stream: PassThrough, level: "info" | "error"): void {
+    private pipeToLogger(stream: PassThrough, level: "info" | "error", jobLogger: BatchLogger): void {
         stream.on("data", (chunk: Buffer) => {
             const line = chunk.toString().trim();
-            if (line) logger[level](line);
+            if (line){
+                jobLogger.log(level, line)
+            }
         });
     }
 
