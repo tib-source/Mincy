@@ -91,18 +91,39 @@ export function FlowCanvas() {
 				y: event.clientY,
 			});
 
+			// Check if dropped inside a stage node
+			const stageNode = nodes.find((n) => {
+				if (n.type !== "stage") {return false;}
+				const w = n.measured?.width ?? n.width ?? 280;
+				const h = n.measured?.height ?? n.height ?? 160;
+				return (
+					position.x >= n.position.x &&
+					position.x <= n.position.x + w &&
+					position.y >= n.position.y &&
+					position.y <= n.position.y + h
+				);
+			});
+
 			const newNode: AppNode = {
 				id: nanoid(10),
 				type,
-				position,
+				position: stageNode
+					? {
+							x: position.x - stageNode.position.x,
+							y: position.y - stageNode.position.y,
+						}
+					: position,
 				data: {
 					label: `${type} node`,
 				},
+				...(type === "stage" && { style: { width: 400, height: 400 } }),
+				...(type === "ScriptNode" && { style: { width: 350, height: 250 } }),
+				...(stageNode && { parentId: stageNode.id, extent: "parent" as const }),
 			};
 
 			setNodes(nodes.concat(newNode));
 		},
-		[screenToFlowPosition, type],
+		[screenToFlowPosition, type, nodes],
 	);
 
 	if (!mounted) {
