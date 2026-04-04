@@ -20,4 +20,4 @@ export const BASE_WORKFLOW = {
             target: "n2",
         },
     ]
-} 
+}

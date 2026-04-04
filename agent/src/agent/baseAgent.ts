@@ -51,7 +51,9 @@ export default class Agent {
     }
 
     async execute(run: Run): Promise<void> {
-        await this.executor.execute(run);
+        const exitCode = await this.executor.execute(run);
+        const status = exitCode === 0 ? "passed" : "failed";
+        await this.updateJobStatus(run.id, status);
     }
 
     stop(): void {
@@ -88,7 +90,7 @@ export default class Agent {
     }
 
     private async findJob(): Promise<Run | undefined> {
-        const res = await this.sendAuthenticatedRequest(`${this.server}/api/agents/job`);
+        const res = await this.sendAuthenticatedRequest(`${this.server}/api/agents/job/claim`);
 
         if (!res.ok) {
             logger.error(`Job poll failed: ${await res.text()}`);
@@ -103,6 +105,13 @@ export default class Agent {
         const run: Run = await res.json();
         logger.info({ run }, "Job acquired");
         return run;
+    }
+
+    private async updateJobStatus(runId: string, status: "passed" | "completed" | "failed"): Promise<void> {
+        await this.sendAuthenticatedRequest(`${this.server}/api/agents/job/${runId}`, {
+            method: "POST",
+            body: JSON.stringify({ status }),
+        });
     }
 
     private sendAuthenticatedRequest(url: string, init?: RequestInit): Promise<Response> {

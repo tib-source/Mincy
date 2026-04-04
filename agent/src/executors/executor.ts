@@ -9,7 +9,7 @@ export interface JobContext {
 
 export interface Executor {
     prepare: () => void
-    execute: (workflow: Run) => Promise<void>
+    execute: (workflow: Run) => Promise<number>
     streamLogs: () => void
     cleanup: () => void
 }

@@ -26,7 +26,7 @@ export default class DockerExecutor implements Executor {
         this.token = token
     }
 
-    async execute(run: Run): Promise<void> {
+    async execute(run: Run): Promise<number> {
         const docker = new Docker({
             socketPath: process.env.DOCKER_SOCKET || '/var/run/docker.sock'
         });
@@ -42,15 +42,21 @@ export default class DockerExecutor implements Executor {
                 runId: run.id
             }
 
-            this.runJob(context, docker, job, workdir, hashedId);
+            const exitCode = await this.runJob(context, docker, job, workdir, hashedId);
+            if (exitCode !== 0) {
+                logger.error(`Job ${job.id} failed with exit code: ${exitCode}`);
+                return exitCode;
+            }
+
         }
+        return 0;
     }
 
-    private async runJob(context: JobContext, docker: Docker, job: Job, workdir: string, hashedId: bigint | number): Promise<void> {
+    private async runJob(context: JobContext, docker: Docker, job: Job, workdir: string, hashedId: bigint | number): Promise<number> {
         
         const jobLogger = new BatchLogger(context, this.token, this.server, 10, 1000)
         if (!job.data?.config && !job.data?.config?.cmd){
-            return
+            return 0;
         }
 
         // const image = job.executor.image ?? DEFAULT_IMAGE;
@@ -63,7 +69,7 @@ export default class DockerExecutor implements Executor {
         this.pipeToLogger(stdout, "info", jobLogger);
         this.pipeToLogger(stderr, "error", jobLogger);
         logger.info(job.data.config.cmd)
-        await new Promise<void>((resolve, reject) => {
+        const exitCode = await new Promise<number>((resolve, reject) => {
             docker.createContainer(
                 {
                     Image: image,
@@ -85,13 +91,15 @@ export default class DockerExecutor implements Executor {
                     container
                         .start()
                         .then(() => container.wait())
-                        .then(() => container.remove())
-                        .then(resolve)
+                        .then((result) => container.remove()
+                            .then(() => resolve(result.StatusCode))) // preserve result across remove()
                         .catch(reject);
                 },
             );
         });
-        jobLogger.flush();
+
+        await jobLogger.flush();
+        return exitCode;
     }
 
     private pipeToLogger(stream: PassThrough, level: "info" | "error", jobLogger: BatchLogger): void {

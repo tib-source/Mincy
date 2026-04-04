@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
 import { createClient } from "../supabase/server";
-import { createHash, hash } from "node:crypto";
+import { createHash } from "node:crypto";
 export async function validateAgentToken(request: NextRequest){
-    let authHeader = request.headers.get("authorization")
-    if (authHeader && authHeader.startsWith("Bearer ")){
+    const authHeader = request.headers.get("authorization")
+    if (authHeader?.startsWith("Bearer ")){
         const token = authHeader.split(' ')[1]
         const supabase = await createClient()
         
@@ -11,7 +11,7 @@ export async function validateAgentToken(request: NextRequest){
 
         const found = await supabase.from("Agents").select().eq("token_hash", hashed).single()
         if (found.data)
-            return found.data
+            {return found.data}
     }
     return null
 }

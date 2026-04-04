@@ -52,18 +52,30 @@ export type Database = {
           created_at: string
           id: string
           job_id: string | null
+          level: string | null
+          message: string | null
+          run_id: string | null
+          timestamp: string | null
           workflow_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           job_id?: string | null
+          level?: string | null
+          message?: string | null
+          run_id?: string | null
+          timestamp?: string | null
           workflow_id: string
         }
         Update: {
           created_at?: string
           id?: string
           job_id?: string | null
+          level?: string | null
+          message?: string | null
+          run_id?: string | null
+          timestamp?: string | null
           workflow_id?: string
         }
         Relationships: [
@@ -72,6 +84,13 @@ export type Database = {
             columns: ["workflow_id"]
             isOneToOne: false
             referencedRelation: "Workflow"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Logs_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "PipelineRun"
             referencedColumns: ["id"]
           },
         ]
