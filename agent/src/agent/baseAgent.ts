@@ -1,11 +1,6 @@
-import type { Job, Tables } from "@mincy/shared";
 import { logger } from "../..";
 import type { Executor } from "../executors/executor";
 
-export type Run =  {
-	workflow : Job[],
-	project: Tables<'Projects'>
-} & Tables<"PipelineRun">
 
 export default class Agent {
     readonly id: string;
@@ -16,7 +11,7 @@ export default class Agent {
     readonly pollInterval: number = 3000;
     readonly server: string;
     readonly executor: Executor;
-
+    private activeJobs: number = 0;
     private heartbeatId: NodeJS.Timeout | null = null;
     private jobPollId: NodeJS.Timeout | null = null;
 
@@ -75,8 +70,16 @@ export default class Agent {
     private startJobPoll(): void {
         if (this.jobPollId) return;
         this.jobPollId = setInterval(async () => {
+            if (this.activeJobs >= this.capacity) {return;}
             const run = await this.findJob();
-            if (run) await this.execute(run);
+            if (run){
+                this.execute(run).finally(() => {
+                    this.activeJobs--;
+                });
+                this.activeJobs++;
+                
+            }
+
         }, this.pollInterval);
     }
 
@@ -102,7 +105,7 @@ export default class Agent {
             return undefined;
         }
 
-        const run: Run = await res.json();
+        const run: Run = await res.json() as Run;
         logger.info({ run }, "Job acquired");
         return run;
     }

@@ -23,7 +23,6 @@ export async function POST(req: Request) {
     })
 
     if (error) {
-        console.log(error);
         return new Response(JSON.stringify({ error }), { status: 400 });
     }
 

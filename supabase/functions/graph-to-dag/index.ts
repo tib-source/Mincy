@@ -55,21 +55,29 @@ Deno.serve(async (req) => {
 function topologicalSort(nodes: any[], edges: any[]) {
   const sorted = []
   const inDegree = new Map()
-  
-  nodes.forEach(n => inDegree.set(n.id, 0))
-  edges.forEach(e => inDegree.set(e.target, (inDegree.get(e.target) || 0) + 1))
+  const nodeById = new Map(nodes.map(n => [n.id, n]))
+  const childrenOf = new Map<string, any[]>()
 
-  const queue = nodes.filter(n => (inDegree.get(n.id) || 0) === 0)
+  for (const n of nodes) {
+    inDegree.set(n.id, 0)
+    childrenOf.set(n.id, [])
+  }
+  for (const e of edges) {
+    inDegree.set(e.target, (inDegree.get(e.target) || 0) + 1)
+    childrenOf.get(e.source)?.push(e)
+  }
+
+  const queue = nodes.filter(n => inDegree.get(n.id) === 0)
 
   while (queue.length > 0) {
     const u = queue.shift()
     sorted.push(u)
 
-    const children = edges.filter(e => e.source === u.id)
-    for (const edge of children) {
-      inDegree.set(edge.target, inDegree.get(edge.target) - 1)
-      if (inDegree.get(edge.target) === 0) {
-        queue.push(nodes.find(n => n.id === edge.target))
+    for (const edge of childrenOf.get(u.id) || []) {
+      const newDeg = inDegree.get(edge.target) - 1
+      inDegree.set(edge.target, newDeg)
+      if (newDeg === 0) {
+        queue.push(nodeById.get(edge.target))
       }
     }
   }
@@ -77,6 +85,6 @@ function topologicalSort(nodes: any[], edges: any[]) {
   if (sorted.length !== nodes.length) {
     throw new Error("Circular dependency detected in pipeline!")
   }
-  
+
   return sorted
 }

@@ -1,6 +1,5 @@
 // Inspired by https://oneuptime.com/blog/post/2026-01-30-log-batching/view
 
-import { ru } from "zod/locales"
 import type { JobContext } from "../executors/executor"
 import { logger } from "../.."
 
@@ -45,24 +44,33 @@ export class BatchLogger {
     async flush() {
         if (this.logs.length === 0) return
 
-        const body = JSON.stringify({ 
-                workflowId: this.context.workflowId,
-                jobId: this.context.jobId,
-                runId: this.context.runId,
-                logs: this.logs,
-             })
-
-        logger.info(`Flushing logs: ${body}`)
-        await fetch(`${this.server}/api/agents/logs`, {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${this.token}`, "Content-Type": "application/json" },
-            body: body
-        });
-
+        const logsToSend = this.logs
         this.logs = []
         if (this.flushTimer) {
             clearTimeout(this.flushTimer)
             this.flushTimer = null
+        }
+
+        const body = JSON.stringify({
+                workflowId: this.context.workflowId,
+                jobId: this.context.jobId,
+                runId: this.context.runId,
+                logs: logsToSend,
+             })
+
+        try {
+            const res = await fetch(`${this.server}/api/agents/logs`, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${this.token}`, "Content-Type": "application/json" },
+                body: body
+            });
+            if (!res.ok) {
+                logger.error(`Failed to flush logs: ${res.status}`)
+                this.logs = [...logsToSend, ...this.logs]
+            }
+        } catch (err) {
+            logger.error({ error: err }, "Failed to flush logs")
+            this.logs = [...logsToSend, ...this.logs]
         }
     }
 }

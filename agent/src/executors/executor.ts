@@ -1,4 +1,4 @@
-import type { Run } from "../agent/baseAgent"
+import type { Run } from "@mincy/shared"
 
 export interface JobContext {
     workflowId: string
@@ -8,8 +8,5 @@ export interface JobContext {
 
 
 export interface Executor {
-    prepare: () => void
     execute: (workflow: Run) => Promise<number>
-    streamLogs: () => void
-    cleanup: () => void
 }

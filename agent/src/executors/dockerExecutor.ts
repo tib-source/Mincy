@@ -1,48 +1,41 @@
 import { mkdir } from "node:fs/promises";
 import { PassThrough } from "node:stream";
 import Docker from "dockerode";
-import type { Job } from "@mincy/shared";
 import { logger } from "../..";
 import type { Executor, JobContext } from "./executor";
-import type { Run } from "../agent/baseAgent";
 import { BatchLogger } from "../logger/logger";
+import type { Run, Step } from "@mincy/shared";
 
 const DEFAULT_IMAGE = "debian:latest";
 
 export default class DockerExecutor implements Executor {
-    containers: Docker.Container[] = [];
-    cleanup(){}
-    streamLogs(){}
-
-    prepare(): void {};
     workdir: string;
-    
     readonly server: string;
     readonly token: string;
+    private readonly docker: Docker;
 
     constructor(workdir: string, server: string, token: string) {
         this.workdir = workdir
         this.server = server
         this.token = token
+        this.docker = new Docker({
+            socketPath: process.env.DOCKER_SOCKET || '/var/run/docker.sock'
+        })
     }
 
     async execute(run: Run): Promise<number> {
-        const docker = new Docker({
-            socketPath: process.env.DOCKER_SOCKET || '/var/run/docker.sock'
-        });
         const hashedId = Bun.hash(`${run.id}_${run.project_id}}`);
         const workdir = `${this.workdir}/${hashedId}`;
         await mkdir(workdir, { recursive: true });
 
-
-        for (let job of run.workflow.jobs.steps) {
+        for (const job of run.workflow.jobs.steps) {
             const context: JobContext = {
                 workflowId: run.workflow.id,
                 jobId: job.id,
                 runId: run.id
             }
 
-            const exitCode = await this.runJob(context, docker, job, workdir, hashedId);
+            const exitCode = await this.runJob(context, job, workdir, hashedId);
             if (exitCode !== 0) {
                 logger.error(`Job ${job.id} failed with exit code: ${exitCode}`);
                 return exitCode;
@@ -52,28 +45,27 @@ export default class DockerExecutor implements Executor {
         return 0;
     }
 
-    private async runJob(context: JobContext, docker: Docker, job: Job, workdir: string, hashedId: bigint | number): Promise<number> {
-        
+    private async runJob(context: JobContext, job: Step, workdir: string, hashedId: bigint | number): Promise<number> {
+
         const jobLogger = new BatchLogger(context, this.token, this.server, 10, 1000)
         if (!job.data?.config && !job.data?.config?.cmd){
             return 0;
         }
 
-        // const image = job.executor.image ?? DEFAULT_IMAGE;
         const image = DEFAULT_IMAGE
-        await this.ensureImageExists(docker, image);
+        await this.ensureImageExists(image);
 
         const stdout = new PassThrough();
         const stderr = new PassThrough();
 
         this.pipeToLogger(stdout, "info", jobLogger);
         this.pipeToLogger(stderr, "error", jobLogger);
-        logger.info(job.data.config.cmd)
+        logger.info(job.data.config?.cmd);
         const exitCode = await new Promise<number>((resolve, reject) => {
-            docker.createContainer(
+            this.docker.createContainer(
                 {
                     Image: image,
-                    Cmd: job.data.config.cmd,
+                    Cmd: job.data?.config?.cmd,
                     name: `mincy_${hashedId}_${job.id}`,
                     WorkingDir: "/workspace",
                     HostConfig: {
@@ -111,11 +103,11 @@ export default class DockerExecutor implements Executor {
         });
     }
 
-    private async ensureImageExists(docker: Docker, imageName: string): Promise<void> {
+    private async ensureImageExists(imageName: string): Promise<void> {
         try {
-            const stream = await docker.pull(imageName);
+            const stream = await this.docker.pull(imageName);
             await new Promise<void>((resolve, reject) => {
-                docker.modem.followProgress(stream, (err) => {
+                this.docker.modem.followProgress(stream, (err) => {
                     if (err) {
                         logger.error({ error: err }, `Failed to pull image ${imageName}`);
                         reject(err);

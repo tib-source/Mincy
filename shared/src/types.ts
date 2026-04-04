@@ -1,4 +1,14 @@
-import type { LogEvent } from "pino";
+import { Tables } from "./database.types";
+
+
+export type Run =  {
+	workflow : {
+        id: string;
+        projectId: string;
+        jobs: JobDefinition
+    },
+	project: Tables<'Projects'>
+} & Tables<"PipelineRun">
 
 
 export interface Step {
