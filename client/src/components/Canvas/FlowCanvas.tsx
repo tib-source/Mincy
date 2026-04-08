@@ -9,7 +9,6 @@ import {
 	BackgroundVariant,
 	type ColorMode,
 	Controls,
-	Edge,
 	ReactFlow,
 	useReactFlow,
 } from "@xyflow/react";
@@ -38,7 +37,11 @@ function getFlowTheme(theme: MantineColorScheme): ColorMode {
 	return flowTheme;
 }
 
-export function FlowCanvas() {
+interface FlowCanvasProps {
+	readOnly?: boolean;
+}
+
+export function FlowCanvas({ readOnly = false }: FlowCanvasProps) {
 	const {
 		nodes,
 		edges,
@@ -58,7 +61,7 @@ export function FlowCanvas() {
 
 	const projectId = useParams<{project_id: string}>().project_id
 	const { data: workflow } = useWorkflow(projectId)
-	
+
 
 	useEffect(() => {
 		if (!workflow)
@@ -91,7 +94,6 @@ export function FlowCanvas() {
 				y: event.clientY,
 			});
 
-			// Check if dropped inside a stage node
 			const stageNode = nodes.find((n) => {
 				if (n.type !== "stage") {return false;}
 				const w = n.measured?.width ?? n.width ?? 280;
@@ -139,13 +141,18 @@ export function FlowCanvas() {
 			<ReactFlow
 				nodes={nodes}
 				edges={edges}
-				onNodesChange={onNodesChange}
-				onEdgesChange={onEdgesChange}
-				onConnect={onConnect}
+				onNodesChange={readOnly ? undefined : onNodesChange}
+				onEdgesChange={readOnly ? undefined : onEdgesChange}
+				onConnect={readOnly ? undefined : onConnect}
 				nodeTypes={nodeTypes}
 				colorMode={flowTheme}
-				onDrop={onDrop}
-				onDragOver={onDragOver}
+				onDrop={readOnly ? undefined : onDrop}
+				onDragOver={readOnly ? undefined : onDragOver}
+				nodesDraggable={!readOnly}
+				nodesConnectable={!readOnly}
+				elementsSelectable={!readOnly}
+				panOnDrag
+				zoomOnScroll
 				defaultViewport={{
 					zoom: 1,
 					x: 400,
@@ -158,7 +165,7 @@ export function FlowCanvas() {
 					}}
 					variant={BackgroundVariant.Dots}
 				/>
-				<Controls />
+				<Controls showInteractive={!readOnly} />
 			</ReactFlow>
 		</Box>
 	);

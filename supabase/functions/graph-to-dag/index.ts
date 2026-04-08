@@ -12,20 +12,78 @@ Deno.serve(async (req) => {
   const { nodes, edges } = record.pipeline || { nodes: [], edges: [] }
 
   try {
-    const steps = topologicalSort(nodes, edges).map(node => ({
-      id: node.id,
-      type: node.type,
-      data: node.data,
-      executor: node.executor?.image || { image: "node:20-slim" },
-      status: "queued", // TODO: make this an enum
-      dependsOn: edges.filter( e => e.target == node.id).map(e => e.source),
-      isControl: node.category
-    }))
+    const stageNodes = nodes.filter((n: any) => n.type === 'stage')
+    const childNodes = nodes.filter((n: any) => n.type !== 'stage')
+
+    const stageById = new Map(stageNodes.map((s: any) => [s.id, s]))
+
+    const stageChildren = new Map<string, any[]>()
+    const orphanNodes: any[] = []
+
+    for (const node of childNodes) {
+      if (node.parentId && stageById.has(node.parentId)) {
+        const children = stageChildren.get(node.parentId) || []
+        children.push(node)
+        stageChildren.set(node.parentId, children)
+      } else {
+        orphanNodes.push(node)
+      }
+    }
+
+    const stageEdges = edges.filter((e: any) =>
+      stageById.has(e.source) && stageById.has(e.target)
+    )
+    const sortedStages = topologicalSort(stageNodes, stageEdges)
+
+    const stages = sortedStages.map((stage: any) => {
+      const children = stageChildren.get(stage.id) || []
+      const childIds = new Set(children.map((c: any) => c.id))
+
+      const internalEdges = edges.filter((e: any) =>
+        childIds.has(e.source) && childIds.has(e.target)
+      )
+
+      const sortedChildren = topologicalSort(children, internalEdges)
+
+      const steps = sortedChildren.map((node: any) => ({
+        id: node.id,
+        type: node.type,
+        data: node.data,
+        status: "queued",
+        dependsOn: internalEdges.filter((e: any) => e.target === node.id).map((e: any) => e.source),
+        next: internalEdges.filter((e: any) => e.source === node.id).map((e: any) => e.target),
+      }))
+
+      return {
+        id: stage.id,
+        name: stage.data?.label || 'Stage',
+        image: stage.data?.image || 'debian:latest',
+        steps,
+        dependsOn: stageEdges.filter((e: any) => e.target === stage.id).map((e: any) => e.source),
+      }
+    })
+
+    for (const node of orphanNodes) {
+      stages.push({
+        id: node.id,
+        name: node.data?.label || node.type,
+        image: node.data?.image || 'debian:latest',
+        steps: [{
+          id: node.id,
+          type: node.type,
+          data: node.data,
+          status: "queued",
+          dependsOn: edges.filter((e: any) => e.target === node.id).map((e: any) => e.source),
+          next: edges.filter((e: any) => e.source === node.id).map((e: any) => e.target),
+        }],
+        dependsOn: edges.filter((e: any) => e.target === node.id).map((e: any) => e.source),
+      })
+    }
 
     const jobDefinition = {
-      steps,
+      stages,
       calculated_at: new Date().toISOString(),
-      source_hash: btoa(JSON.stringify(record.pipeline)).substring(0, 8) // Optional fingerprint
+      source_hash: btoa(JSON.stringify(record.pipeline)).substring(0, 8)
     }
 
     const supabase = createClient(
@@ -40,7 +98,7 @@ Deno.serve(async (req) => {
 
     if (error) throw error
 
-    return new Response(JSON.stringify({ status: "success", steps: steps.length }), {
+    return new Response(JSON.stringify({ status: "success", stages: stages.length }), {
       headers: { "Content-Type": "application/json" },
     })
 

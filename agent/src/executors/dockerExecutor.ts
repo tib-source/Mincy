@@ -4,9 +4,7 @@ import Docker from "dockerode";
 import { logger } from "../..";
 import type { Executor, JobContext } from "./executor";
 import { BatchLogger } from "../logger/logger";
-import type { Run, Step } from "@mincy/shared";
-
-const DEFAULT_IMAGE = "debian:latest";
+import type { Run, Stage, Step } from "@mincy/shared";
 
 export default class DockerExecutor implements Executor {
     workdir: string;
@@ -28,55 +26,66 @@ export default class DockerExecutor implements Executor {
         const workdir = `${this.workdir}/${hashedId}`;
         await mkdir(workdir, { recursive: true });
 
-        for (const job of run.workflow.jobs.steps) {
-            const context: JobContext = {
-                workflowId: run.workflow.id,
-                jobId: job.id,
-                runId: run.id
-            }
-
-            const exitCode = await this.runJob(context, job, workdir, hashedId);
+        for (const stage of run.workflow.jobs.stages) {
+            const exitCode = await this.runStage(run, stage, workdir, hashedId);
             if (exitCode !== 0) {
-                logger.error(`Job ${job.id} failed with exit code: ${exitCode}`);
+                logger.error(`Stage ${stage.name} (${stage.id}) failed with exit code: ${exitCode}`);
                 return exitCode;
             }
-
         }
         return 0;
     }
 
-    private async runJob(context: JobContext, job: Step, workdir: string, hashedId: bigint | number): Promise<number> {
+    private async runStage(run: Run, stage: Stage, workdir: string, hashedId: bigint | number): Promise<number> {
+        const image = stage.image || "debian:latest";
+        await this.ensureImageExists(image);
 
-        const jobLogger = new BatchLogger(context, this.token, this.server, 10, 1000)
-        if (!job.data?.config && !job.data?.config?.cmd){
-            return 0;
+        for (const step of stage.steps) {
+            const context: JobContext = {
+                workflowId: run.workflow.id,
+                jobId: step.id,
+                runId: run.id
+            }
+
+            const exitCode = await this.runStep(context, step, image, workdir, hashedId);
+            if (exitCode !== 0) {
+                return exitCode;
+            }
         }
 
-        const image = DEFAULT_IMAGE
-        await this.ensureImageExists(image);
+        return 0;
+    }
+
+    private async runStep(context: JobContext, step: Step, image: string, workdir: string, hashedId: bigint | number): Promise<number> {
+        const jobLogger = new BatchLogger(context, this.token, this.server, 10, 1000)
+
+        if (!step.data?.config || !(step.data.config as any)?.cmd) {
+            return 0;
+        }
 
         const stdout = new PassThrough();
         const stderr = new PassThrough();
 
         this.pipeToLogger(stdout, "info", jobLogger);
         this.pipeToLogger(stderr, "error", jobLogger);
-        logger.info(job.data.config?.cmd);
+        logger.info((step.data.config as any)?.cmd);
+
         const exitCode = await new Promise<number>((resolve, reject) => {
             this.docker.createContainer(
                 {
                     Image: image,
-                    Cmd: job.data?.config?.cmd,
-                    name: `mincy_${hashedId}_${job.id}`,
+                    Cmd: (step.data.config as any)?.cmd,
+                    name: `mincy_${hashedId}_${step.id}`,
                     WorkingDir: "/workspace",
                     HostConfig: {
                         Binds: [`${workdir}:/workspace`],
                     },
                 },
                 (err, container) => {
-                    if (err || !container) return reject(err ?? new Error("Container creation failed"));
+                    if (err || !container) { return reject(err ?? new Error("Container creation failed")); }
 
                     container.attach({ stream: true, stdout: true, stderr: true }, (err, stream) => {
-                        if (err || !stream) return reject(err ?? new Error("Failed to attach to container"));
+                        if (err || !stream) { return reject(err ?? new Error("Failed to attach to container")); }
                         container.modem.demuxStream(stream, stdout, stderr);
                     });
 
@@ -84,7 +93,7 @@ export default class DockerExecutor implements Executor {
                         .start()
                         .then(() => container.wait())
                         .then((result) => container.remove()
-                            .then(() => resolve(result.StatusCode))) // preserve result across remove()
+                            .then(() => resolve(result.StatusCode)))
                         .catch(reject);
                 },
             );

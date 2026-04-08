@@ -20,8 +20,16 @@ export interface Step {
 	next: string[];
 }
 
+export interface Stage {
+	id: string;
+	name: string;
+	image: string;
+	steps: Step[];
+	dependsOn: string[];
+}
+
 export interface JobDefinition {
-  steps: Step[];
+  stages: Stage[];
   source_hash: string;
   calculated_at: string;
 }
