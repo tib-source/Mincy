@@ -21,8 +21,9 @@ import {
 import { useRouter } from "next/navigation";
 import type { PipelineRun } from "@/src/client/runs";
 import { timeAgo } from "@/utils/api/helpers";
-import classes from "./RunList.module.css";
+import { DataTable, type DataTableColumn } from "@/src/components/DataTable/DataTable";
 import { getDuration } from "@/utils/helpers";
+import classes from "./RunList.module.css";
 
 const statusConfig: Record<
 	string,
@@ -108,117 +109,98 @@ export function RunList({ runs, projectId, isLoading }: RunListProps) {
 		);
 	}
 
+	const columns: DataTableColumn<PipelineRun>[] = [
+		{
+			key: "status",
+			label: "Status",
+			width: 120,
+			render: (run) => {
+				const status = statusConfig[run.status] || statusConfig.pending;
+				return (
+					<div className={classes.statusCell}>
+						<span className={classes.statusIcon}>{status.icon}</span>
+						<span className={classes.statusText} style={{ color: status.color }}>
+							{status.label}
+						</span>
+					</div>
+				);
+			},
+		},
+		{
+			key: "commit",
+			label: "Commit",
+			render: (run) => (
+				<>
+					<div className={classes.commitMessage}>Run #{run.id.slice(0, 8)}</div>
+					{run.commit_sha && (
+						<div className={classes.commitSha}>{run.commit_sha.slice(0, 7)}</div>
+					)}
+				</>
+			),
+		},
+		{
+			key: "branch",
+			label: "Branch",
+			width: 150,
+			render: (run) =>
+				run.branch ? (
+					<Badge
+						variant="light"
+						color="gray"
+						size="sm"
+						radius="sm"
+						leftSection={<IconGitBranch size={11} />}
+						tt="none"
+						fw={400}
+					>
+						{run.branch}
+					</Badge>
+				) : (
+					<span className={classes.time}>--</span>
+				),
+		},
+		{
+			key: "trigger",
+			label: "Triggered By",
+			width: 130,
+			render: (run) => {
+				const trigger = run.triggered_by ? triggerConfig[run.triggered_by] : null;
+				return trigger ? (
+					<Group gap={6} wrap="nowrap">
+						{trigger.icon}
+						<span style={{ fontSize: 13.5 }}>{trigger.label}</span>
+					</Group>
+				) : (
+					<span className={classes.time}>--</span>
+				);
+			},
+		},
+		{
+			key: "duration",
+			label: "Duration",
+			width: 100,
+			render: (run) => (
+				<span className={classes.mono}>
+					{getDuration(new Date(run.created_at), run.finished_at ? new Date(run.finished_at) : undefined)}
+				</span>
+			),
+		},
+		{
+			key: "time",
+			label: "Time",
+			width: 150,
+			render: (run) => (
+				<span className={classes.time}>{timeAgo(run.created_at)}</span>
+			),
+		},
+	];
+
 	return (
-		<div className={classes.wrapper}>
-			<table className={classes.table}>
-				<colgroup>
-					<col className={classes.colStatus} />
-					<col className={classes.colCommit} />
-					<col className={classes.colBranch} />
-					<col className={classes.colTrigger} />
-					<col className={classes.colDuration} />
-					<col className={classes.colTime} />
-				</colgroup>
-				<thead className={classes.thead}>
-					<tr>
-						<th>Status</th>
-						<th>Commit</th>
-						<th>Branch</th>
-						<th>Triggered By</th>
-						<th>Duration</th>
-						<th>Time</th>
-					</tr>
-				</thead>
-				<tbody>
-					{runs.map((run) => {
-						const status =
-							statusConfig[run.status] || statusConfig.pending;
-						const trigger = run.triggered_by
-							? triggerConfig[run.triggered_by]
-							: null;
-
-						return (
-							<tr
-								key={run.id}
-								className={classes.row}
-								onClick={() =>
-									router.push(
-										`/projects/${projectId}/runs/${run.id}`,
-									)
-								}
-							>
-								<td>
-									<div className={classes.statusCell}>
-										<span className={classes.statusIcon}>
-											{status.icon}
-										</span>
-										<span
-											className={classes.statusText}
-											style={{ color: status.color }}
-										>
-											{status.label}
-										</span>
-									</div>
-								</td>
-
-								<td>
-									<div className={classes.commitMessage}>
-										Run #{run.id.slice(0, 8)}
-									</div>
-									{run.commit_sha && (
-										<div className={classes.commitSha}>
-											{run.commit_sha.slice(0, 7)}
-										</div>
-									)}
-								</td>
-
-								<td>
-									{run.branch ? (
-										<Badge
-											variant="light"
-											color="gray"
-											size="sm"
-											radius="sm"
-											leftSection={<IconGitBranch size={11} />}
-											tt="none"
-											fw={400}
-										>
-											{run.branch}
-										</Badge>
-									) : (
-										<span className={classes.time}>--</span>
-									)}
-								</td>
-
-								<td>
-									{trigger ? (
-										<Group gap={6} wrap="nowrap">
-											{trigger.icon}
-											<span style={{ fontSize: 13.5 }}>
-												{trigger.label}
-											</span>
-										</Group>
-									) : (
-										<span className={classes.time}>--</span>
-									)}
-								</td>
-
-								<td>
-									<span className={classes.mono}>
-										{getDuration(new Date(run.created_at), run.finished_at ? new Date(run.finished_at) : undefined)}
-									</span>
-								</td>
-
-								<td>
-									<span className={classes.time}>
-										{timeAgo(run.created_at)}
-									</span>
-								</td>
-							</tr>
-						);
-					})}
-				</tbody>
-			</table>
-		</div>
+		<DataTable
+			columns={columns}
+			data={runs}
+			getKey={(run) => run.id}
+			onRowClick={(run) => router.push(`/projects/${projectId}/runs/${run.id}`)}
+		/>
 	);
 }

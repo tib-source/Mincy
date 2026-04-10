@@ -5,9 +5,10 @@ import { AppShell, Group, Text, Title } from "@mantine/core";
 import {
 	IconFolder,
 	IconLayoutDashboard,
+	IconRobot,
 	IconSettings,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AppCrumbs } from "@/src/components/AppCrumbs";
 import { NavbarSimple } from "@/src/components/Navbar/Navbar";
 import { type HeaderContent, HeaderContext } from "@/src/context/HeaderContext";
@@ -48,14 +49,21 @@ export default function RootLayout({
 			icon: IconFolder,
 		},
 		{
+			label: "Agents",
+			link: "/agents",
+			icon: IconRobot,
+		},
+		{
 			label: "Settings",
 			link: "/settings",
 			icon: IconSettings,
 		},
 	];
 
+	const headerContextValue = useMemo(() => ({ setHeader: setHeaderContent }), []);
+
 	return (
-		<HeaderContext.Provider value={{ setHeader: setHeaderContent }}>
+		<HeaderContext.Provider value={headerContextValue}>
 			<AppShell
 				navbar={{
 					width: navbarWidth,
