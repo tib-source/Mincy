@@ -11,7 +11,9 @@ export async function parseBody<T extends z.ZodTypeAny>(
 export function timeAgo(date: string | Date) {
 	const now = new Date();
 	const past = new Date(date);
-	if (isNaN(past.getTime())) {return "";}
+	if (isNaN(past.getTime())) {
+		return "";
+	}
 
 	const diff = now.getTime() - past.getTime();
 
@@ -24,10 +26,20 @@ export function timeAgo(date: string | Date) {
 
 	const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
-	if (years > 0) {return rtf.format(-years, "year");}
-	if (months > 0) {return rtf.format(-months, "month");}
-	if (days > 0) {return rtf.format(-days, "day");}
-	if (hours > 0) {return rtf.format(-hours, "hour");}
-	if (minutes > 0) {return rtf.format(-minutes, "minute");}
+	if (years > 0) {
+		return rtf.format(-years, "year");
+	}
+	if (months > 0) {
+		return rtf.format(-months, "month");
+	}
+	if (days > 0) {
+		return rtf.format(-days, "day");
+	}
+	if (hours > 0) {
+		return rtf.format(-hours, "hour");
+	}
+	if (minutes > 0) {
+		return rtf.format(-minutes, "minute");
+	}
 	return rtf.format(-seconds, "second");
 }

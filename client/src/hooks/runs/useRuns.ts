@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getRunsForProject, getRunById, getLogsForRun } from "@/src/client/runs";
+import {
+	getRunsForProject,
+	getRunById,
+	getLogsForRun,
+} from "@/src/client/runs";
 
 export function useProjectRuns(projectId?: string) {
 	return useQuery({

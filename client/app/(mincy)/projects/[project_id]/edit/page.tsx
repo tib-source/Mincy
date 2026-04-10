@@ -7,7 +7,6 @@ import {
 	IconArrowBackUp,
 	IconChevronLeft,
 	IconDeviceFloppy,
-	IconPencil,
 	IconSquareRoundedCheck,
 } from "@tabler/icons-react";
 import Link from "next/link";
@@ -15,7 +14,6 @@ import { FlowCanvas } from "@/src/components/Canvas/FlowCanvas";
 import { ComponentList } from "@/src/components/ComponentList/ComponentList";
 import type { HeaderContent } from "@/src/context/HeaderContext";
 import { useHeader } from "@/src/hooks/useHeader";
-import { useWorkflowDAG } from "@/src/hooks/workflows/useWorkflowDag";
 import { useDesignerStore, useNavBarState } from "@/src/store/store";
 import { DnDProvider } from "@/src/context/DnDContext";
 import { ReactFlowProvider } from "@xyflow/react";
@@ -25,29 +23,35 @@ import { useUpdateWorkflow } from "@/src/hooks/workflows/useUpdateWorkflow";
 import { notifications } from "@mantine/notifications";
 
 export default function ProjectEditPage() {
-	const pars = useParams<{project_id: string}>()
-	const projectId = pars.project_id
-	const {data: project, isLoading, error} = useProject(projectId)
-
+	const pars = useParams<{ project_id: string }>();
+	const projectId = pars.project_id;
+	const { data: project, error } = useProject(projectId);
 
 	const nodes = useDesignerStore((state) => state.nodes);
 	const edges = useDesignerStore((state) => state.edges);
-	const { mutate: savePipeline, isPending: savingPending, error: saveError, isSuccess} = useUpdateWorkflow(projectId, {
+	const {
+		mutate: savePipeline,
+		isPending: savingPending,
+		isSuccess,
+	} = useUpdateWorkflow(projectId, {
 		nodes,
-		edges
-	})
+		edges,
+	});
 	useEffect(() => {
-        if (error) {
-            notifications.show({ message: error.message, color: "red" });
-        }
-    }, [error]);
+		if (error) {
+			notifications.show({ message: error.message, color: "red" });
+		}
+	}, [error]);
 
 	useEffect(() => {
-        if (isSuccess) {
-            notifications.show({ title: "Project Saved", message: "Local changes saved successfully", color: "green" });
-        }
-    }, [isSuccess]);
-
+		if (isSuccess) {
+			notifications.show({
+				title: "Project Saved",
+				message: "Local changes saved successfully",
+				color: "green",
+			});
+		}
+	}, [isSuccess]);
 
 	const projectEditHeader: HeaderContent = {
 		left: (
@@ -78,7 +82,11 @@ export default function ProjectEditPage() {
 					Validate
 				</Button>
 
-				<Button onClick={() => savePipeline()} loading={savingPending} leftSection={<IconDeviceFloppy size={14} />}>
+				<Button
+					onClick={() => savePipeline()}
+					loading={savingPending}
+					leftSection={<IconDeviceFloppy size={14} />}
+				>
 					Save Changes
 				</Button>
 			</Group>
@@ -86,15 +94,13 @@ export default function ProjectEditPage() {
 	};
 
 	useHeader(projectEditHeader);
-	//TODO : have this sent to supabase and it create a pipeline under a user. Agent should then be able to run it
-	useEffect(() => useWorkflowDAG(), []);
 
 	const { setDocked } = useNavBarState();
 
 	useEffect(() => {
 		setDocked(true);
 		return () => setDocked(false);
-	}, []);
+	}, [setDocked]);
 
 	return (
 		<Flex h="100%">

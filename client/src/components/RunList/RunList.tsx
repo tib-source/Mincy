@@ -62,12 +62,12 @@ const statusConfig: Record<
 	},
 };
 
-const triggerConfig: Record<string, { icon: React.ReactNode; label: string }> = {
-	manual: { icon: <IconPlayerPlay size={14} />, label: "Manual" },
-	push: { icon: <IconRocket size={14} />, label: "Push" },
-	cron: { icon: <IconClock size={14} />, label: "Scheduled" },
-};
-
+const triggerConfig: Record<string, { icon: React.ReactNode; label: string }> =
+	{
+		manual: { icon: <IconPlayerPlay size={14} />, label: "Manual" },
+		push: { icon: <IconRocket size={14} />, label: "Push" },
+		cron: { icon: <IconClock size={14} />, label: "Scheduled" },
+	};
 
 interface RunListProps {
 	runs: PipelineRun[];

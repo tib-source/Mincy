@@ -23,13 +23,7 @@ export default function RootLayout({
 	const { navbarWidth, headerHeight, docked } = useNavBarState();
 
 	const defaultHeader = {
-		left: (
-			<AppCrumbs
-				crumbs={[
-					{ title: "Projects", href: "/projects" },
-				]}
-			/>
-		),
+		left: <AppCrumbs crumbs={[{ title: "Projects", href: "/projects" }]} />,
 	};
 
 	const mergedHeader = {

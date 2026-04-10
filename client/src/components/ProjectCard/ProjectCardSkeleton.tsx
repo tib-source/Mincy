@@ -1,12 +1,6 @@
 import { Card, Stack, Group, Box, Skeleton, Divider } from "@mantine/core";
 
 export function ProjectCardSkeleton() {
-	const statusColorMapping = {
-		passing: "green",
-		failing: "red",
-		running: "orange",
-	};
-
 	return (
 		<Card padding="md" radius="md" withBorder>
 			<Stack gap="md" p="sm">

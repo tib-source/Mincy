@@ -14,12 +14,7 @@ export const GitCheckoutNodeDefinition: NodeDefinition = {
 };
 
 export function GitCheckoutNode({ selected }: NodeProps) {
-
 	return (
-		<BaseNode
-			node={GitCheckoutNodeDefinition}
-			selected={selected}
-			valid
-		/>
+		<BaseNode node={GitCheckoutNodeDefinition} selected={selected} valid />
 	);
 }

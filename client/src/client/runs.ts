@@ -14,7 +14,9 @@ export interface LogEntry {
 	timestamp: string | null;
 }
 
-export async function getRunsForProject(projectId: string): Promise<PipelineRun[]> {
+export async function getRunsForProject(
+	projectId: string,
+): Promise<PipelineRun[]> {
 	const supabase = createClient();
 
 	const { data, error } = await supabase

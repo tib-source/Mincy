@@ -11,7 +11,7 @@ export default function AuthenticationForm() {
 		setIsRedirecting(true);
 		const supabase = await createClient();
 
-		const { data, error } = await supabase.auth.signInWithOAuth({
+		const { error } = await supabase.auth.signInWithOAuth({
 			provider: "github",
 			options: {
 				scopes: "read:user",
@@ -20,11 +20,10 @@ export default function AuthenticationForm() {
 		});
 
 		if (error) {
-            setIsRedirecting(false);
-            notifications.show({ message: error.message, color: 'red' });
-        }
+			setIsRedirecting(false);
+			notifications.show({ message: error.message, color: "red" });
+		}
 	}
-
 
 	return (
 		<Flex

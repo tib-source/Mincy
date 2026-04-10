@@ -5,9 +5,10 @@ export function useComponentTree(nodes: NodeDefinition[]) {
 	return useMemo(() => {
 		const categoryMap: Record<string, NodeDefinition[]> = {};
 		for (const node of nodes) {
-			// ??= will only asign the value if hte left side is null / undefined
-			// pretty neat trick haha
-			(categoryMap[node.category] ??= []).push(node);
+			if (!categoryMap[node.category]) {
+				categoryMap[node.category] = [];
+			}
+			categoryMap[node.category].push(node);
 		}
 
 		return {

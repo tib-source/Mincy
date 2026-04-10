@@ -5,8 +5,9 @@ import { getProjectById, getProjects } from "../../client/projects";
 import { useParams } from "next/navigation";
 
 export function useProject(projectId?: string) {
-	if (!projectId){
-		projectId = useParams<{projectId: string}>().projectId
+	const params = useParams<{ projectId: string }>();
+	if (!projectId) {
+		projectId = params.projectId;
 	}
 	const { setCurrentProject, setIsLoading, setError } = useProjectStore();
 
@@ -31,7 +32,7 @@ export function useProject(projectId?: string) {
 			setError(
 				query.error instanceof Error
 					? query.error.message
-					: "Failed to load project"
+					: "Failed to load project",
 			);
 		}
 	}, [query.error, setError]);

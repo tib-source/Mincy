@@ -7,7 +7,9 @@ import {
 } from "@/utils/api/githubAuth";
 
 async function withGithubClient<T>(
-	fn: (client: Awaited<ReturnType<typeof getGithubClient>>["githubClient"]) => Promise<T>,
+	fn: (
+		client: Awaited<ReturnType<typeof getGithubClient>>["githubClient"],
+	) => Promise<T>,
 ): Promise<T> {
 	try {
 		const { githubClient } = await getGithubClient();

@@ -31,7 +31,7 @@ export default function ProjectPage() {
 	const projectId = pars.project_id;
 	const { data: project } = useProject(projectId);
 	const { data: workflow } = useWorkflow(projectId);
-	const runWorkflow = useRunWorkflow(projectId, workflow?.id);
+	const runWorkflow = useRunWorkflow(projectId, workflow?.id ?? "");
 	const { data: runs, isLoading: runsLoading } = useProjectRuns(project?.id);
 
 	const header: HeaderContent = {
