@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { Container, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import {
 	IconCircleCheck,
-	IconCircleX,
 	IconFolder,
 	IconRobot,
 } from "@tabler/icons-react";
