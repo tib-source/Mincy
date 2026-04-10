@@ -73,9 +73,10 @@ interface RunListProps {
 	runs: PipelineRun[];
 	projectId: string;
 	isLoading?: boolean;
+	projectNames?: Map<string, string>;
 }
 
-export function RunList({ runs, projectId, isLoading }: RunListProps) {
+export function RunList({ runs, projectId, isLoading, projectNames }: RunListProps) {
 	const router = useRouter();
 
 	if (isLoading) {
@@ -126,6 +127,20 @@ export function RunList({ runs, projectId, isLoading }: RunListProps) {
 				);
 			},
 		},
+		...(projectNames
+			? [
+					{
+						key: "project",
+						label: "Project",
+						width: 160,
+						render: (run: PipelineRun) => (
+							<span style={{ fontWeight: 500, fontSize: 13.5 }}>
+								{(run.project_id && projectNames.get(run.project_id)) || "–"}
+							</span>
+						),
+					},
+				]
+			: []),
 		{
 			key: "commit",
 			label: "Commit",
@@ -200,7 +215,10 @@ export function RunList({ runs, projectId, isLoading }: RunListProps) {
 			columns={columns}
 			data={runs}
 			getKey={(run) => run.id}
-			onRowClick={(run) => router.push(`/projects/${projectId}/runs/${run.id}`)}
+			onRowClick={(run) => {
+				const pid = run.project_id || projectId;
+				router.push(`/projects/${pid}/runs/${run.id}`);
+			}}
 		/>
 	);
 }
