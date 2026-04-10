@@ -151,7 +151,6 @@ function filterLogsForStage(
 
 function StageItem({
 	stage,
-	index,
 	status,
 	active,
 	onClick,

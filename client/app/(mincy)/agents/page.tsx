@@ -59,7 +59,7 @@ export default function AgentsPage() {
 	}
 
 	async function handleCreate() {
-		if (!name.trim()) return;
+		if (!name.trim()) {return;}
 		try {
 			const result = await createAgent.mutateAsync(name.trim());
 			setGeneratedToken(result.token);

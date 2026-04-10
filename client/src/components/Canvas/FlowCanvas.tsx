@@ -60,7 +60,7 @@ export function FlowCanvas({ readOnly = false }: FlowCanvasProps) {
 	const { data: workflow } = useWorkflow(projectId);
 
 	useEffect(() => {
-		if (!workflow) return;
+		if (!workflow) {return;}
 
 		const { nodes, edges } = PipelineSchema.parse(workflow?.pipeline);
 		setNodes(nodes);
