@@ -1,5 +1,5 @@
 import { Badge, Paper, useMantineTheme } from "@mantine/core";
-import { Handle, Position } from "@xyflow/react";
+import { Handle, NodeResizer, Position } from "@xyflow/react";
 import { ComponentHeader } from "@/src/components/ComponentHeader/ComponentHeader";
 import type { NodeDefinition } from "../registry";
 import classes from "./BaseNode.module.css";
@@ -17,9 +17,10 @@ interface NodeProp {
 	color?: string;
 	preview?: boolean;
 	selected: boolean;
+	resizable?: boolean;
 	node: NodeDefinition;
 	minwidth?: number;
-	maxWidth?: number;
+	minHeight?: number;
 }
 
 export function BaseNode({
@@ -31,8 +32,9 @@ export function BaseNode({
 	hasOutput = true,
 	preview = false,
 	selected = false,
+	resizable = false,
 	minwidth = 200,
-	maxWidth,
+	minHeight = 150,
 }: NodeProp) {
 	const theme = useMantineTheme();
 	return (
@@ -40,12 +42,12 @@ export function BaseNode({
 			className={classes.node}
 			withBorder
 			miw={minwidth}
-			maw={maxWidth}
 			bd={`1px solid ${!valid ? theme.colors.red[7] : selected ? theme.colors.blue[2] : "var(--mantine-color-default-border)"}`}
 			style={() => ({
 				pointerEvents: preview ? "none" : "auto",
 			})}
 		>
+			<NodeResizer isVisible={selected && resizable} minWidth={minwidth} minHeight={minHeight} />
 			<ComponentHeader
 				node={node}
 				showDescription

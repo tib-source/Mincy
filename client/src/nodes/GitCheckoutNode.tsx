@@ -14,15 +14,12 @@ export const GitCheckoutNodeDefinition: NodeDefinition = {
 };
 
 export function GitCheckoutNode({ selected }: NodeProps) {
-	// const onChange = useCallback((evt) => {
-	//   console.log(evt.target.value);
-	// }, []);
 
 	return (
 		<BaseNode
 			node={GitCheckoutNodeDefinition}
-			valid={true}
 			selected={selected}
+			valid
 		/>
 	);
 }

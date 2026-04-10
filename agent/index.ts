@@ -1,12 +1,15 @@
-import { tmpdir } from "node:os";
 import pino from "pino";
-import DockerAgent from "./src/agent/DockerAgent";
-import { AgentConfig } from "./src/config";
-import { loadTomlConfig } from "./src/util";
-import { simpleWorkflow } from "./test/test";
+import { createHash, randomBytes } from "node:crypto";
+import Agent from "./src/agent/baseAgent";
+import { exit } from "node:process";
+import DockerExecutor from "./src/executors/dockerExecutor";
+import { BatchLogger } from "./src/logger/logger";
+
+let AGENT_TOKEN = Bun.env.AGENT_TOKEN;
+let SERVER_URL = Bun.env.SERVER_URL || "http://localhost:3000";
 
 export const logger = pino({
-	base: null, // removes pid, hostname, name
+	base: null,
 	level: "info",
 	transport: {
 		target: "pino-pretty",
@@ -14,17 +17,26 @@ export const logger = pino({
 	},
 });
 
-const AGENT_CONFIG_DIR = Bun.env.MINCY_AGENT_CONFIG;
-const rawConfig = await loadTomlConfig(AGENT_CONFIG_DIR!);
-const config = AgentConfig.safeParse(rawConfig);
-console.log(config);
+if (!AGENT_TOKEN){
+	const token = randomBytes(32).toString('hex')
+	const hashed = createHash('sha256').update(token).digest('hex')
+	AGENT_TOKEN = token
+	logger.info(`TOKEN: ${token}, HASHED: ${hashed}`)
+	exit(1)
+}
 
-const testAgent = new DockerAgent("testing", "TestAgent", 5, tmpdir());
+let workDir = '/tmp/workdir'
+const docker = new DockerExecutor(workDir, SERVER_URL, AGENT_TOKEN)
 
-testAgent.execute(simpleWorkflow);
 
-process.on("SIGINT", () => {
-	console.log("Stopping agent");
-	testAgent.stop();
-	process.exit();
-});
+const base_agent = new Agent(
+	'agent-1',
+	'base-agent',
+	5,
+	workDir,
+	AGENT_TOKEN,
+	docker,
+	SERVER_URL
+)
+
+await base_agent.register()

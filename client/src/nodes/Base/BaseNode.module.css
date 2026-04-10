@@ -1,3 +1,8 @@
+.node {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
 .node_header {
 	padding: 0.5em;
 	padding-right: 1rem;
@@ -5,4 +10,9 @@
 .extra_content {
 	border-top: 1px solid var(--mantine-color-default-border);
 	padding: 1rem;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 }

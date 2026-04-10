@@ -1,0 +1,48 @@
+.stage {
+	position: absolute;
+	inset: 0;
+	border-radius: var(--mantine-radius-md);
+	border: 1.5px dashed color-mix(in oklch, oklch(0.55 0.15 200) 40%, var(--mantine-color-default-border));
+	background: color-mix(in oklch, oklch(0.55 0.15 200) 3%, transparent);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	pointer-events: none;
+	transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.stage[data-selected="true"] {
+	border-color: oklch(0.55 0.15 200);
+	border-style: solid;
+	box-shadow: 0 0 0 1px color-mix(in oklch, oklch(0.55 0.15 200) 25%, transparent);
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	gap: .25rem;
+	padding: 1rem;
+	user-select: none;
+	pointer-events: auto;
+}
+
+.label {
+	font-size: var(--mantine-font-size-sm);
+	color: var(--mantine-color-dimmed);
+	letter-spacing: 0.03em;
+	cursor: default;
+	display: flex;
+	align-items: center;
+	gap: .25rem;
+}
+
+.labelInput {
+	font-size: var(--mantine-font-size-sm);
+	letter-spacing: 0.03em;
+	color: var(--mantine-color-text);
+	background: transparent;
+	border: none;
+	border-bottom: 1px solid oklch(0.55 0.15 200);
+	outline: none;
+	padding: 0;
+}

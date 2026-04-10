@@ -9,7 +9,6 @@ import {
 	BackgroundVariant,
 	type ColorMode,
 	Controls,
-	Edge,
 	ReactFlow,
 	useReactFlow,
 } from "@xyflow/react";
@@ -38,7 +37,11 @@ function getFlowTheme(theme: MantineColorScheme): ColorMode {
 	return flowTheme;
 }
 
-export function FlowCanvas() {
+interface FlowCanvasProps {
+	readOnly?: boolean;
+}
+
+export function FlowCanvas({ readOnly = false }: FlowCanvasProps) {
 	const {
 		nodes,
 		edges,
@@ -58,7 +61,7 @@ export function FlowCanvas() {
 
 	const projectId = useParams<{project_id: string}>().project_id
 	const { data: workflow } = useWorkflow(projectId)
-	
+
 
 	useEffect(() => {
 		if (!workflow)
@@ -91,18 +94,38 @@ export function FlowCanvas() {
 				y: event.clientY,
 			});
 
+			const stageNode = nodes.find((n) => {
+				if (n.type !== "stage") {return false;}
+				const w = n.measured?.width ?? n.width ?? 280;
+				const h = n.measured?.height ?? n.height ?? 160;
+				return (
+					position.x >= n.position.x &&
+					position.x <= n.position.x + w &&
+					position.y >= n.position.y &&
+					position.y <= n.position.y + h
+				);
+			});
+
 			const newNode: AppNode = {
 				id: nanoid(10),
 				type,
-				position,
+				position: stageNode
+					? {
+							x: position.x - stageNode.position.x,
+							y: position.y - stageNode.position.y,
+						}
+					: position,
 				data: {
 					label: `${type} node`,
 				},
+				...(type === "stage" && { style: { width: 400, height: 400 } }),
+				...(type === "ScriptNode" && { style: { width: 350, height: 250 } }),
+				...(stageNode && { parentId: stageNode.id, extent: "parent" as const }),
 			};
 
 			setNodes(nodes.concat(newNode));
 		},
-		[screenToFlowPosition, type],
+		[screenToFlowPosition, type, nodes],
 	);
 
 	if (!mounted) {
@@ -118,13 +141,18 @@ export function FlowCanvas() {
 			<ReactFlow
 				nodes={nodes}
 				edges={edges}
-				onNodesChange={onNodesChange}
-				onEdgesChange={onEdgesChange}
-				onConnect={onConnect}
+				onNodesChange={readOnly ? undefined : onNodesChange}
+				onEdgesChange={readOnly ? undefined : onEdgesChange}
+				onConnect={readOnly ? undefined : onConnect}
 				nodeTypes={nodeTypes}
 				colorMode={flowTheme}
-				onDrop={onDrop}
-				onDragOver={onDragOver}
+				onDrop={readOnly ? undefined : onDrop}
+				onDragOver={readOnly ? undefined : onDragOver}
+				nodesDraggable={!readOnly}
+				nodesConnectable={!readOnly}
+				elementsSelectable={!readOnly}
+				panOnDrag
+				zoomOnScroll
 				defaultViewport={{
 					zoom: 1,
 					x: 400,
@@ -137,7 +165,7 @@ export function FlowCanvas() {
 					}}
 					variant={BackgroundVariant.Dots}
 				/>
-				<Controls />
+				<Controls showInteractive={!readOnly} />
 			</ReactFlow>
 		</Box>
 	);

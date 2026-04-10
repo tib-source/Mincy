@@ -2,6 +2,7 @@ import type React from "react";
 import { GitCheckoutNodeDefinition } from "./GitCheckoutNode";
 import { TriggerNodeDefinition } from "./TriggerNode";
 import { ScriptNodeDefinition } from "./ScriptNode";
+import { StageNodeDefinition } from "./Stage/StageNode";
 
 export type NodeDefinition = {
 	type: string;
@@ -17,4 +18,5 @@ export const nodeRegistry: NodeDefinition[] = [
 	TriggerNodeDefinition,
 	GitCheckoutNodeDefinition,
 	ScriptNodeDefinition,
+	StageNodeDefinition
 ];

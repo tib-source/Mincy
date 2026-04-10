@@ -45,3 +45,23 @@ export async function updateWorkflow(projectId: string, workflow: object){
     if (error)
         throw new Error(error.message)
 }
+
+
+export async function runWorkflow(projectId: string, workflowId: string) {
+    const res = await fetch("/api/runs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            projectId,
+            workflowId
+        }),
+    });
+
+    if (!res.ok) {
+        const errorData = await res.json();
+        const errorMessage = errorData.message || errorData.error || "Failed to create pipeline run";
+        throw new Error(errorMessage);
+    }
+    
+    return res.json();
+}

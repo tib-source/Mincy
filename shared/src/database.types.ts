@@ -19,21 +19,30 @@ export type Database = {
           capacity: number | null
           created_at: string
           id: string
+          last_heartbeat: string | null
           name: string | null
+          status: Database["public"]["Enums"]["AgentStatus"] | null
+          token_hash: string | null
           type: string | null
         }
         Insert: {
           capacity?: number | null
           created_at?: string
           id?: string
+          last_heartbeat?: string | null
           name?: string | null
+          status?: Database["public"]["Enums"]["AgentStatus"] | null
+          token_hash?: string | null
           type?: string | null
         }
         Update: {
           capacity?: number | null
           created_at?: string
           id?: string
+          last_heartbeat?: string | null
           name?: string | null
+          status?: Database["public"]["Enums"]["AgentStatus"] | null
+          token_hash?: string | null
           type?: string | null
         }
         Relationships: []
@@ -43,18 +52,30 @@ export type Database = {
           created_at: string
           id: string
           job_id: string | null
+          level: string | null
+          message: string | null
+          run_id: string | null
+          timestamp: string | null
           workflow_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           job_id?: string | null
+          level?: string | null
+          message?: string | null
+          run_id?: string | null
+          timestamp?: string | null
           workflow_id: string
         }
         Update: {
           created_at?: string
           id?: string
           job_id?: string | null
+          level?: string | null
+          message?: string | null
+          run_id?: string | null
+          timestamp?: string | null
           workflow_id?: string
         }
         Relationships: [
@@ -63,6 +84,13 @@ export type Database = {
             columns: ["workflow_id"]
             isOneToOne: false
             referencedRelation: "Workflow"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Logs_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "PipelineRun"
             referencedColumns: ["id"]
           },
         ]
@@ -221,6 +249,7 @@ export type Database = {
           created_at: string
           environment: Json | null
           id: string
+          jobs: Json | null
           pipeline: Json | null
           projectId: string
         }
@@ -228,6 +257,7 @@ export type Database = {
           created_at?: string
           environment?: Json | null
           id?: string
+          jobs?: Json | null
           pipeline?: Json | null
           projectId: string
         }
@@ -235,6 +265,7 @@ export type Database = {
           created_at?: string
           environment?: Json | null
           id?: string
+          jobs?: Json | null
           pipeline?: Json | null
           projectId?: string
         }
@@ -253,10 +284,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      claim_next_job: {
+        Args: { p_agent_id: string }
+        Returns: {
+          agent_id: string | null
+          branch: string | null
+          commit_sha: string | null
+          created_at: string
+          finished_at: string | null
+          id: string
+          logs: string | null
+          project_id: string | null
+          status: Database["public"]["Enums"]["PipelineStatus"]
+          triggered_by: Database["public"]["Enums"]["TriggerType"] | null
+          workflow_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "PipelineRun"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
-      PipelineStatus: "queued" | "running" | "passed" | "failed"
+      AgentStatus: "active" | "paused" | "stopped"
+      PipelineStatus: "queued" | "running" | "passed" | "failed" | "pending"
       TriggerType: "manual" | "cron" | "push"
     }
     CompositeTypes: {
@@ -385,7 +438,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      PipelineStatus: ["queued", "running", "passed", "failed"],
+      AgentStatus: ["active", "paused", "stopped"],
+      PipelineStatus: ["queued", "running", "passed", "failed", "pending"],
       TriggerType: ["manual", "cron", "push"],
     },
   },

@@ -36,7 +36,6 @@ export default function ProjectEditPage() {
 		nodes,
 		edges
 	})
-
 	useEffect(() => {
         if (error) {
             notifications.show({ message: error.message, color: "red" });
