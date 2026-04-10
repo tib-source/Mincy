@@ -1,3 +1,4 @@
+import type { Run } from "@mincy/shared";
 import { logger } from "../..";
 import type { Executor } from "../executors/executor";
 
