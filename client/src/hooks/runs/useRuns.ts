@@ -3,6 +3,7 @@ import {
 	getRunsForProject,
 	getRunById,
 	getLogsForRun,
+	getRecentRuns,
 } from "@/src/client/runs";
 
 export function useProjectRuns(projectId?: string) {
@@ -29,5 +30,13 @@ export function useRunLogs(runId?: string) {
 		queryFn: () => getLogsForRun(runId!),
 		enabled: !!runId,
 		refetchInterval: 3000,
+	});
+}
+
+export function useRecentRuns(limit = 10) {
+	return useQuery({
+		queryKey: ["recent-runs", limit],
+		queryFn: () => getRecentRuns(limit),
+		refetchInterval: 10_000,
 	});
 }
