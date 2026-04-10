@@ -297,7 +297,6 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 			color={TriggerNodeDefinition.color}
 			selected={selected}
 			minwidth={300}
-			maxWidth={300}
 		/>
 	);
 }

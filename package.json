@@ -3,7 +3,6 @@
 	"private": true,
 	"workspaces": [
 		"client",
-		"server",
 		"agent",
 		"shared"
 	],

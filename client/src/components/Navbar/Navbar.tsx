@@ -34,7 +34,7 @@ export function NavbarSimple({ data }: NavProps) {
 			leftSection={
 				<item.icon className={classes.linkIcon} size={16} stroke={1.5} />
 			}
-			active={pathname === item.link || pathname.startsWith(item.link + "/")}
+			active={pathname === item.link || pathname.startsWith(`${item.link}/`)}
 		/>
 	));
 
