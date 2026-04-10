@@ -2,7 +2,6 @@ import {
 	Box,
 	type MantineColorScheme,
 	useMantineColorScheme,
-	useMantineTheme,
 } from "@mantine/core";
 import {
 	Background,
@@ -20,7 +19,6 @@ import { nanoid } from "nanoid";
 import { useWorkflow } from "@/src/hooks/workflows/useWorkflows";
 import { useParams } from "next/navigation";
 import { PipelineSchema } from "@/src/client/workflow";
-
 
 function getFlowTheme(theme: MantineColorScheme): ColorMode {
 	let flowTheme: ColorMode = "system";
@@ -54,18 +52,15 @@ export function FlowCanvas({ readOnly = false }: FlowCanvasProps) {
 	const [mounted, setMounted] = useState(false);
 	const { type } = useDnD();
 
-	const theme = useMantineTheme();
 	const colorScheme = useMantineColorScheme();
 	const flowTheme: ColorMode = getFlowTheme(colorScheme.colorScheme);
 	const { screenToFlowPosition } = useReactFlow();
 
-	const projectId = useParams<{project_id: string}>().project_id
-	const { data: workflow } = useWorkflow(projectId)
-
+	const projectId = useParams<{ project_id: string }>().project_id;
+	const { data: workflow } = useWorkflow(projectId);
 
 	useEffect(() => {
-		if (!workflow)
-			return
+		if (!workflow) return;
 
 		const { nodes, edges } = PipelineSchema.parse(workflow?.pipeline);
 		setNodes(nodes);
@@ -95,7 +90,9 @@ export function FlowCanvas({ readOnly = false }: FlowCanvasProps) {
 			});
 
 			const stageNode = nodes.find((n) => {
-				if (n.type !== "stage") {return false;}
+				if (n.type !== "stage") {
+					return false;
+				}
 				const w = n.measured?.width ?? n.width ?? 280;
 				const h = n.measured?.height ?? n.height ?? 160;
 				return (
@@ -125,7 +122,7 @@ export function FlowCanvas({ readOnly = false }: FlowCanvasProps) {
 
 			setNodes(nodes.concat(newNode));
 		},
-		[screenToFlowPosition, type, nodes],
+		[screenToFlowPosition, type, nodes, setNodes],
 	);
 
 	if (!mounted) {

@@ -21,8 +21,8 @@ export interface NavProps {
 export function NavbarSimple({ data }: NavProps) {
 	const pathname = usePathname();
 
-	const [isRedirecting, setIsRedirecting] = useState(false)
-	const { data: profileData, isLoading: profileLoading } = useGithubProfile();
+	const [isRedirecting, setIsRedirecting] = useState(false);
+	const { data: profileData } = useGithubProfile();
 
 	const links = data.map((item) => (
 		<NavLink
@@ -39,17 +39,17 @@ export function NavbarSimple({ data }: NavProps) {
 	));
 
 	async function signOut() {
-		setIsRedirecting(true)
+		setIsRedirecting(true);
 		const supabase = await createClient();
-		const { error } = await supabase.auth.signOut()
-		if (error){
-			setIsRedirecting(false)
+		const { error } = await supabase.auth.signOut();
+		if (error) {
+			setIsRedirecting(false);
 			notifications.show({
 				message: error.message,
-				color: 'red'
-			})
+				color: "red",
+			});
 		}
-		window.location.href = '/login';
+		window.location.href = "/login";
 	}
 
 	return (

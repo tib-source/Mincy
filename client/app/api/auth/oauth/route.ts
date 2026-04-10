@@ -11,13 +11,16 @@ export async function GET(request: Request) {
 
 	if (code) {
 		const supabase = await createClient();
-		const { data : { session }, error } = await supabase.auth.exchangeCodeForSession(code);
+		const {
+			data: { session },
+			error,
+		} = await supabase.auth.exchangeCodeForSession(code);
 		if (error) {
-      		throw error;
-    	}
+			throw error;
+		}
 
-		if (!session?.provider_token && !session?.provider_refresh_token){
-			throw new Error('Authentication with GitHub Failed. No tokens captured')
+		if (!session?.provider_token && !session?.provider_refresh_token) {
+			throw new Error("Authentication with GitHub Failed. No tokens captured");
 		}
 
 		await Promise.all([
@@ -25,7 +28,10 @@ export async function GET(request: Request) {
 				? storeSecret(GITHUB_SECRET_NAMES.ACCESS_TOKEN, session.provider_token)
 				: null,
 			session.provider_refresh_token
-				? storeSecret(GITHUB_SECRET_NAMES.REFRESH_TOKEN, session.provider_refresh_token)
+				? storeSecret(
+						GITHUB_SECRET_NAMES.REFRESH_TOKEN,
+						session.provider_refresh_token,
+					)
 				: null,
 		]).catch((err) => {
 			console.error("Failed to store tokens in secrets:", err);

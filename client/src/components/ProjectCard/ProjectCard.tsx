@@ -77,7 +77,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 						<Group gap={5} pt={3}>
 							<IconBrandGithub size={15} strokeOpacity={0.5} />
 							<Text c="dimmed" size={"xs"}>
-								{project.org + "/" + project.name}
+								{`${project.org}/${project.name}`}
 							</Text>
 						</Group>
 					</Box>

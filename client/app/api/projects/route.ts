@@ -29,17 +29,21 @@ export async function POST(req: Request) {
 	}
 
 	const user = await supabase.auth.getUser();
-	const { data: newProject, error } = await supabase.from("Projects").insert({
-		...body,
-		user_id: user.data.user?.id,
-	}).select().single();
+	const { data: newProject, error } = await supabase
+		.from("Projects")
+		.insert({
+			...body,
+			user_id: user.data.user?.id,
+		})
+		.select()
+		.single();
 
 	if (error) {
 		console.log(error);
 		return new Response(JSON.stringify({ error }), { status: 400 });
 	}
-	
-	createWorkflow(newProject.id, BASE_WORKFLOW)
+
+	createWorkflow(newProject.id, BASE_WORKFLOW);
 
 	return NextResponse.json({}, { status: 201 });
 }

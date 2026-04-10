@@ -1,6 +1,6 @@
 import type React from "react";
 import "@mantine/core/styles.css";
-import '@mantine/notifications/styles.css';
+import "@mantine/notifications/styles.css";
 import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
 import { Providers } from "@/src/providers";
 
@@ -8,8 +8,7 @@ export default function LoginLayout({
 	children,
 }: {
 	children: React.ReactNode;
-}){
-
+}) {
 	return (
 		<html lang="en" {...mantineHtmlProps}>
 			<head>

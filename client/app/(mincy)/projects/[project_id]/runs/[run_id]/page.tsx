@@ -41,11 +41,17 @@ export const statusConfig: Record<
 	string,
 	{ color: string; icon: React.ReactNode; label: string }
 > = {
-	passed: { color: "green", icon: <IconCircleCheck size={16} />, label: "Passed" },
+	passed: {
+		color: "green",
+		icon: <IconCircleCheck size={16} />,
+		label: "Passed",
+	},
 	failed: { color: "red", icon: <IconCircleX size={16} />, label: "Failed" },
 	running: {
 		color: "blue",
-		icon: <IconLoader2 size={16} style={{ animation: "spin 1s linear infinite" }} />,
+		icon: (
+			<IconLoader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
+		),
 		label: "Running",
 	},
 	queued: { color: "yellow", icon: <IconClock size={16} />, label: "Queued" },
@@ -55,11 +61,19 @@ export const statusConfig: Record<
 function StatusIcon({ status, size = 18 }: { status: string; size?: number }) {
 	switch (status) {
 		case "passed":
-			return <IconCircleCheck size={size} color="var(--mantine-color-green-6)" />;
+			return (
+				<IconCircleCheck size={size} color="var(--mantine-color-green-6)" />
+			);
 		case "failed":
 			return <IconCircleX size={size} color="var(--mantine-color-red-6)" />;
 		case "running":
-			return <IconLoader2 size={size} color="var(--mantine-color-blue-5)" style={{ animation: "spin 1s linear infinite" }} />;
+			return (
+				<IconLoader2
+					size={size}
+					color="var(--mantine-color-blue-5)"
+					style={{ animation: "spin 1s linear infinite" }}
+				/>
+			);
 		default:
 			return <IconCircleDot size={size} color="var(--mantine-color-gray-5)" />;
 	}
@@ -67,7 +81,9 @@ function StatusIcon({ status, size = 18 }: { status: string; size?: number }) {
 
 function parseStages(workflow: Record<string, unknown> | undefined): Stage[] {
 	const rawJobs = workflow?.jobs;
-	if (!rawJobs) { return []; }
+	if (!rawJobs) {
+		return [];
+	}
 	try {
 		const jobs = typeof rawJobs === "string" ? JSON.parse(rawJobs) : rawJobs;
 		if ((jobs as any).stages) {
@@ -76,7 +92,7 @@ function parseStages(workflow: Record<string, unknown> | undefined): Stage[] {
 		const steps = ((jobs as any).steps || []) as Step[];
 		return steps.map((s) => ({
 			id: s.id,
-			name: s.data?.label as string || s.type || s.id,
+			name: (s.data?.label as string) || s.type || s.id,
 			image: "debian:latest",
 			steps: [s],
 			dependsOn: s.dependsOn || [],
@@ -96,28 +112,39 @@ function deriveStageStatus(
 	const stepIds = stage?.steps.map((s) => s.id) || [stageId];
 	const hasLogs = stepIds.some((id) => logsJobIds.has(id));
 
-	if (runStatus === "passed") { return "passed"; }
+	if (runStatus === "passed") {
+		return "passed";
+	}
 	if (runStatus === "failed") {
 		const stagesWithLogs = allStages.filter((s) =>
-			s.steps.some((step) => logsJobIds.has(step.id))
+			s.steps.some((step) => logsJobIds.has(step.id)),
 		);
 		const lastWithLogs = stagesWithLogs[stagesWithLogs.length - 1];
-		if (lastWithLogs?.id === stageId) { return "failed"; }
+		if (lastWithLogs?.id === stageId) {
+			return "failed";
+		}
 		return hasLogs ? "passed" : "pending";
 	}
 	if (runStatus === "running") {
 		const stagesWithLogs = allStages.filter((s) =>
-			s.steps.some((step) => logsJobIds.has(step.id))
+			s.steps.some((step) => logsJobIds.has(step.id)),
 		);
 		const lastWithLogs = stagesWithLogs[stagesWithLogs.length - 1];
-		if (lastWithLogs?.id === stageId) { return "running"; }
+		if (lastWithLogs?.id === stageId) {
+			return "running";
+		}
 		return hasLogs ? "passed" : "pending";
 	}
 	return "pending";
 }
 
-function filterLogsForStage(logs: LogEntry[], stage: Stage | undefined): LogEntry[] {
-	if (!stage) { return logs; }
+function filterLogsForStage(
+	logs: LogEntry[],
+	stage: Stage | undefined,
+): LogEntry[] {
+	if (!stage) {
+		return logs;
+	}
 	const stepIds = new Set(stage.steps.map((s) => s.id));
 	return logs.filter((l) => l.job_id && stepIds.has(l.job_id));
 }
@@ -146,10 +173,15 @@ function StageItem({
 			<div style={{ flex: 1, minWidth: 0 }}>
 				<div className={classes.stageName}>{stage.name}</div>
 				<div className={classes.stageMeta}>
-					{stage.steps.length} step{stage.steps.length !== 1 ? "s" : ""} · {stage.image}
+					{stage.steps.length} step{stage.steps.length !== 1 ? "s" : ""} ·{" "}
+					{stage.image}
 				</div>
 			</div>
-			<IconChevronRight size={14} color="var(--mantine-color-dimmed)" style={{ flexShrink: 0 }} />
+			<IconChevronRight
+				size={14}
+				color="var(--mantine-color-dimmed)"
+				style={{ flexShrink: 0 }}
+			/>
 		</UnstyledButton>
 	);
 }
@@ -159,7 +191,6 @@ const triggerLabels: Record<string, string> = {
 	push: "Push",
 	cron: "Cron",
 };
-
 
 export default function RunDetailPage() {
 	const params = useParams<{ project_id: string; run_id: string }>();
@@ -174,7 +205,9 @@ export default function RunDetailPage() {
 	const isLive = run?.status === "running" || run?.status === "queued";
 
 	const stages = parseStages(workflow as Record<string, unknown> | undefined);
-	const logsJobIds = new Set(logs.map((l) => l.job_id).filter(Boolean) as string[]);
+	const logsJobIds = new Set(
+		logs.map((l) => l.job_id).filter(Boolean) as string[],
+	);
 
 	const activeStage = stages.find((s) => s.id === activeStageId);
 	const filteredLogs = filterLogsForStage(logs, activeStage);
@@ -182,12 +215,22 @@ export default function RunDetailPage() {
 	const header: HeaderContent = {
 		left: (
 			<Group gap="xs">
-				<ActionIcon variant="subtle" href={`/projects/${params.project_id}`} component={Link}>
+				<ActionIcon
+					variant="subtle"
+					href={`/projects/${params.project_id}`}
+					component={Link}
+				>
 					<IconChevronLeft stroke={1.5} />
 				</ActionIcon>
-				<Text size="sm" c="dimmed">Projects</Text>
-				<Text size="sm" c="dimmed">&gt;</Text>
-				<Text size="sm" fw={500}>{project?.name || "Project"}</Text>
+				<Text size="sm" c="dimmed">
+					Projects
+				</Text>
+				<Text size="sm" c="dimmed">
+					&gt;
+				</Text>
+				<Text size="sm" fw={500}>
+					{project?.name || "Project"}
+				</Text>
 			</Group>
 		),
 	};
@@ -196,7 +239,9 @@ export default function RunDetailPage() {
 	if (runLoading) {
 		return (
 			<Container fluid p="lg">
-				<Stack align="center" py="xl"><Loader size="sm" type="dots" /></Stack>
+				<Stack align="center" py="xl">
+					<Loader size="sm" type="dots" />
+				</Stack>
 			</Container>
 		);
 	}
@@ -217,7 +262,14 @@ export default function RunDetailPage() {
 						Run #{run.id.slice(0, 8)}
 						{run.branch ? `: ${run.branch}` : ""}
 					</Text>
-					<Badge variant="light" color={status.color} size="lg" tt="none" fw={500} leftSection={status.icon}>
+					<Badge
+						variant="light"
+						color={status.color}
+						size="lg"
+						tt="none"
+						fw={500}
+						leftSection={status.icon}
+					>
 						{status.label}
 					</Badge>
 				</Group>
@@ -225,33 +277,57 @@ export default function RunDetailPage() {
 				<Group gap="lg">
 					{run.commit_sha && (
 						<Group gap={6}>
-							<IconGitCommit size={15} color="var(--mantine-color-dimmed)" style={{ transform: "rotate(90deg)" }} />
-							<Text size="sm" c="dimmed" ff="monospace">{run.commit_sha.slice(0, 7)}</Text>
+							<IconGitCommit
+								size={15}
+								color="var(--mantine-color-dimmed)"
+								style={{ transform: "rotate(90deg)" }}
+							/>
+							<Text size="sm" c="dimmed" ff="monospace">
+								{run.commit_sha.slice(0, 7)}
+							</Text>
 						</Group>
 					)}
 					<Group gap={6}>
 						<IconUser size={15} color="var(--mantine-color-dimmed)" />
 						<Text size="sm" c="dimmed">
-							{run.triggered_by ? triggerLabels[run.triggered_by] || run.triggered_by : "Manual"}
+							{run.triggered_by
+								? triggerLabels[run.triggered_by] || run.triggered_by
+								: "Manual"}
 						</Text>
 					</Group>
 					<Group gap={6}>
 						<IconClock size={15} color="var(--mantine-color-dimmed)" />
 						<Text size="sm" c="dimmed">
-							{getDuration(new Date(run.created_at), run.finished_at ? new Date(run.finished_at) : undefined)}
+							{getDuration(
+								new Date(run.created_at),
+								run.finished_at ? new Date(run.finished_at) : undefined,
+							)}
 						</Text>
 					</Group>
 				</Group>
 			</Stack>
 
-			<Tabs defaultValue="overview" variant="default" classNames={{ list: classes.tabs }} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+			<Tabs
+				defaultValue="overview"
+				variant="default"
+				classNames={{ list: classes.tabs }}
+				style={{
+					flex: 1,
+					minHeight: 0,
+					display: "flex",
+					flexDirection: "column",
+				}}
+			>
 				<Tabs.List px="lg">
 					<Tabs.Tab value="overview">Overview</Tabs.Tab>
 					<Tabs.Tab value="pipeline">Pipeline</Tabs.Tab>
 					<Tabs.Tab value="artifacts">Artifacts</Tabs.Tab>
 				</Tabs.List>
 
-				<Tabs.Panel value="overview" style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
+				<Tabs.Panel
+					value="overview"
+					style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}
+				>
 					<div className={classes.splitLayout}>
 						<div className={classes.stagesSidebar}>
 							<div className={classes.stagesTitle}>Stages</div>
@@ -272,14 +348,21 @@ export default function RunDetailPage() {
 								<StageItem
 									key={stage.id}
 									stage={stage}
-									status={deriveStageStatus(stage.id, run.status, stages, logsJobIds)}
+									status={deriveStageStatus(
+										stage.id,
+										run.status,
+										stages,
+										logsJobIds,
+									)}
 									active={activeStageId === stage.id}
 									onClick={() => setActiveStageId(stage.id)}
 								/>
 							))}
 
 							{stages.length === 0 && (
-								<Text size="xs" c="dimmed" px="lg" py="sm">No stages available.</Text>
+								<Text size="xs" c="dimmed" px="lg" py="sm">
+									No stages available.
+								</Text>
 							)}
 						</div>
 
@@ -303,7 +386,9 @@ export default function RunDetailPage() {
 
 				<Tabs.Panel value="artifacts" p="lg">
 					<Stack align="center" py="xl">
-						<Text c="dimmed" size="sm">No artifacts for this run.</Text>
+						<Text c="dimmed" size="sm">
+							No artifacts for this run.
+						</Text>
 					</Stack>
 				</Tabs.Panel>
 			</Tabs>

@@ -38,7 +38,9 @@ export function LogViewer({
 					<span className={classes.terminalTitle}>{title || "Logs"}</span>
 					{subtitle && (
 						<>
-							<Text c="#484f58" mx={8} size="sm">/</Text>
+							<Text c="#484f58" mx={8} size="sm">
+								/
+							</Text>
 							<span className={classes.terminalSubtitle}>{subtitle}</span>
 						</>
 					)}
@@ -70,9 +72,7 @@ export function LogViewer({
 						{logs.length === 0 && (
 							<div className={classes.emptyState}>
 								<span className={classes.emptyText}>
-									{isLoading
-										? "Waiting for logs..."
-										: "No logs available."}
+									{isLoading ? "Waiting for logs..." : "No logs available."}
 									{isLive && <span className={classes.cursor} />}
 								</span>
 							</div>
@@ -80,29 +80,19 @@ export function LogViewer({
 						{logs.map((log, index) => {
 							const level = log.level?.toLowerCase() || "info";
 							const time = log.timestamp
-								? new Date(log.timestamp).toLocaleTimeString(
-										"en-US",
-										{
-											hour12: false,
-											hour: "2-digit",
-											minute: "2-digit",
-											second: "numeric",
-										},
-									)
+								? new Date(log.timestamp).toLocaleTimeString("en-US", {
+										hour12: false,
+										hour: "2-digit",
+										minute: "2-digit",
+										second: "numeric",
+									})
 								: "";
 
 							return (
 								<div key={log.id} className={classes.line}>
-									<span className={classes.lineNumber}>
-										{index + 1}
-									</span>
-									<span className={classes.timestamp}>
-										[{time}]
-									</span>
-									<span
-										className={classes.message}
-										data-level={level}
-									>
+									<span className={classes.lineNumber}>{index + 1}</span>
+									<span className={classes.timestamp}>[{time}]</span>
+									<span className={classes.message} data-level={level}>
 										{log.message}
 									</span>
 								</div>

@@ -95,7 +95,10 @@ async function getAuthenticatedUserId(req: Request): Promise<string> {
 		{ global: { headers: { Authorization: authHeader } } },
 	);
 
-	const { data: { user }, error } = await userClient.auth.getUser();
+	const {
+		data: { user },
+		error,
+	} = await userClient.auth.getUser();
 	if (error || !user) throw new Error("Unauthorized");
 	return user.id;
 }
@@ -110,18 +113,16 @@ async function handleStore(
 
 	const { encrypted, iv } = await encrypt(value);
 
-	const { error } = await serviceClient
-		.from("secrets")
-		.upsert(
-			{
-				user_id: userId,
-				name,
-				encrypted_value: encrypted,
-				iv,
-				updated_at: new Date().toISOString(),
-			},
-			{ onConflict: "user_id,name" },
-		);
+	const { error } = await serviceClient.from("secrets").upsert(
+		{
+			user_id: userId,
+			name,
+			encrypted_value: encrypted,
+			iv,
+			updated_at: new Date().toISOString(),
+		},
+		{ onConflict: "user_id,name" },
+	);
 
 	if (error) {
 		return jsonResponse({ error: error.message }, 500);
@@ -190,10 +191,14 @@ Deno.serve(async (req) => {
 			case "delete":
 				return await handleDelete(userId, params);
 			default:
-				return jsonResponse({ error: "Invalid action. Use: store, get, delete" }, 400);
+				return jsonResponse(
+					{ error: "Invalid action. Use: store, get, delete" },
+					400,
+				);
 		}
 	} catch (err) {
-		const message = err instanceof Error ? err.message : "Internal server error";
+		const message =
+			err instanceof Error ? err.message : "Internal server error";
 		const status = message === "Unauthorized" ? 401 : 500;
 		return jsonResponse({ error: message }, status);
 	}

@@ -21,9 +21,7 @@ export async function storeSecret(name: string, value: string) {
 	return callSecretsFunction("store", { name, value });
 }
 
-export async function getSecret(
-	name: string,
-): Promise<string | null> {
+export async function getSecret(name: string): Promise<string | null> {
 	try {
 		const data = await callSecretsFunction("get", { name });
 		return data.value;

@@ -47,7 +47,11 @@ export function BaseNode({
 				pointerEvents: preview ? "none" : "auto",
 			})}
 		>
-			<NodeResizer isVisible={selected && resizable} minWidth={minwidth} minHeight={minHeight} />
+			<NodeResizer
+				isVisible={selected && resizable}
+				minWidth={minwidth}
+				minHeight={minHeight}
+			/>
 			<ComponentHeader
 				node={node}
 				showDescription

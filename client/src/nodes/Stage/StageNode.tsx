@@ -6,7 +6,7 @@ import {
 	type NodeProps,
 	useReactFlow,
 } from "@xyflow/react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { NodeDefinition } from "../registry";
 import classes from "./StageNode.module.css";
 import { Group, TextInput } from "@mantine/core";
@@ -29,6 +29,12 @@ export function StageNode({ id, selected, data }: NodeProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const label = (data.label as string) || "Stage";
 	const image = (data.image as string) || "";
+
+	useEffect(() => {
+		if (editing) {
+			inputRef.current?.focus();
+		}
+	}, [editing]);
 
 	const commitEdit = useCallback(() => {
 		const value = inputRef.current?.value.trim();
@@ -56,15 +62,21 @@ export function StageNode({ id, selected, data }: NodeProps) {
 							ref={inputRef}
 							className={classes.labelInput}
 							defaultValue={label}
-							autoFocus
 							onBlur={commitEdit}
 							onKeyDown={(e) => {
-								if (e.key === "Enter") { commitEdit(); }
-								if (e.key === "Escape") { setEditing(false); }
+								if (e.key === "Enter") {
+									commitEdit();
+								}
+								if (e.key === "Escape") {
+									setEditing(false);
+								}
 							}}
 						/>
 					) : (
-						<Group onDoubleClick={() => setEditing(true)} className={classes.label}>
+						<Group
+							onDoubleClick={() => setEditing(true)}
+							className={classes.label}
+						>
 							<span>{label}</span>
 							<IconPencil size={12} stroke={0} fill={STAGE_COLOR} />
 						</Group>
@@ -76,7 +88,6 @@ export function StageNode({ id, selected, data }: NodeProps) {
 						value={image}
 						onChange={(e) => updateNodeData(id, { image: e.target.value })}
 						ml="auto"
-
 					/>
 				</div>
 			</div>

@@ -1,9 +1,9 @@
 import { createClient } from "@/utils/supabase/client";
 import type { Tables } from "@mincy/shared";
-import { GitHubRepo } from "./gitClient";
+import type { GitHubRepo } from "./gitClient";
 
 export async function getProjectById(
-	projectId: string
+	projectId: string,
 ): Promise<Tables<"Projects">> {
 	const supabase = createClient();
 
@@ -36,7 +36,6 @@ export async function getProjects(): Promise<Tables<"Projects">[]> {
 	return data || [];
 }
 
-
 export async function createProject(repo: GitHubRepo) {
 	const res = await fetch("/api/projects", {
 		method: "POST",
@@ -52,10 +51,10 @@ export async function createProject(repo: GitHubRepo) {
 
 	if (!res.ok) {
 		const errorData = await res.json();
-		const errorMessage = errorData.message || errorData.error || "Failed to create project";
+		const errorMessage =
+			errorData.message || errorData.error || "Failed to create project";
 		throw new Error(errorMessage);
 	}
-	
+
 	return res.json();
 }
-

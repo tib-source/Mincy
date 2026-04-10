@@ -18,5 +18,5 @@ export const nodeRegistry: NodeDefinition[] = [
 	TriggerNodeDefinition,
 	GitCheckoutNodeDefinition,
 	ScriptNodeDefinition,
-	StageNodeDefinition
+	StageNodeDefinition,
 ];
