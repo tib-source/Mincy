@@ -16,7 +16,8 @@ export default async function proxy(req: NextRequest) {
 			return NextResponse.redirect(new URL("/login", req.url));
 		}
 		return NextResponse.next();
-	} catch {
+	} catch (error) {
+		console.error("Error in proxy:", error);
 		return NextResponse.redirect(new URL("/login", req.nextUrl));
 	}
 }
