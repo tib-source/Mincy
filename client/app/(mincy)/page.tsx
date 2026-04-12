@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Container, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Container, Flex, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import {
 	IconCircleCheck,
 	IconFolder,
@@ -43,7 +43,7 @@ export default function HomePage() {
 					<Text c="dimmed">Overview of your CI/CD pipelines.</Text>
 				</Stack>
 
-				<SimpleGrid cols={{ sm: 1, lg: 3 }}>
+				<Flex gap="lg" wrap="wrap">
 					<StatCard
 						title="Projects"
 						value={projects?.length ?? 0}
@@ -65,7 +65,7 @@ export default function HomePage() {
 						color="green"
 						isLoading={runsLoading}
 					/>
-				</SimpleGrid>
+				</Flex>
 
 				<RunList
 					runs={runs ?? []}

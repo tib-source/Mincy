@@ -50,7 +50,7 @@ export default class DockerExecutor implements Executor {
 		for (const step of stage.steps) {
 			const context: JobContext = {
 				workflowId: run.workflow.id,
-				jobId: step.id,
+				jobId: stage.id,
 				runId: run.id,
 			};
 

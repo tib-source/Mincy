@@ -12,7 +12,7 @@ interface StatCardProps {
 export function StatCard({ title, value, icon, color, isLoading }: StatCardProps) {
 	return (
 		<Card padding="lg" radius="md" withBorder>
-			<Group justify="space-between" align="flex-start">
+			<Group justify="space-between" align="center">
 				<Stack gap={4}>
 					<Text size="xs" c="dimmed" tt="uppercase" fw={600}>
 						{title}
