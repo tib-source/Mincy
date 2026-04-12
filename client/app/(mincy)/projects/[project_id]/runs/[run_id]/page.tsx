@@ -145,8 +145,7 @@ function filterLogsForStage(
 	if (!stage) {
 		return logs;
 	}
-	const stepIds = new Set(stage.steps.map((s) => s.id));
-	return logs.filter((l) => l.job_id && stepIds.has(l.job_id));
+	return logs.filter((l) => l.job_id && stage.id === l.job_id);
 }
 
 function StageItem({

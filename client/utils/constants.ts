@@ -3,13 +3,13 @@ export const BASE_WORKFLOW = {
 		{
 			id: "n2",
 			position: { x: 0, y: 0 },
-			data: { cmd: ["ls -la"] },
+			data: { label: "Checkout", cmd: ["ls -la"] },
 			type: "GitCheckoutNode",
 		},
 		{
 			id: "n1",
 			position: { x: 100, y: 100 },
-			data: { label: "Node 1" },
+			data: { label: "Trigger" },
 			type: "TriggerNode",
 		},
 	],
