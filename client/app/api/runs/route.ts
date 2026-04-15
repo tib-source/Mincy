@@ -4,7 +4,7 @@ import { getSession } from "@/utils/api/getSession";
 import { runWorkflowSchema, type ContextType } from "@/src/dto/runs";
 import { createRun } from "@/actions/runs";
 import { getGithubClient } from "@/utils/api/githubAuth";
-import { getProjectById } from "@/actions/projects";
+import { getWorkflowWithId } from "@/actions/workflow";
 
 export async function POST(req: Request) {
 	const result = await getSession();
@@ -16,11 +16,21 @@ export async function POST(req: Request) {
 	const { supabase } = result;
 	const body = await parseBody(req, runWorkflowSchema);
 
-
-	const project = await getProjectById(body.projectId)
-	if (!project) {
-		return new Response(JSON.stringify({ error: "Project not found" }), { status: 404 });
+	const workflow = await getWorkflowWithId(body.workflowId);
+	if (!workflow) {
+		return new Response(JSON.stringify({ error: "Workflow not found" }), {
+			status: 404,
+		});
 	}
+
+	const triggers = workflow.jobs[0]?.config?.triggers;
+	if (!triggers?.some((t: any) => t.type === body.triggerType && t.enabled)) {
+		return new Response(
+			JSON.stringify({ error: "Trigger type not enabled for this workflow" }),
+			{ status: 400 },
+		);
+	}
+	
 
 	const { githubClient } = await getGithubClient();
 	const repo = await githubClient.getRepo(project.org, project.name);
@@ -32,8 +42,7 @@ export async function POST(req: Request) {
 		url: repo.html_url,
 	}
 
-
-	await createRun(supabase, body.projectId, body.workflowId, body.triggerType, triggerContext);
+	await createRun(supabase, project.id, workflow.id, body.triggerType, triggerContext);
 
 	return NextResponse.json({}, { status: 201 });
 }

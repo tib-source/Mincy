@@ -1,4 +1,5 @@
 import { createRun } from "@/actions/runs";
+import { getProjectWithWorkflowByRepo } from "@/actions/projects";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { App } from "octokit";
@@ -20,27 +21,16 @@ const app = new App({
 });
 
 app.webhooks.on("push", async ({ payload }) => {
-  const { data: project } = await supabase
-    .from("Projects")
-    .select("*, Workflow(*)")
-    .eq("name", payload.repository.name)
-    .eq("org", payload.repository.owner?.login)
-    .single();
-
     console.log("Received push event for repository:", payload.repository.name, "Organization:", payload.repository.owner?.login);
-    console.log("Project found:", !!project);
 
+  const result = await getProjectWithWorkflowByRepo(supabase, payload.repository.owner?.login ?? "", payload.repository.name);
+  if (!result) {return;}
 
-  if (!project) {return;}
-  
-  const workflow = project.Workflow?.[0];
-  console.log("Associated workflow found:", workflow);
-  if (!workflow) {return;}
+  const { project, workflow } = result;
 
   const triggers = workflow.jobs?.triggers ?? [];
   console.log("Checking for triggers : ", triggers);
 
-  // Tag push
   if (payload.ref.startsWith("refs/tags/")) {
     const tagTrigger = triggers.find((t: any) => t.type === "tag" && t.enabled);
     if (!tagTrigger) {return};
@@ -55,7 +45,6 @@ app.webhooks.on("push", async ({ payload }) => {
     return;
   }
 
-  // Branch push
   const branch = payload.ref.replace("refs/heads/", "");
   const commitTrigger = triggers.find(
     (t: any) =>
@@ -76,13 +65,12 @@ app.webhooks.on("push", async ({ payload }) => {
   });
 });
 
-
+// inspired by the octokit docs: https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries
 export async function POST(request: NextRequest) {
     const signature = request.headers.get("x-hub-signature-256") || "";
     const id = request.headers.get("x-github-delivery") || ""
     const event = request.headers.get("x-github-event") || "";
 
-    console.log("Received GitHub webhook:", { event, request });
     if (!signature || !id || !event ) {
         return NextResponse.json({ message: "Missing required headers" }, { status: 400 });
     }

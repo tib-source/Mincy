@@ -13,7 +13,7 @@ export type WorkflowPipeline = z.infer<typeof PipelineSchema>;
 export async function getWorkflowForProject(
 	projectId: string,
 ): Promise<Tables<"Workflow"> | undefined> {
-	const supabase = await createClient();
+	const supabase = createClient();
 
 	const { data, error } = await supabase
 		.from("Workflow")
@@ -29,7 +29,7 @@ export async function getWorkflowForProject(
 }
 
 export async function updateWorkflow(projectId: string, workflow: object) {
-	const supabase = await createClient();
+	const supabase = createClient();
 	const existing = await getWorkflowForProject(projectId);
 
 	if (!existing) {

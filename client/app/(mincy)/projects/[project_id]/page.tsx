@@ -25,6 +25,8 @@ import { useProjectRuns } from "@/src/hooks/runs/useRuns";
 import { RunList } from "@/src/components/RunList/RunList";
 import { useHeader } from "@/src/hooks/useHeader";
 import type { HeaderContent } from "@/src/context/HeaderContext";
+import { useEffect } from "react";
+import { notifications } from "@mantine/notifications";
 export default function ProjectPage() {
 	const pars = useParams<{ project_id: string }>();
 	const projectId = pars.project_id;
@@ -45,6 +47,16 @@ export default function ProjectPage() {
 	};
 
 	useHeader(header);
+
+	useEffect(() => {
+		if (runWorkflow.isError) {
+			notifications.show({
+				title: "Error",
+				message: runWorkflow.error?.message || "Failed to run workflow",
+				color: "red",
+			});
+		}
+	}, [runWorkflow.isError, runWorkflow.error]);
 
 	return (
 		<Container fluid p="lg">
