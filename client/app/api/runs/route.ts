@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { parseBody } from "@/utils/api/helpers";
 import { getSession } from "@/utils/api/getSession";
 import { runWorkflowSchema } from "@/src/dto/runs";
+import { createRun } from "@/actions/runs";
 
 export async function POST(req: Request) {
 	const result = await getSession();
@@ -13,13 +14,7 @@ export async function POST(req: Request) {
 	const { supabase } = result;
 	const body = await parseBody(req, runWorkflowSchema);
 
-	const { error } = await supabase.from("PipelineRun").insert({
-		project_id: body.projectId,
-		workflow_id: body.workflowId,
-		agent_id: null,
-		status: "pending",
-	});
-
+	const {error } = await createRun(supabase, body.projectId,body.workflowId, body.triggerType, body.triggerContext);
 	if (error) {
 		console.error("Error creating run:", error);
 		return new Response(JSON.stringify({ error }), { status: 400 });

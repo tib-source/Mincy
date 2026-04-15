@@ -1,6 +1,5 @@
-import { runContextSchema, TriggerType } from "@/src/dto/runs";
+import { ContextType, runContextSchema, TriggerType } from "@/src/dto/runs";
 import { createClient } from "@/utils/supabase/server";
-import { SupabaseClient } from "@supabase/supabase-js";
 
 
 export async function getRunById(runId: string) {
@@ -23,9 +22,8 @@ export async function getRunById(runId: string) {
     return data;
 }
 
-export async function createRun(client: SupabaseClient, projectId: string, workflowId: string, trigger: TriggerType, context: Record<string, any>) {
+export async function createRun(client: any, projectId: string, workflowId: string, trigger: TriggerType, context: ContextType) {
     
-    const checkedContext = runContextSchema.parse(context); 
     const { data, error } = await client
         .from("PipelineRun")
         .upsert({
@@ -33,7 +31,7 @@ export async function createRun(client: SupabaseClient, projectId: string, workf
             workflow_id: workflowId,
             agent_id: null,
             status: "pending",
-            trigger_context: checkedContext,
+            trigger_context: context,
             triggered_by: trigger,
         })
         .single();

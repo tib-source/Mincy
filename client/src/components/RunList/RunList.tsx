@@ -132,7 +132,7 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 					{
 						key: "project",
 						label: "Project",
-						width: 160,
+						width: 300,
 						render: (run: PipelineRun) => (
 							<span style={{ fontWeight: 500, fontSize: 13.5 }}>
 								{(run.project_id && projectNames.get(run.project_id)) || "–"}
@@ -147,7 +147,7 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 			render: (run) => (
 				<>
 					<div className={classes.commitMessage}>Run #{run.id.slice(0, 8)}</div>
-					{run.commit_sha && (
+					{run.trigger_context.sha && (
 						<div className={classes.commitSha}>{run.commit_sha.slice(0, 7)}</div>
 					)}
 				</>
@@ -158,7 +158,7 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 			label: "Branch",
 			width: 150,
 			render: (run) =>
-				run.branch ? (
+				run.trigger_context ? (
 					<Badge
 						variant="light"
 						color="gray"
@@ -168,7 +168,7 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 						tt="none"
 						fw={400}
 					>
-						{run.branch}
+						{run.trigger_context.ref}
 					</Badge>
 				) : (
 					<span className={classes.time}>--</span>

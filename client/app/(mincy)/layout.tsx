@@ -1,4 +1,3 @@
-"use client";
 import "@mantine/core/styles.css";
 
 import { AppShell, Group, Text, Title } from "@mantine/core";

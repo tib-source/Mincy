@@ -5,5 +5,6 @@ export function useGithubRepos() {
 	return useQuery({
 		queryKey: ["github-repositories"],
 		queryFn: getGithubRepos,
+		staleTime: 5 * 60 * 1000,
 	});
 }

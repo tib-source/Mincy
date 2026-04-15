@@ -23,10 +23,6 @@ export async function getGithubClient() {
 	let accessToken = session.provider_token;
 
 	if (!accessToken) {
-		accessToken = await getSecret(GITHUB_SECRET_NAMES.ACCESS_TOKEN);
-	}
-
-	if (!accessToken) {
 		throw new GitHubTokenExpiredError();
 	}
 

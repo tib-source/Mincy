@@ -64,6 +64,23 @@ export async function getRecentRuns(limit = 10): Promise<PipelineRun[]> {
 	return data || [];
 }
 
+export async function getRecentRunsForProject(projectId: string, limit = 1): Promise<PipelineRun[]> {
+	const supabase = createClient();
+
+	const { data, error } = await supabase
+		.from("PipelineRun")
+		.select("*")
+		.eq("project_id", projectId)
+		.order("created_at", { ascending: false })
+		.limit(limit);
+
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	return data || [];
+}
+
 export async function getLogsForRun(runId: string): Promise<LogEntry[]> {
 	const supabase = createClient();
 

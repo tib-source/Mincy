@@ -4,11 +4,12 @@ import {
 	getRunById,
 	getLogsForRun,
 	getRecentRuns,
+	getRecentRunsForProject,
 } from "@/src/client/runs";
 
 export function useProjectRuns(projectId?: string) {
 	return useQuery({
-		queryKey: ["pipeline-runs", projectId],
+		queryKey: ["runs", projectId],
 		queryFn: () => getRunsForProject(projectId!),
 		enabled: !!projectId,
 		refetchInterval: 5000,
@@ -17,7 +18,7 @@ export function useProjectRuns(projectId?: string) {
 
 export function useRun(runId?: string) {
 	return useQuery({
-		queryKey: ["pipeline-run", runId],
+		queryKey: ["run", runId],
 		queryFn: () => getRunById(runId!),
 		enabled: !!runId,
 		refetchInterval: 5000,
@@ -37,6 +38,14 @@ export function useRecentRuns(limit = 10) {
 	return useQuery({
 		queryKey: ["recent-runs", limit],
 		queryFn: () => getRecentRuns(limit),
+		refetchInterval: 10_000,
+	});
+}
+
+export function useRecentProjectRuns(projectId: string, limit = 1) {
+	return useQuery({
+		queryKey: ["recent-runs", projectId, limit],
+		queryFn: () => getRecentRunsForProject(projectId, limit),
 		refetchInterval: 10_000,
 	});
 }

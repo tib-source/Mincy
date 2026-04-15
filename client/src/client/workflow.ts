@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
-import type { Tables } from "@mincy/shared";
+import type { Tables, TriggerType } from "@mincy/shared";
 
 import { z } from "zod";
 
@@ -43,16 +43,18 @@ export async function updateWorkflow(projectId: string, workflow: object) {
 		})
 		.eq("projectId", projectId);
 
-	if (error) throw new Error(error.message);
+	if (error) {throw new Error(error.message);}
 }
 
-export async function runWorkflow(projectId: string, workflowId: string) {
+export async function runWorkflow(projectId: string, workflowId: string, triggerType: TriggerType, triggerContext: Record<string, any> = {}) {
 	const res = await fetch("/api/runs", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
 			projectId,
 			workflowId,
+			triggerType,
+			triggerContext,
 		}),
 	});
 

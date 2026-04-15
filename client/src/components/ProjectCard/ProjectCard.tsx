@@ -1,4 +1,3 @@
-import { useGithubRepo } from "@/src/hooks/github/useGithubRepo";
 import {
 	Card,
 	Stack,
@@ -15,47 +14,46 @@ import {
 	IconBrandGithub,
 	IconCircleX,
 	IconGitCommit,
+	IconQuestionMark,
 	IconTicket,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import type { Tables } from "@mincy/shared";
+import type { JobStatus, Tables } from "@mincy/shared";
+import type { GitHubRepo } from "@/src/client/gitClient";
 import { timeAgo } from "@/utils/api/helpers";
 import { ProjectCardSkeleton } from "./ProjectCardSkeleton";
-import { useMemo } from "react";
+import { useRecentProjectRuns } from "@/src/hooks/runs/useRuns";
 
 interface ProjectCardProps {
 	project: Tables<"Projects">;
+	repoData?: GitHubRepo;
+	isLoading?: boolean;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
-	const { data: repoData, isLoading } = useGithubRepo(
-		project.org,
-		project.name,
-	);
+export function ProjectCard({ project, repoData, isLoading }: ProjectCardProps) {
 
-	const statusColorMapping = {
-		passing: "green",
-		failing: "red",
+	const statusColorMapping : Record<JobStatus, string> = {
+		passed: "green",
+		failed: "red",
 		running: "orange",
+		queued: "",
+		completed: ""
 	};
 
-	const statusIconMapping = {
-		passing: <IconTicket size={15} strokeWidth={1} />,
-		failing: <IconCircleX size={15} strokeWidth={1} />,
-		running: <Loader size={12} strokeOpacity={0.5} />,
-	};
-
-	// TODO: temporary while actual workflow status gets implemented
-	const statuses: ("passing" | "failing" | "running")[] = [
-		"passing",
-		"failing",
-		"running",
-	];
-	const randomStatus = useMemo(
-		() => statuses[Math.floor(Math.random() * statuses.length)],
-		[statuses],
-	);
-
+	const statusIconMapping = (status: JobStatus) => {
+		switch (status) {
+			case "passed":
+				return <IconTicket size={15} strokeWidth={1} />;
+			case "failed":
+				return <IconCircleX size={15} strokeWidth={1} />;
+			case "running":
+				return <Loader size={12} strokeOpacity={0.5} />;
+			default:
+				return <IconQuestionMark size={15} strokeWidth={1} />;
+		}
+	}
+	const { data: recentRuns, isLoading: isRecentRunLoading } = useRecentProjectRuns(project.id);
+	const recentRun = recentRuns ? recentRuns[0] : null;
 	if (isLoading) {
 		return <ProjectCardSkeleton />;
 	}
@@ -68,7 +66,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 			radius="md"
 			withBorder
 		>
-			<Stack gap={"md"} p={"sm"}>
+			<Stack gap="md" p="sm">
 				<Group justify="space-between">
 					<Box>
 						<Text fw={500} size="xl">
@@ -76,7 +74,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 						</Text>
 						<Group gap={5} pt={3}>
 							<IconBrandGithub size={15} strokeOpacity={0.5} />
-							<Text c="dimmed" size={"xs"}>
+							<Text c="dimmed" size="xs">
 								{`${project.org}/${project.name}`}
 							</Text>
 						</Group>
@@ -85,11 +83,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
 						variant="light"
 						tt="none"
 						fw={100}
-						color={statusColorMapping[randomStatus]}
+						color={statusColorMapping[recentRun?.status as JobStatus] || "gray"}
 						size="lg"
-						leftSection={statusIconMapping[randomStatus]}
+						leftSection={statusIconMapping(recentRun?.status as JobStatus)}
 					>
-						{upperFirst(randomStatus)}
+						{upperFirst(recentRun?.status) || "Unknown"}
 					</Badge>
 				</Group>
 				<Text size="sm" c="dimmed" truncate="end" lineClamp={1}>
@@ -98,16 +96,16 @@ export function ProjectCard({ project }: ProjectCardProps) {
 				<Divider opacity={0.25} />
 				<Group justify="space-between">
 					<Group>
-						<Avatar src={repoData?.owner?.avatar_url} size={"sm"} />
-						<Text size="xs" c={"dimmed"}>
+						<Avatar src={repoData?.owner?.avatar_url} size="sm" />
+						<Text size="xs" c="dimmed">
 							{timeAgo(repoData?.pushed_at || "")}
 						</Text>
 					</Group>
 					<Badge
 						h={30}
-						variant={"light"}
+						variant="light"
 						color="gray.9"
-						radius={"sm"}
+						radius="sm"
 						leftSection={
 							<IconGitCommit style={{ transform: "rotate(90deg)" }} />
 						}

@@ -49,11 +49,16 @@ export default class Agent {
 	}
 
 	async execute(run: Run): Promise<void> {
+		try {
 		logger.info({ run }, "Starting job execution");
 		await this.updateJobStatus(run.id, "running");
 		const exitCode = await this.executor.execute(run);
 		const status = exitCode === 0 ? "passed" : "failed";
 		await this.updateJobStatus(run.id, status);
+		} catch (error) {
+			logger.error({ error }, "Error during job execution");
+			await this.updateJobStatus(run.id, "failed");
+		}
 	}
 
 	stop(): void {
