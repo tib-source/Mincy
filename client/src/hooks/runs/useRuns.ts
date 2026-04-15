@@ -11,6 +11,7 @@ export function useProjectRuns(projectId?: string) {
 	return useQuery({
 		queryKey: ["runs", projectId],
 		queryFn: () => getRunsForProject(projectId!),
+		enabled: !!projectId,
 		refetchInterval: 1000,
 	});
 }
@@ -20,6 +21,7 @@ export function useRun(runId?: string) {
 		queryKey: ["run", runId],
 		queryFn: () => getRunById(runId!),
 		enabled: !!runId,
+		refetchInterval: 1000,
 	});
 }
 

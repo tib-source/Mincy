@@ -27,6 +27,7 @@ import { useHeader } from "@/src/hooks/useHeader";
 import type { HeaderContent } from "@/src/context/HeaderContext";
 import { useEffect } from "react";
 import { notifications } from "@mantine/notifications";
+import { PipelineRun } from "@/src/client/runs";
 export default function ProjectPage() {
 	const pars = useParams<{ project_id: string }>();
 	const projectId = pars.project_id;
@@ -104,7 +105,7 @@ export default function ProjectPage() {
 				</Flex>
 
 				<RunList
-					runs={runs}
+					runs={runs as PipelineRun[] || []}
 					projectId={projectId}
 					isLoading={runsLoading}
 				/>

@@ -24,7 +24,7 @@ export async function getRunById(runId: string) {
 
 export async function createRun(client: any, projectId: string, workflowId: string, trigger: TriggerType, context: ContextType) {
     
-    const { data, error } = await client
+    const { error } = await client
         .from("PipelineRun")
         .upsert({
             project_id: projectId,
@@ -41,6 +41,5 @@ export async function createRun(client: any, projectId: string, workflowId: stri
         throw new Error(error.message);
     }
 
-    console.log("Created run with ID:", data.id);
 
 }

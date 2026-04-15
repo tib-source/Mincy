@@ -5,6 +5,7 @@ import { runWorkflowSchema, type ContextType } from "@/src/dto/runs";
 import { createRun } from "@/actions/runs";
 import { getGithubClient } from "@/utils/api/githubAuth";
 import { getWorkflowWithId } from "@/actions/workflow";
+import { getProjectById } from "@/actions/projects";
 
 export async function POST(req: Request) {
 	const result = await getSession();
@@ -16,6 +17,12 @@ export async function POST(req: Request) {
 	const { supabase } = result;
 	const body = await parseBody(req, runWorkflowSchema);
 
+	const project = await getProjectById(body.projectId);
+	if (!project) {
+		return new Response(JSON.stringify({ error: "Project not found" }), {
+			status: 404,
+		});
+	}
 	const workflow = await getWorkflowWithId(body.workflowId);
 	if (!workflow) {
 		return new Response(JSON.stringify({ error: "Workflow not found" }), {
@@ -23,7 +30,8 @@ export async function POST(req: Request) {
 		});
 	}
 
-	const triggers = workflow.jobs[0]?.config?.triggers;
+	const triggers = workflow.jobs.triggers;
+	console.log("Workflow triggers:", workflow);
 	if (!triggers?.some((t: any) => t.type === body.triggerType && t.enabled)) {
 		return new Response(
 			JSON.stringify({ error: "Trigger type not enabled for this workflow" }),
