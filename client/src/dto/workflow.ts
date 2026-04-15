@@ -6,7 +6,4 @@ export const createWorkflowSchema = z.object({
 	pipeline: z.json(),
 });
 
-export const runWorkflowSchema = z.object({
-	projectId: z.string().min(1),
-	workflowId: z.string().min(1),
-});
+

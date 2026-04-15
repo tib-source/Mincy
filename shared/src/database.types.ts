@@ -101,40 +101,34 @@ export type Database = {
       PipelineRun: {
         Row: {
           agent_id: string | null
-          branch: string | null
-          commit_sha: string | null
           created_at: string
           finished_at: string | null
           id: string
-          logs: string | null
           project_id: string | null
           status: Database["public"]["Enums"]["PipelineStatus"]
+          trigger_context: Json | null
           triggered_by: Database["public"]["Enums"]["TriggerType"] | null
           workflow_id: string | null
         }
         Insert: {
           agent_id?: string | null
-          branch?: string | null
-          commit_sha?: string | null
           created_at?: string
           finished_at?: string | null
           id?: string
-          logs?: string | null
           project_id?: string | null
           status: Database["public"]["Enums"]["PipelineStatus"]
+          trigger_context?: Json | null
           triggered_by?: Database["public"]["Enums"]["TriggerType"] | null
           workflow_id?: string | null
         }
         Update: {
           agent_id?: string | null
-          branch?: string | null
-          commit_sha?: string | null
           created_at?: string
           finished_at?: string | null
           id?: string
-          logs?: string | null
           project_id?: string | null
           status?: Database["public"]["Enums"]["PipelineStatus"]
+          trigger_context?: Json | null
           triggered_by?: Database["public"]["Enums"]["TriggerType"] | null
           workflow_id?: string | null
         }
@@ -144,13 +138,6 @@ export type Database = {
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "Agents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "PipelineRun_logs_fkey"
-            columns: ["logs"]
-            isOneToOne: false
-            referencedRelation: "Logs"
             referencedColumns: ["id"]
           },
           {
@@ -267,14 +254,12 @@ export type Database = {
         Args: { p_agent_id: string }
         Returns: {
           agent_id: string | null
-          branch: string | null
-          commit_sha: string | null
           created_at: string
           finished_at: string | null
           id: string
-          logs: string | null
           project_id: string | null
           status: Database["public"]["Enums"]["PipelineStatus"]
+          trigger_context: Json | null
           triggered_by: Database["public"]["Enums"]["TriggerType"] | null
           workflow_id: string | null
         }[]
@@ -289,7 +274,7 @@ export type Database = {
     Enums: {
       AgentStatus: "active" | "paused" | "stopped"
       PipelineStatus: "queued" | "running" | "passed" | "failed" | "pending"
-      TriggerType: "manual" | "cron" | "push"
+      TriggerType: "manual" | "cron" | "commit" | "pull_request" | "tag"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -419,7 +404,7 @@ export const Constants = {
     Enums: {
       AgentStatus: ["active", "paused", "stopped"],
       PipelineStatus: ["queued", "running", "passed", "failed", "pending"],
-      TriggerType: ["manual", "cron", "push"],
+      TriggerType: ["manual", "cron", "commit", "pull_request", "tag"],
     },
   },
 } as const

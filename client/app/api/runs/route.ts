@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { parseBody } from "@/utils/api/helpers";
 import { getSession } from "@/utils/api/getSession";
-import { runWorkflowSchema } from "@/src/dto/workflow";
+import { runWorkflowSchema } from "@/src/dto/runs";
 
 export async function POST(req: Request) {
 	const result = await getSession();
@@ -17,11 +17,11 @@ export async function POST(req: Request) {
 		project_id: body.projectId,
 		workflow_id: body.workflowId,
 		agent_id: null,
-		logs: null,
 		status: "pending",
 	});
 
 	if (error) {
+		console.error("Error creating run:", error);
 		return new Response(JSON.stringify({ error }), { status: 400 });
 	}
 
