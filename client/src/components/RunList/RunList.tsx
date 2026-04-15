@@ -1,5 +1,6 @@
 "use client";
 import {
+	Anchor,
 	Badge,
 	Card,
 	Group,
@@ -16,6 +17,7 @@ import {
 	IconLoader2,
 	IconPlayerPlay,
 	IconRocket,
+	IconTag,
 	IconTerminal,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
@@ -23,50 +25,55 @@ import type { PipelineRun } from "@/src/client/runs";
 import { timeAgo } from "@/utils/api/helpers";
 import { DataTable, type DataTableColumn } from "@/src/components/DataTable/DataTable";
 import { getDuration } from "@/utils/helpers";
-import classes from "./RunList.module.css";
+
+type TriggerContext = Record<string, unknown> | null;
+
+function ctx(run: PipelineRun): TriggerContext {
+	return run.trigger_context as TriggerContext;
+}
 
 const statusConfig: Record<
 	string,
 	{ color: string; icon: React.ReactNode; label: string }
 > = {
 	passed: {
-		color: "var(--mantine-color-green-6)",
-		icon: <IconCircleCheck size={18} color="var(--mantine-color-green-6)" />,
+		color: "green",
+		icon: <IconCircleCheck size={16} />,
 		label: "Success",
 	},
 	failed: {
-		color: "var(--mantine-color-red-6)",
-		icon: <IconCircleX size={18} color="var(--mantine-color-red-6)" />,
+		color: "red",
+		icon: <IconCircleX size={16} />,
 		label: "Failed",
 	},
 	running: {
-		color: "var(--mantine-color-blue-5)",
+		color: "blue",
 		icon: (
 			<IconLoader2
-				size={18}
-				color="var(--mantine-color-blue-5)"
+				size={16}
 				style={{ animation: "spin 1s linear infinite" }}
 			/>
 		),
 		label: "Running",
 	},
 	queued: {
-		color: "var(--mantine-color-yellow-5)",
-		icon: <IconClock size={18} color="var(--mantine-color-yellow-5)" />,
+		color: "yellow",
+		icon: <IconClock size={16} />,
 		label: "Queued",
 	},
 	pending: {
-		color: "var(--mantine-color-gray-5)",
-		icon: <IconClock size={18} color="var(--mantine-color-gray-5)" />,
+		color: "gray",
+		icon: <IconClock size={16} />,
 		label: "Pending",
 	},
 };
 
-const triggerConfig: Record<string, { icon: React.ReactNode; label: string }> =
+const triggerConfig: Record<string, { color: string; icon: React.ReactNode; label: string }> =
 	{
-		manual: { icon: <IconPlayerPlay size={14} />, label: "Manual" },
-		push: { icon: <IconRocket size={14} />, label: "Push" },
-		cron: { icon: <IconClock size={14} />, label: "Scheduled" },
+		manual: { color: "violet", icon: <IconPlayerPlay size={12} />, label: "Manual" },
+		commit: { color: "blue", icon: <IconRocket size={12} />, label: "Push" },
+		tag: { color: "teal", icon: <IconTag size={12} />, label: "Tag" },
+		cron: { color: "orange", icon: <IconClock size={12} />, label: "Scheduled" },
 	};
 
 interface RunListProps {
@@ -118,12 +125,17 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 			render: (run) => {
 				const status = statusConfig[run.status] || statusConfig.pending;
 				return (
-					<div className={classes.statusCell}>
-						<span className={classes.statusIcon}>{status.icon}</span>
-						<span className={classes.statusText} style={{ color: status.color }}>
-							{status.label}
-						</span>
-					</div>
+					<Badge
+						variant="light"
+						color={status.color}
+						size="sm"
+						radius="sm"
+						leftSection={status.icon}
+						tt="none"
+						fw={500}
+					>
+						{status.label}
+					</Badge>
 				);
 			},
 		},
@@ -134,9 +146,9 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 						label: "Project",
 						width: 300,
 						render: (run: PipelineRun) => (
-							<span style={{ fontWeight: 500, fontSize: 13.5 }}>
+							<Text size="xs" fw={500}>
 								{(run.project_id && projectNames.get(run.project_id)) || "–"}
-							</span>
+							</Text>
 						),
 					},
 				]
@@ -144,49 +156,93 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 		{
 			key: "commit",
 			label: "Commit",
-			render: (run) => (
-				<>
-					<div className={classes.commitMessage}>Run #{run.id.slice(0, 8)}</div>
-					{run.trigger_context.sha && (
-						<div className={classes.commitSha}>{run.commit_sha.slice(0, 7)}</div>
-					)}
-				</>
-			),
+			render: (run) => {
+				const c = ctx(run);
+				const sha = c?.sha as string | undefined;
+				const message = c?.message as string | undefined;
+				const tag = c?.tag as string | undefined;
+				const repoUrl = c?.url as string | undefined;
+
+				let shaElement: React.ReactNode = null;
+				if (sha && repoUrl) {
+					shaElement = (
+						<Anchor
+							href={`${repoUrl}/commit/${sha}`}
+							target="_blank"
+							size="xs"
+							c="dimmed"
+							onClick={(e) => e.stopPropagation()}
+						>
+							{sha.slice(0, 7)}
+						</Anchor>
+					);
+				} else if (sha) {
+					shaElement = (
+						<Text size="xs" c="dimmed" ff="monospace">
+							{sha.slice(0, 7)}
+						</Text>
+					);
+				}
+
+				const label =
+					run.triggered_by === "tag" && tag
+						? tag
+						: message || `Run #${run.id.slice(0, 8)}`;
+
+				return (
+					<Stack gap={2}>
+						<Text size="xs" fw={500} lineClamp={1}>
+							{label}
+						</Text>
+						{shaElement}
+					</Stack>
+				);
+			},
 		},
 		{
 			key: "branch",
 			label: "Branch",
-			width: 150,
-			render: (run) =>
-				run.trigger_context ? (
-					<Badge
-						variant="light"
-						color="gray"
-						size="sm"
-						radius="sm"
-						leftSection={<IconGitBranch size={11} />}
-						tt="none"
-						fw={400}
-					>
-						{run.trigger_context.ref}
-					</Badge>
-				) : (
-					<span className={classes.time}>--</span>
-				),
+			render: (run) => {
+				const c = ctx(run);
+				if (!c || run.triggered_by === "tag") {
+					return <Text size="xs" c="dimmed">--</Text>;
+				}
+
+				const branch = (c.branch as string) || (c.ref as string);
+				if (!branch) {
+					return <Text size="xs" c="dimmed">--</Text>;
+				}
+
+				return (
+					<Group gap={4} wrap="nowrap">
+						<IconGitBranch size={13} />
+						<Text size="xs" c="dimmed" truncate>
+							{branch}
+						</Text>
+					</Group>
+				);
+			},
 		},
 		{
 			key: "trigger",
-			label: "Triggered By",
-			width: 130,
+			label: "Trigger",
 			render: (run) => {
 				const trigger = run.triggered_by ? triggerConfig[run.triggered_by] : null;
-				return trigger ? (
-					<Group gap={6} wrap="nowrap">
-						{trigger.icon}
-						<span style={{ fontSize: 13.5 }}>{trigger.label}</span>
-					</Group>
-				) : (
-					<span className={classes.time}>--</span>
+				if (!trigger) {
+					return <Text size="xs" c="dimmed">--</Text>;
+				}
+				return (
+					<Badge
+						variant="light"
+						color={trigger.color}
+						size="sm"
+						radius="sm"
+						leftSection={trigger.icon}
+						tt="none"
+						fw={400}
+					>
+						{trigger.label}
+					</Badge>
 				);
 			},
 		},
@@ -195,9 +251,9 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 			label: "Duration",
 			width: 100,
 			render: (run) => (
-				<span className={classes.mono}>
+				<Text size="xs" c="dimmed">
 					{getDuration(new Date(run.created_at), run.finished_at ? new Date(run.finished_at) : undefined)}
-				</span>
+				</Text>
 			),
 		},
 		{
@@ -205,7 +261,7 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 			label: "Time",
 			width: 150,
 			render: (run) => (
-				<span className={classes.time}>{timeAgo(run.created_at)}</span>
+				<Text size="xs" c="dimmed">{timeAgo(run.created_at)}</Text>
 			),
 		},
 	];

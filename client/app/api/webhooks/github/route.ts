@@ -37,34 +37,42 @@ app.webhooks.on("push", async ({ payload }) => {
   console.log("Associated workflow found:", workflow);
   if (!workflow) {return;}
 
-//   const triggers = workflow.jobs?.triggers ?? [];
+  const triggers = workflow.jobs?.triggers ?? [];
+  console.log("Checking for triggers : ", triggers);
 
   // Tag push
   if (payload.ref.startsWith("refs/tags/")) {
-    // const tagTrigger = triggers.find(t => t.type === "tag" && t.enabled);
-    // if (!tagTrigger) return;
+    const tagTrigger = triggers.find((t: any) => t.type === "tag" && t.enabled);
+    if (!tagTrigger) {return};
 
     await createRun(supabase, project.id, workflow.id, "tag", {
       ref: payload.ref,
       sha: payload.after,
       tag: payload.ref.replace("refs/tags/", ""),
       sender: payload.sender?.login,
+      url: payload.repository.html_url,
     });
     return;
   }
 
   // Branch push
   const branch = payload.ref.replace("refs/heads/", "");
-//   const commitTrigger = triggers.find(
-//     t => t.type === "commit" && t.enabled && t.branches?.includes(branch)
-//   );
-//   if (!commitTrigger) return;
+  const commitTrigger = triggers.find(
+    (t: any) =>
+      t.type === "commit" &&
+      t.enabled &&
+      t.branches?.some((pattern: string) =>
+        new RegExp(`^${pattern.replace(/\*/g, ".*")}$`).test(branch),
+      ),
+  );
+  if (!commitTrigger) {return};
   await createRun(supabase, project.id, workflow.id, "commit", {
     ref: payload.ref,
     branch,
     sha: payload.after,
     message: payload.head_commit?.message,
     sender: payload.sender?.login,
+    url: payload.repository.html_url,
   });
 });
 

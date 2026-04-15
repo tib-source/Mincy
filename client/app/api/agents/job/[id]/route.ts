@@ -35,9 +35,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		});
 	}
 
+	const isTerminal = status === "passed" || status === "failed" || status === "completed";
 	const { error } = await supabase
 		.from("PipelineRun")
-		.update({ status })
+		.update({
+			status,
+			...(isTerminal && { finished_at: new Date().toISOString() }),
+		})
 		.eq("id", id);
 	if (error) {
 		return new Response(

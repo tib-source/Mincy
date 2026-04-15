@@ -8,6 +8,7 @@ import {
 	Group,
 	Modal,
 	type ModalProps,
+	type RenderAutocompleteOption,
 	Tabs,
 	Text,
 } from "@mantine/core";
@@ -31,7 +32,6 @@ interface GithubOptions extends ComboboxStringItem {
 	html_url: string;
 }
 
-import type { RenderAutocompleteOption } from "@mantine/core";
 import type { GitHubRepo } from "@/src/client/gitClient";
 import { useCreateProject } from "@/src/hooks/projects/useCreateProject";
 
@@ -52,7 +52,7 @@ const renderAutocompleteOption: RenderAutocompleteOption = ({ option }) => {
 };
 
 export function ProjectCreateModal(props: ModalProps) {
-	const { data: repos, isLoading } = useGithubRepos();
+	const { data: repos } = useGithubRepos();
 	const [selectedRepo, setSelectedRepo] = useState<GitHubRepo | null>(null);
 	const repoList = useMemo(() => {
 		if (Array.isArray(repos)) {
@@ -68,7 +68,7 @@ export function ProjectCreateModal(props: ModalProps) {
 	const { mutate, isPending, isSuccess, error } = useCreateProject();
 
 	const handleCreate = () => {
-		if (!selectedRepo) return;
+		if (!selectedRepo) {return;}
 		mutate(selectedRepo);
 	};
 
@@ -115,7 +115,7 @@ export function ProjectCreateModal(props: ModalProps) {
 					</Tabs.Tab>
 				</Tabs.List>
 
-				<Tabs.Panel value="github" p={"md"}>
+				<Tabs.Panel value="github" p="md">
 					<Autocomplete
 						data={repoList}
 						error={error?.message}

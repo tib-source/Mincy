@@ -41,9 +41,6 @@ export async function createRun(client: any, projectId: string, workflowId: stri
         throw new Error(error.message);
     }
 
-    if (!data) {
-        throw new Error("Failed to create run");
-    }
+    console.log("Created run with ID:", data.id);
 
-    return data;
 }

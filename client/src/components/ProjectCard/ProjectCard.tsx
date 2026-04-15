@@ -52,7 +52,7 @@ export function ProjectCard({ project, repoData, isLoading }: ProjectCardProps) 
 				return <IconQuestionMark size={15} strokeWidth={1} />;
 		}
 	}
-	const { data: recentRuns, isLoading: isRecentRunLoading } = useRecentProjectRuns(project.id);
+	const { data: recentRuns } = useRecentProjectRuns(project.id);
 	const recentRun = recentRuns ? recentRuns[0] : null;
 	if (isLoading) {
 		return <ProjectCardSkeleton />;
@@ -87,7 +87,7 @@ export function ProjectCard({ project, repoData, isLoading }: ProjectCardProps) 
 						size="lg"
 						leftSection={statusIconMapping(recentRun?.status as JobStatus)}
 					>
-						{upperFirst(recentRun?.status) || "Unknown"}
+						{upperFirst(recentRun?.status || "Unknown")}
 					</Badge>
 				</Group>
 				<Text size="sm" c="dimmed" truncate="end" lineClamp={1}>

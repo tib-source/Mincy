@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { parseBody } from "@/utils/api/helpers";
 import { getSession } from "@/utils/api/getSession";
-import { runWorkflowSchema } from "@/src/dto/runs";
+import { runWorkflowSchema, type ContextType } from "@/src/dto/runs";
 import { createRun } from "@/actions/runs";
+import { getGithubClient } from "@/utils/api/githubAuth";
+import { getProjectById } from "@/actions/projects";
 
 export async function POST(req: Request) {
 	const result = await getSession();
@@ -14,11 +16,24 @@ export async function POST(req: Request) {
 	const { supabase } = result;
 	const body = await parseBody(req, runWorkflowSchema);
 
-	const {error } = await createRun(supabase, body.projectId,body.workflowId, body.triggerType, body.triggerContext);
-	if (error) {
-		console.error("Error creating run:", error);
-		return new Response(JSON.stringify({ error }), { status: 400 });
+
+	const project = await getProjectById(body.projectId)
+	if (!project) {
+		return new Response(JSON.stringify({ error: "Project not found" }), { status: 404 });
 	}
+
+	const { githubClient } = await getGithubClient();
+	const repo = await githubClient.getRepo(project.org, project.name);
+	const sha = await githubClient.getBranchHead(project.org, project.name, repo.default_branch);
+
+	const triggerContext: ContextType = {
+		ref: repo.default_branch,
+		sha,
+		url: repo.html_url,
+	}
+
+
+	await createRun(supabase, body.projectId, body.workflowId, body.triggerType, triggerContext);
 
 	return NextResponse.json({}, { status: 201 });
 }

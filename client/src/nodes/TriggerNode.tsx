@@ -133,7 +133,7 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 	const config: Triggers = (data?.config as Triggers) ?? {
 		triggers: [
 			{ type: "manual", enabled: true },
-			{ type: "commit", branches: ["main"] },
+			{ type: "commit", enabled: true, branches: ["*"] },
 		],
 	};
 

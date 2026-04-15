@@ -46,7 +46,7 @@ export async function updateWorkflow(projectId: string, workflow: object) {
 	if (error) {throw new Error(error.message);}
 }
 
-export async function runWorkflow(projectId: string, workflowId: string, triggerType: TriggerType, triggerContext: Record<string, any> = {}) {
+export async function runWorkflow(projectId: string, workflowId: string, triggerType: TriggerType) {
 	const res = await fetch("/api/runs", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -54,7 +54,6 @@ export async function runWorkflow(projectId: string, workflowId: string, trigger
 			projectId,
 			workflowId,
 			triggerType,
-			triggerContext,
 		}),
 	});
 

@@ -40,7 +40,7 @@ export function NavbarSimple({ data }: NavProps) {
 
 	async function signOut() {
 		setIsRedirecting(true);
-		const supabase = await createClient();
+		const supabase = createClient();
 		const { error } = await supabase.auth.signOut();
 		if (error) {
 			setIsRedirecting(false);
@@ -49,7 +49,7 @@ export function NavbarSimple({ data }: NavProps) {
 				color: "red",
 			});
 		}
-		window.location.href = "/login";
+		globalThis.location.href = "/login";
 	}
 
 	return (

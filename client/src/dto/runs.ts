@@ -5,7 +5,10 @@ export const runContextSchema = z.object({
     sha: z.string().min(1),
     branch: z.string().optional(),
     pr_number: z.number().optional(),
-    triggered_by: z.string().min(1),
+    tag: z.string().optional(),
+    message: z.string().optional(),
+    sender: z.string().optional(),
+    url: z.string().optional(),
 });
 
 export const triggerTypes = z.union([
@@ -19,7 +22,7 @@ export const triggerTypes = z.union([
 export const runWorkflowSchema = z.object({
 	projectId: z.string().min(1),
 	workflowId: z.string().min(1),
-    triggerContext:  runContextSchema,
+    triggerContext: runContextSchema.optional(),
     triggerType: triggerTypes,
 });
 
