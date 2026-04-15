@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 		});
 	}
 
-	const triggers = workflow.jobs.triggers;
+	const triggers = (workflow.jobs as any)?.triggers;
 	console.log("Workflow triggers:", workflow);
 	if (!triggers?.some((t: any) => t.type === body.triggerType && t.enabled)) {
 		return new Response(

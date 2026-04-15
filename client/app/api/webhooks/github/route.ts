@@ -28,7 +28,7 @@ app.webhooks.on("push", async ({ payload }) => {
 
   const { project, workflow } = result;
 
-  const triggers = workflow.jobs?.triggers ?? [];
+  const triggers = (workflow.jobs as any)?.triggers ?? [];
   console.log("Checking for triggers : ", triggers);
 
   if (payload.ref.startsWith("refs/tags/")) {

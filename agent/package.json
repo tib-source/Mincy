@@ -6,8 +6,8 @@
 	"scripts": {
 		"dev": "bun --watch index.ts",
 		"start": "bun index.ts",
-		"build": "bun build index.ts --outdir ./dist --target bun",
-		"build:production": "bun build index.ts --outdir ./dist --target bun --minify",
+		"build": "bun build index.ts --outdir ./dist --target bun --external cpu-features",
+		"build:production": "bun build index.ts --outdir ./dist --target bun --external cpu-features --minify",
 		"typecheck": "tsc --noEmit",
 		"clean": "rm -rf dist",
 		"lint": "bun run typecheck",

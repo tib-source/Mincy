@@ -247,13 +247,15 @@ export default function RunDetailPage() {
 		);
 	}
 
+	const ctx = run.trigger_context as Record<string, any> | null;
+
 	return (
 		<Stack gap={0} h="100%">
 			<Stack gap="sm" px="lg" pt="lg" pb="md">
 				<Group gap="sm" align="center">
 					<Text size="xl" fw={600}>
 						Run #{run.id.slice(0, 8)}
-						{run.branch ? `: ${run.branch}` : ""}
+						{ctx?.branch ? `: ${ctx.branch}` : ""}
 					</Text>
 					<Badge
 						variant="light"
@@ -268,7 +270,7 @@ export default function RunDetailPage() {
 				</Group>
 
 				<Group gap="lg">
-					{run.trigger_context?.sha && (
+					{ctx?.sha && (
 						<Group gap={6}>
 							<IconGitCommit
 								size={15}
@@ -276,8 +278,8 @@ export default function RunDetailPage() {
 								style={{ transform: "rotate(90deg)" }}
 							/>
 							<Text size="sm" c="dimmed">
-								<Anchor variant='gradient' underline="never" href={run.trigger_context.url} target="_blank" rel="noopener noreferrer">
-									{run.trigger_context?.sha.slice(0, 7)}
+								<Anchor variant='gradient' underline="never" href={ctx?.url} target="_blank" rel="noopener noreferrer">
+									{ctx?.sha.slice(0, 7)}
 								</Anchor>
 							</Text>
 						</Group>
