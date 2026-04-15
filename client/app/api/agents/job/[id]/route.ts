@@ -1,9 +1,12 @@
 import { validateAgentToken } from "@/utils/agents/validateAgentToken";
 import { createClient } from "@/utils/supabase/server";
-import { JobStatus } from "@mincy/shared";
+import type { JobStatus } from "@mincy/shared";
 import type { NextRequest } from "next/server";
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+	request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> },
+) {
 	const agent = await validateAgentToken(request);
 	if (!agent) {
 		return new Response(JSON.stringify({ message: "Invalid credentials" }), {
@@ -25,8 +28,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		});
 	}
 
-
-	const validStatuses: JobStatus[] = ["running", "passed", "failed", "completed"];
+	const validStatuses: JobStatus[] = [
+		"running",
+		"passed",
+		"failed",
+		"completed",
+	];
 
 	if (!status || !validStatuses.includes(status)) {
 		return new Response(JSON.stringify({ message: "Invalid request body" }), {
@@ -35,7 +42,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		});
 	}
 
-	const isTerminal = status === "passed" || status === "failed" || status === "completed";
+	const isTerminal =
+		status === "passed" || status === "failed" || status === "completed";
 	const { error } = await supabase
 		.from("PipelineRun")
 		.update({

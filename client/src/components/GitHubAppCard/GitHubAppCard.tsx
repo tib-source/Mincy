@@ -49,7 +49,11 @@ export function GitHubAppCard() {
 							<IconBrandGithub size={20} />
 							<Text fw={500}>GitHub App</Text>
 						</Group>
-						<Badge color="green" variant="light" leftSection={<IconCheck size={12} />}>
+						<Badge
+							color="green"
+							variant="light"
+							leftSection={<IconCheck size={12} />}
+						>
 							Connected
 						</Badge>
 					</Group>
@@ -100,8 +104,8 @@ export function GitHubAppCard() {
 				<Divider />
 
 				<Text size="sm" c="dimmed">
-					Install the Mincy GitHub App to enable webhook-triggered pipelines
-					and repository access for your projects.
+					Install the Mincy GitHub App to enable webhook-triggered pipelines and
+					repository access for your projects.
 				</Text>
 
 				{installUrl ? (

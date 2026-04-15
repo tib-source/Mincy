@@ -61,7 +61,7 @@ export default function ProjectsPage() {
 				</Button>
 			</Group>
 
-			{(isLoading) && (
+			{isLoading && (
 				<Center>
 					<Loader type="dots" />
 				</Center>

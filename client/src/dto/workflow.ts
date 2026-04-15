@@ -5,5 +5,3 @@ export const createWorkflowSchema = z.object({
 	environment: z.string().min(0),
 	pipeline: z.json(),
 });
-
-

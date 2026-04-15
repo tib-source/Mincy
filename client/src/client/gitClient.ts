@@ -81,7 +81,8 @@ export function createGitHubClient({ accessToken }: GithubClientOptions) {
 			request<GitHubRepo>(`/repos/${owner}/${repo}`),
 
 		getBranchHead: (owner: string, repo: string, branch: string) =>
-			request<{ commit: { sha: string } }>(`/repos/${owner}/${repo}/branches/${branch}`)
-				.then((b) => b.commit.sha),
+			request<{ commit: { sha: string } }>(
+				`/repos/${owner}/${repo}/branches/${branch}`,
+			).then((b) => b.commit.sha),
 	};
 }

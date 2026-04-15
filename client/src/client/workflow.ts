@@ -43,10 +43,16 @@ export async function updateWorkflow(projectId: string, workflow: object) {
 		})
 		.eq("projectId", projectId);
 
-	if (error) {throw new Error(error.message);}
+	if (error) {
+		throw new Error(error.message);
+	}
 }
 
-export async function runWorkflow(projectId: string, workflowId: string, triggerType: TriggerType) {
+export async function runWorkflow(
+	projectId: string,
+	workflowId: string,
+	triggerType: TriggerType,
+) {
 	const res = await fetch("/api/runs", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },

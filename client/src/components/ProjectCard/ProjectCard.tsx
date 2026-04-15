@@ -30,14 +30,17 @@ interface ProjectCardProps {
 	isLoading?: boolean;
 }
 
-export function ProjectCard({ project, repoData, isLoading }: ProjectCardProps) {
-
-	const statusColorMapping : Record<JobStatus, string> = {
+export function ProjectCard({
+	project,
+	repoData,
+	isLoading,
+}: ProjectCardProps) {
+	const statusColorMapping: Record<JobStatus, string> = {
 		passed: "green",
 		failed: "red",
 		running: "orange",
 		queued: "",
-		completed: ""
+		completed: "",
 	};
 
 	const statusIconMapping = (status: JobStatus) => {
@@ -51,7 +54,7 @@ export function ProjectCard({ project, repoData, isLoading }: ProjectCardProps) 
 			default:
 				return <IconQuestionMark size={15} strokeWidth={1} />;
 		}
-	}
+	};
 	const { data: recentRuns } = useRecentProjectRuns(project.id);
 	const recentRun = recentRuns ? recentRuns[0] : null;
 	if (isLoading) {

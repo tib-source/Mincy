@@ -9,7 +9,13 @@ interface StatCardProps {
 	isLoading?: boolean;
 }
 
-export function StatCard({ title, value, icon, color, isLoading }: StatCardProps) {
+export function StatCard({
+	title,
+	value,
+	icon,
+	color,
+	isLoading,
+}: StatCardProps) {
 	return (
 		<Card padding="lg" radius="md" withBorder>
 			<Group justify="space-between" align="center">

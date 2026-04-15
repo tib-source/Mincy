@@ -1,12 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { Container, Flex, SimpleGrid, Stack, Text, Title } from "@mantine/core";
-import {
-	IconCircleCheck,
-	IconFolder,
-	IconRobot,
-} from "@tabler/icons-react";
+import { Container, Flex, Stack, Text, Title } from "@mantine/core";
+import { IconCircleCheck, IconFolder, IconRobot } from "@tabler/icons-react";
 import { useAllProjects } from "@/src/hooks/projects/useProject";
 import { useRecentRuns } from "@/src/hooks/runs/useRuns";
 import { useAgents } from "@/src/hooks/agents/useAgents";
@@ -26,14 +22,10 @@ export default function HomePage() {
 		return map;
 	}, [projects]);
 
-	const activeAgents =
-		agents?.filter((a) => a.status === "active").length ?? 0;
-	const passedRuns =
-		runs?.filter((r) => r.status === "passed").length ?? 0;
+	const activeAgents = agents?.filter((a) => a.status === "active").length ?? 0;
+	const passedRuns = runs?.filter((r) => r.status === "passed").length ?? 0;
 	const successRate =
-		runs && runs.length > 0
-			? Math.round((passedRuns / runs.length) * 100)
-			: 0;
+		runs && runs.length > 0 ? Math.round((passedRuns / runs.length) * 100) : 0;
 
 	return (
 		<Container fluid pl="xl" pr="xl" pt="lg">

@@ -23,7 +23,7 @@ import { useState } from "react";
 import { useDesignerStore } from "../store/store";
 import { BaseNode } from "./Base/BaseNode";
 import type { NodeDefinition } from "./registry";
-import { CommitTriggerConfig, TriggerConfig, TriggerType } from "@mincy/shared";
+import type { CommitTriggerConfig, TriggerConfig, TriggerType } from "@mincy/shared";
 
 export const TriggerNodeDefinition: NodeDefinition = {
 	type: "TriggerNode",
@@ -34,7 +34,6 @@ export const TriggerNodeDefinition: NodeDefinition = {
 	color: "oklch(0.72 0.16 45)",
 	description: "start your workflow",
 };
-
 
 interface TriggerOptions {
 	type: TriggerType;

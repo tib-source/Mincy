@@ -23,7 +23,10 @@ import {
 import { useRouter } from "next/navigation";
 import type { PipelineRun } from "@/src/client/runs";
 import { timeAgo } from "@/utils/api/helpers";
-import { DataTable, type DataTableColumn } from "@/src/components/DataTable/DataTable";
+import {
+	DataTable,
+	type DataTableColumn,
+} from "@/src/components/DataTable/DataTable";
 import { getDuration } from "@/utils/helpers";
 
 type TriggerContext = Record<string, unknown> | null;
@@ -49,10 +52,7 @@ const statusConfig: Record<
 	running: {
 		color: "blue",
 		icon: (
-			<IconLoader2
-				size={16}
-				style={{ animation: "spin 1s linear infinite" }}
-			/>
+			<IconLoader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
 		),
 		label: "Running",
 	},
@@ -68,13 +68,19 @@ const statusConfig: Record<
 	},
 };
 
-const triggerConfig: Record<string, { color: string; icon: React.ReactNode; label: string }> =
-	{
-		manual: { color: "violet", icon: <IconPlayerPlay size={12} />, label: "Manual" },
-		commit: { color: "blue", icon: <IconRocket size={12} />, label: "Push" },
-		tag: { color: "teal", icon: <IconTag size={12} />, label: "Tag" },
-		cron: { color: "orange", icon: <IconClock size={12} />, label: "Scheduled" },
-	};
+const triggerConfig: Record<
+	string,
+	{ color: string; icon: React.ReactNode; label: string }
+> = {
+	manual: {
+		color: "violet",
+		icon: <IconPlayerPlay size={12} />,
+		label: "Manual",
+	},
+	commit: { color: "blue", icon: <IconRocket size={12} />, label: "Push" },
+	tag: { color: "teal", icon: <IconTag size={12} />, label: "Tag" },
+	cron: { color: "orange", icon: <IconClock size={12} />, label: "Scheduled" },
+};
 
 interface RunListProps {
 	runs: PipelineRun[];
@@ -83,7 +89,12 @@ interface RunListProps {
 	projectNames?: Map<string, string>;
 }
 
-export function RunList({ runs, projectId, isLoading, projectNames }: RunListProps) {
+export function RunList({
+	runs,
+	projectId,
+	isLoading,
+	projectNames,
+}: RunListProps) {
 	const router = useRouter();
 
 	if (isLoading) {
@@ -205,12 +216,20 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 			render: (run) => {
 				const c = ctx(run);
 				if (!c || run.triggered_by === "tag") {
-					return <Text size="xs" c="dimmed">--</Text>;
+					return (
+						<Text size="xs" c="dimmed">
+							--
+						</Text>
+					);
 				}
 
 				const branch = (c.branch as string) || (c.ref as string);
 				if (!branch) {
-					return <Text size="xs" c="dimmed">--</Text>;
+					return (
+						<Text size="xs" c="dimmed">
+							--
+						</Text>
+					);
 				}
 
 				return (
@@ -227,9 +246,15 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 			key: "trigger",
 			label: "Trigger",
 			render: (run) => {
-				const trigger = run.triggered_by ? triggerConfig[run.triggered_by] : null;
+				const trigger = run.triggered_by
+					? triggerConfig[run.triggered_by]
+					: null;
 				if (!trigger) {
-					return <Text size="xs" c="dimmed">--</Text>;
+					return (
+						<Text size="xs" c="dimmed">
+							--
+						</Text>
+					);
 				}
 				return (
 					<Badge
@@ -252,7 +277,10 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 			width: 100,
 			render: (run) => (
 				<Text size="xs" c="dimmed">
-					{getDuration(new Date(run.created_at), run.finished_at ? new Date(run.finished_at) : undefined)}
+					{getDuration(
+						new Date(run.created_at),
+						run.finished_at ? new Date(run.finished_at) : undefined,
+					)}
 				</Text>
 			),
 		},
@@ -261,7 +289,9 @@ export function RunList({ runs, projectId, isLoading, projectNames }: RunListPro
 			label: "Time",
 			width: 150,
 			render: (run) => (
-				<Text size="xs" c="dimmed">{timeAgo(run.created_at)}</Text>
+				<Text size="xs" c="dimmed">
+					{timeAgo(run.created_at)}
+				</Text>
 			),
 		},
 	];

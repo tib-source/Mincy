@@ -68,7 +68,9 @@ export function ProjectCreateModal(props: ModalProps) {
 	const { mutate, isPending, isSuccess, error } = useCreateProject();
 
 	const handleCreate = () => {
-		if (!selectedRepo) {return;}
+		if (!selectedRepo) {
+			return;
+		}
 		mutate(selectedRepo);
 	};
 

@@ -58,7 +58,6 @@ export type TriggerConfig =
 	| ScheduledTriggerConfig
 	| CommitTriggerConfig;
 
-
 export interface JobDefinition {
 	stages: Stage[];
 	triggers: TriggerConfig[];
@@ -73,5 +72,9 @@ export interface Workflow {
 	jobs: JobDefinition;
 }
 
-
-export type JobStatus = "queued" | "running" | "passed" | "failed" | "completed";
+export type JobStatus =
+	| "queued"
+	| "running"
+	| "passed"
+	| "failed"
+	| "completed";

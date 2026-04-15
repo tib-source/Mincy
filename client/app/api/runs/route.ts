@@ -38,19 +38,28 @@ export async function POST(req: Request) {
 			{ status: 400 },
 		);
 	}
-	
 
 	const { githubClient } = await getGithubClient();
 	const repo = await githubClient.getRepo(project.org, project.name);
-	const sha = await githubClient.getBranchHead(project.org, project.name, repo.default_branch);
+	const sha = await githubClient.getBranchHead(
+		project.org,
+		project.name,
+		repo.default_branch,
+	);
 
 	const triggerContext: ContextType = {
 		ref: repo.default_branch,
 		sha,
 		url: repo.html_url,
-	}
+	};
 
-	await createRun(supabase, project.id, workflow.id, body.triggerType, triggerContext);
+	await createRun(
+		supabase,
+		project.id,
+		workflow.id,
+		body.triggerType,
+		triggerContext,
+	);
 
 	return NextResponse.json({}, { status: 201 });
 }

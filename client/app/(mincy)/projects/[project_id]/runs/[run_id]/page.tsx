@@ -278,7 +278,13 @@ export default function RunDetailPage() {
 								style={{ transform: "rotate(90deg)" }}
 							/>
 							<Text size="sm" c="dimmed">
-								<Anchor variant='gradient' underline="never" href={ctx?.url} target="_blank" rel="noopener noreferrer">
+								<Anchor
+									variant="gradient"
+									underline="never"
+									href={ctx?.url}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
 									{ctx?.sha.slice(0, 7)}
 								</Anchor>
 							</Text>

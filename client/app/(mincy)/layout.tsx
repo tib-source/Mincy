@@ -54,7 +54,10 @@ export default function RootLayout({
 		},
 	];
 
-	const headerContextValue = useMemo(() => ({ setHeader: setHeaderContent }), []);
+	const headerContextValue = useMemo(
+		() => ({ setHeader: setHeaderContent }),
+		[],
+	);
 
 	return (
 		<HeaderContext.Provider value={headerContextValue}>

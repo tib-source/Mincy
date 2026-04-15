@@ -75,15 +75,12 @@ export async function getGithubAppInstallation(): Promise<GithubInstallationStat
 	}
 
 	try {
-		const res = await fetch(
-			"https://api.github.com/user/installations",
-			{
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					Accept: "application/vnd.github+json",
-				},
+		const res = await fetch("https://api.github.com/user/installations", {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: "application/vnd.github+json",
 			},
-		);
+		});
 
 		if (!res.ok) {
 			return { installed: false };

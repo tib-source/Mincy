@@ -28,7 +28,6 @@ type ProjectWithWorkflow = {
 	workflow: Tables<"Workflow">;
 };
 
-
 export async function getProjectWithWorkflowByRepo(
 	client: any,
 	org: string,
@@ -41,7 +40,9 @@ export async function getProjectWithWorkflowByRepo(
 		.eq("org", org)
 		.single();
 
-	if (error || !data) {return null;}
+	if (error || !data) {
+		return null;
+	}
 
 	const workflow = data.Workflow?.[0];
 	return workflow ? { project: data, workflow } : null;

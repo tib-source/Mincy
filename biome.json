@@ -12,7 +12,7 @@
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
-		"includes": ["**", "!**/*.module.css"]
+		"includes": ["**", "!**/*.module.css", "!shared/src/database.types.ts"]
 	},
 	"linter": {
 		"enabled": true,
@@ -35,7 +35,7 @@
 				}
 			}
 		},
-		"includes": ["**", "!**/*.module.css"]
+		"includes": ["**", "!**/*.module.css", "!shared/src/database.types.ts"]
 	},
 	"javascript": {
 		"formatter": {
