@@ -9,7 +9,9 @@ async function fetchAgents(): Promise<Tables<"Agents">[]> {
 	return res.json();
 }
 
-async function createAgent(name: string): Promise<{ agent: Tables<"Agents">; token: string }> {
+async function createAgent(
+	name: string,
+): Promise<{ agent: Tables<"Agents">; token: string }> {
 	const res = await fetch("/api/agents/create", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },

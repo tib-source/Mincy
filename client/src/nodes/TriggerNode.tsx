@@ -23,6 +23,7 @@ import { useState } from "react";
 import { useDesignerStore } from "../store/store";
 import { BaseNode } from "./Base/BaseNode";
 import type { NodeDefinition } from "./registry";
+import type { CommitTriggerConfig, TriggerConfig, TriggerType } from "@mincy/shared";
 
 export const TriggerNodeDefinition: NodeDefinition = {
 	type: "TriggerNode",
@@ -33,38 +34,6 @@ export const TriggerNodeDefinition: NodeDefinition = {
 	color: "oklch(0.72 0.16 45)",
 	description: "start your workflow",
 };
-
-export type TriggerType =
-	| "manual"
-	| "commit"
-	| "schedule"
-	| "webhook"
-	| "tag"
-	| "pull_request";
-
-export interface BaseTriggerConfig {
-	type: TriggerType;
-	enabled: boolean;
-}
-
-export interface ManualTriggerConfig extends BaseTriggerConfig {
-	type: "manual";
-}
-
-export interface ScheduledTriggerConfig extends BaseTriggerConfig {
-	type: "schedule";
-	cronSchedule: string;
-}
-
-export interface CommitTriggerConfig extends BaseTriggerConfig {
-	type: "commit";
-	branches: string[];
-}
-
-export type TriggerConfig =
-	| ManualTriggerConfig
-	| ScheduledTriggerConfig
-	| CommitTriggerConfig;
 
 interface TriggerOptions {
 	type: TriggerType;
@@ -163,7 +132,7 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 	const config: Triggers = (data?.config as Triggers) ?? {
 		triggers: [
 			{ type: "manual", enabled: true },
-			{ type: "commit", branches: ["main"] },
+			{ type: "commit", enabled: true, branches: ["*"] },
 		],
 	};
 

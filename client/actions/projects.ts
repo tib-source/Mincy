@@ -22,3 +22,28 @@ export async function getProjectById(
 
 	return data;
 }
+
+type ProjectWithWorkflow = {
+	project: Tables<"Projects">;
+	workflow: Tables<"Workflow">;
+};
+
+export async function getProjectWithWorkflowByRepo(
+	client: any,
+	org: string,
+	name: string,
+): Promise<ProjectWithWorkflow | null> {
+	const { data, error } = await client
+		.from("Projects")
+		.select("*, Workflow(*)")
+		.eq("name", name)
+		.eq("org", org)
+		.single();
+
+	if (error || !data) {
+		return null;
+	}
+
+	const workflow = data.Workflow?.[0];
+	return workflow ? { project: data, workflow } : null;
+}

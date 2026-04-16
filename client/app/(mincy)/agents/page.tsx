@@ -17,32 +17,58 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import {
-	IconCheck,
-	IconCopy,
-	IconPlus,
-	IconTrash,
-} from "@tabler/icons-react";
+import { IconCheck, IconCopy, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
-import { useAgents, useCreateAgent, useDeleteAgent } from "@/src/hooks/agents/useAgents";
+import {
+	useAgents,
+	useCreateAgent,
+	useDeleteAgent,
+} from "@/src/hooks/agents/useAgents";
 import { timeAgo } from "@/utils/api/helpers";
-import { DataTable, type DataTableColumn } from "@/src/components/DataTable/DataTable";
+import {
+	DataTable,
+	type DataTableColumn,
+} from "@/src/components/DataTable/DataTable";
 import type { Tables } from "@mincy/shared";
 
-function AgentStatusBadge({ status, lastHeartbeat }: { status: string | null; lastHeartbeat: string | null }) {
-	const isHealthy = status === "active" && lastHeartbeat &&
-		(Date.now() - new Date(lastHeartbeat).getTime()) < 30_000;
+function AgentStatusBadge({
+	status,
+	lastHeartbeat,
+}: {
+	status: string | null;
+	lastHeartbeat: string | null;
+}) {
+	const isHealthy =
+		status === "active" &&
+		lastHeartbeat &&
+		Date.now() - new Date(lastHeartbeat).getTime() < 30_000;
 
 	if (isHealthy) {
-		return <Badge color="green" variant="light">Healthy</Badge>;
+		return (
+			<Badge color="green" variant="light">
+				Healthy
+			</Badge>
+		);
 	}
 	if (status === "active") {
-		return <Badge color="yellow" variant="light">Stale</Badge>;
+		return (
+			<Badge color="yellow" variant="light">
+				Stale
+			</Badge>
+		);
 	}
 	if (status === "paused") {
-		return <Badge color="orange" variant="light">Paused</Badge>;
+		return (
+			<Badge color="orange" variant="light">
+				Paused
+			</Badge>
+		);
 	}
-	return <Badge color="gray" variant="light">Offline</Badge>;
+	return (
+		<Badge color="gray" variant="light">
+			Offline
+		</Badge>
+	);
 }
 
 export default function AgentsPage() {
@@ -59,7 +85,9 @@ export default function AgentsPage() {
 	}
 
 	async function handleCreate() {
-		if (!name.trim()) {return;}
+		if (!name.trim()) {
+			return;
+		}
 		try {
 			const result = await createAgent.mutateAsync(name.trim());
 			setGeneratedToken(result.token);
@@ -95,14 +123,21 @@ export default function AgentsPage() {
 			label: "Status",
 			width: 120,
 			render: (agent) => (
-				<AgentStatusBadge status={agent.status} lastHeartbeat={agent.last_heartbeat} />
+				<AgentStatusBadge
+					status={agent.status}
+					lastHeartbeat={agent.last_heartbeat}
+				/>
 			),
 		},
 		{
 			key: "type",
 			label: "Type",
 			width: 100,
-			render: (agent) => <Text size="sm" c="dimmed">{agent.type || "docker"}</Text>,
+			render: (agent) => (
+				<Text size="sm" c="dimmed">
+					{agent.type || "docker"}
+				</Text>
+			),
 		},
 		{
 			key: "capacity",
@@ -115,7 +150,9 @@ export default function AgentsPage() {
 			label: "Created",
 			width: 150,
 			render: (agent) => (
-				<Text size="sm" c="dimmed">{timeAgo(agent.created_at)}</Text>
+				<Text size="sm" c="dimmed">
+					{timeAgo(agent.created_at)}
+				</Text>
 			),
 		},
 		{
@@ -168,7 +205,9 @@ export default function AgentsPage() {
 									color={copied ? "teal" : "gray"}
 									variant="light"
 									onClick={copy}
-									leftSection={copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+									leftSection={
+										copied ? <IconCheck size={16} /> : <IconCopy size={16} />
+									}
 									fullWidth
 								>
 									{copied ? "Copied" : "Copy Token"}
@@ -229,7 +268,11 @@ export default function AgentsPage() {
 				<Center mt="xl">
 					<Stack align="center" gap="sm">
 						<Text c="dimmed">No agents registered yet.</Text>
-						<Button variant="light" onClick={open} leftSection={<IconPlus size={16} />}>
+						<Button
+							variant="light"
+							onClick={open}
+							leftSection={<IconPlus size={16} />}
+						>
 							Register your first agent
 						</Button>
 					</Stack>

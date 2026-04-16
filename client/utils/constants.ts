@@ -3,14 +3,38 @@ export const BASE_WORKFLOW = {
 		{
 			id: "n2",
 			position: { x: 0, y: 0 },
-			data: { label: "Checkout", cmd: ["ls -la"] },
+			data: { label: "Checkout" },
 			type: "GitCheckoutNode",
 		},
 		{
 			id: "n1",
-			position: { x: 100, y: 100 },
-			data: { label: "Trigger" },
+			data: {
+				label: "Trigger",
+				config: {
+					triggers: [
+						{
+							type: "manual",
+							enabled: true,
+						},
+						{
+							type: "commit",
+							enabled: true,
+							branches: ["main", "*"],
+						},
+					],
+				},
+			},
 			type: "TriggerNode",
+			dragging: false,
+			measured: {
+				width: 366,
+				height: 338,
+			},
+			position: {
+				x: -218,
+				y: -14,
+			},
+			selected: true,
 		},
 	],
 	edges: [

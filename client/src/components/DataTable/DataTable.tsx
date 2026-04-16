@@ -15,13 +15,21 @@ interface DataTableProps<T> {
 	onRowClick?: (item: T) => void;
 }
 
-export function DataTable<T>({ columns, data, getKey, onRowClick }: DataTableProps<T>) {
+export function DataTable<T>({
+	columns,
+	data,
+	getKey,
+	onRowClick,
+}: DataTableProps<T>) {
 	return (
 		<div className={classes.wrapper}>
 			<table className={classes.table}>
 				<colgroup>
 					{columns.map((col) => (
-						<col key={col.key} style={col.width ? { width: col.width } : undefined} />
+						<col
+							key={col.key}
+							style={col.width ? { width: col.width } : undefined}
+						/>
 					))}
 				</colgroup>
 				<thead className={classes.thead}>

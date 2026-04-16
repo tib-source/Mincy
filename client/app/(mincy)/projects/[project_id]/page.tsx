@@ -25,13 +25,15 @@ import { useProjectRuns } from "@/src/hooks/runs/useRuns";
 import { RunList } from "@/src/components/RunList/RunList";
 import { useHeader } from "@/src/hooks/useHeader";
 import type { HeaderContent } from "@/src/context/HeaderContext";
-
+import { useEffect } from "react";
+import { notifications } from "@mantine/notifications";
+import type { PipelineRun } from "@/src/client/runs";
 export default function ProjectPage() {
 	const pars = useParams<{ project_id: string }>();
 	const projectId = pars.project_id;
 	const { data: project } = useProject(projectId);
 	const { data: workflow } = useWorkflow(projectId);
-	const runWorkflow = useRunWorkflow(projectId, workflow?.id ?? "");
+	const runWorkflow = useRunWorkflow(projectId, workflow?.id ?? "", "manual");
 	const { data: runs, isLoading: runsLoading } = useProjectRuns(project?.id);
 
 	const header: HeaderContent = {
@@ -46,6 +48,16 @@ export default function ProjectPage() {
 	};
 
 	useHeader(header);
+
+	useEffect(() => {
+		if (runWorkflow.isError) {
+			notifications.show({
+				title: "Error",
+				message: runWorkflow.error?.message || "Failed to run workflow",
+				color: "red",
+			});
+		}
+	}, [runWorkflow.isError, runWorkflow.error]);
 
 	return (
 		<Container fluid p="lg">
@@ -93,7 +105,7 @@ export default function ProjectPage() {
 				</Flex>
 
 				<RunList
-					runs={runs || []}
+					runs={(runs as PipelineRun[]) || []}
 					projectId={projectId}
 					isLoading={runsLoading}
 				/>

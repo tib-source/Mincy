@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
-import type { Tables } from "@mincy/shared";
+import type { Tables, TriggerType } from "@mincy/shared";
 
 import { z } from "zod";
 
@@ -13,7 +13,7 @@ export type WorkflowPipeline = z.infer<typeof PipelineSchema>;
 export async function getWorkflowForProject(
 	projectId: string,
 ): Promise<Tables<"Workflow"> | undefined> {
-	const supabase = await createClient();
+	const supabase = createClient();
 
 	const { data, error } = await supabase
 		.from("Workflow")
@@ -29,7 +29,7 @@ export async function getWorkflowForProject(
 }
 
 export async function updateWorkflow(projectId: string, workflow: object) {
-	const supabase = await createClient();
+	const supabase = createClient();
 	const existing = await getWorkflowForProject(projectId);
 
 	if (!existing) {
@@ -43,16 +43,23 @@ export async function updateWorkflow(projectId: string, workflow: object) {
 		})
 		.eq("projectId", projectId);
 
-	if (error) throw new Error(error.message);
+	if (error) {
+		throw new Error(error.message);
+	}
 }
 
-export async function runWorkflow(projectId: string, workflowId: string) {
+export async function runWorkflow(
+	projectId: string,
+	workflowId: string,
+	triggerType: TriggerType,
+) {
 	const res = await fetch("/api/runs", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
 			projectId,
 			workflowId,
+			triggerType,
 		}),
 	});
 

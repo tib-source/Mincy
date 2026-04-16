@@ -1,6 +1,7 @@
 "use client";
 import {
 	ActionIcon,
+	Anchor,
 	Badge,
 	Container,
 	Group,
@@ -220,14 +221,8 @@ export default function RunDetailPage() {
 				>
 					<IconChevronLeft stroke={1.5} />
 				</ActionIcon>
-				<Text size="sm" c="dimmed">
-					Projects
-				</Text>
-				<Text size="sm" c="dimmed">
-					&gt;
-				</Text>
-				<Text size="sm" fw={500}>
-					{project?.name || "Project"}
+				<Text size="lg" fw={600}>
+					Run #{params.run_id.slice(0, 8)}
 				</Text>
 			</Group>
 		),
@@ -252,13 +247,15 @@ export default function RunDetailPage() {
 		);
 	}
 
+	const ctx = run.trigger_context as Record<string, any> | null;
+
 	return (
 		<Stack gap={0} h="100%">
 			<Stack gap="sm" px="lg" pt="lg" pb="md">
 				<Group gap="sm" align="center">
 					<Text size="xl" fw={600}>
 						Run #{run.id.slice(0, 8)}
-						{run.branch ? `: ${run.branch}` : ""}
+						{ctx?.branch ? `: ${ctx.branch}` : ""}
 					</Text>
 					<Badge
 						variant="light"
@@ -273,15 +270,23 @@ export default function RunDetailPage() {
 				</Group>
 
 				<Group gap="lg">
-					{run.commit_sha && (
+					{ctx?.sha && (
 						<Group gap={6}>
 							<IconGitCommit
 								size={15}
 								color="var(--mantine-color-dimmed)"
 								style={{ transform: "rotate(90deg)" }}
 							/>
-							<Text size="sm" c="dimmed" ff="monospace">
-								{run.commit_sha.slice(0, 7)}
+							<Text size="sm" c="dimmed">
+								<Anchor
+									variant="gradient"
+									underline="never"
+									href={ctx?.url}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									{ctx?.sha.slice(0, 7)}
+								</Anchor>
 							</Text>
 						</Group>
 					)}

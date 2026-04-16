@@ -1,7 +1,5 @@
 import { createGitHubClient } from "@/src/client/gitClient";
 import { createClient } from "../supabase/server";
-import { getSecret } from "./secrets";
-import { GITHUB_SECRET_NAMES } from "./secretNames";
 
 export class GitHubTokenExpiredError extends Error {
 	constructor() {
@@ -20,11 +18,7 @@ export async function getGithubClient() {
 		throw new Error("Not authenticated");
 	}
 
-	let accessToken = session.provider_token;
-
-	if (!accessToken) {
-		accessToken = await getSecret(GITHUB_SECRET_NAMES.ACCESS_TOKEN);
-	}
+	const accessToken = session.provider_token;
 
 	if (!accessToken) {
 		throw new GitHubTokenExpiredError();

@@ -4,6 +4,8 @@ Deno.serve(async (req) => {
 	const payload = await req.json();
 	const { record, old_record, type } = payload;
 
+	
+
 	// prevent cyclical update
 	if (
 		type === "UPDATE" &&
@@ -12,11 +14,18 @@ Deno.serve(async (req) => {
 		return new Response("Ignoring internal update", { status: 200 });
 	}
 
+
 	const { nodes, edges } = record.pipeline || { nodes: [], edges: [] };
 
+
+
 	try {
-		const stageNodes = nodes.filter((n: any) => n.type === "stage");
-		const childNodes = nodes.filter((n: any) => n.type !== "stage");
+
+		const triggerNode = nodes.find((n: any) => n.type === "TriggerNode");
+		const executionNodes = nodes.filter((n: any) => n.type !== "TriggerNode");
+
+		const stageNodes = executionNodes.filter((n: any) => n.type === "stage");
+		const childNodes = executionNodes.filter((n: any) => n.type !== "stage");
 
 		const stageById = new Map(stageNodes.map((s: any) => [s.id, s]));
 
@@ -97,8 +106,10 @@ Deno.serve(async (req) => {
 			});
 		}
 
+		const triggers = triggerNode?.data?.config?.triggers || [];
 		const jobDefinition = {
 			stages,
+			triggers,
 			calculated_at: new Date().toISOString(),
 			source_hash: btoa(JSON.stringify(record.pipeline)).substring(0, 8),
 		};

@@ -19,6 +19,7 @@ export type GitHubRepo = {
 	description: string | null;
 	clone_url: string;
 	created_at: string;
+	default_branch: string;
 	owner: {
 		login: string;
 		avatar_url: string;
@@ -78,5 +79,10 @@ export function createGitHubClient({ accessToken }: GithubClientOptions) {
 
 		getRepo: (owner: string, repo: string) =>
 			request<GitHubRepo>(`/repos/${owner}/${repo}`),
+
+		getBranchHead: (owner: string, repo: string, branch: string) =>
+			request<{ commit: { sha: string } }>(
+				`/repos/${owner}/${repo}/branches/${branch}`,
+			).then((b) => b.commit.sha),
 	};
 }

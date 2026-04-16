@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { parseBody } from "@/utils/api/helpers";
 import { getSession } from "@/utils/api/getSession";
-import { runWorkflowSchema } from "@/src/dto/workflow";
+import { runWorkflowSchema, type ContextType } from "@/src/dto/runs";
+import { createRun } from "@/actions/runs";
+import { getGithubClient } from "@/utils/api/githubAuth";
+import { getWorkflowWithId } from "@/actions/workflow";
+import { getProjectById } from "@/actions/projects";
 
 export async function POST(req: Request) {
 	const result = await getSession();
@@ -13,17 +17,49 @@ export async function POST(req: Request) {
 	const { supabase } = result;
 	const body = await parseBody(req, runWorkflowSchema);
 
-	const { error } = await supabase.from("PipelineRun").insert({
-		project_id: body.projectId,
-		workflow_id: body.workflowId,
-		agent_id: null,
-		logs: null,
-		status: "pending",
-	});
-
-	if (error) {
-		return new Response(JSON.stringify({ error }), { status: 400 });
+	const project = await getProjectById(body.projectId);
+	if (!project) {
+		return new Response(JSON.stringify({ error: "Project not found" }), {
+			status: 404,
+		});
 	}
+	const workflow = await getWorkflowWithId(body.workflowId);
+	if (!workflow) {
+		return new Response(JSON.stringify({ error: "Workflow not found" }), {
+			status: 404,
+		});
+	}
+
+	const triggers = (workflow.jobs as any)?.triggers;
+	console.log("Workflow triggers:", workflow);
+	if (!triggers?.some((t: any) => t.type === body.triggerType && t.enabled)) {
+		return new Response(
+			JSON.stringify({ error: "Trigger type not enabled for this workflow" }),
+			{ status: 400 },
+		);
+	}
+
+	const { githubClient } = await getGithubClient();
+	const repo = await githubClient.getRepo(project.org, project.name);
+	const sha = await githubClient.getBranchHead(
+		project.org,
+		project.name,
+		repo.default_branch,
+	);
+
+	const triggerContext: ContextType = {
+		ref: repo.default_branch,
+		sha,
+		url: repo.html_url,
+	};
+
+	await createRun(
+		supabase,
+		project.id,
+		workflow.id,
+		body.triggerType,
+		triggerContext,
+	);
 
 	return NextResponse.json({}, { status: 201 });
 }

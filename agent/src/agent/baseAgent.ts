@@ -49,9 +49,16 @@ export default class Agent {
 	}
 
 	async execute(run: Run): Promise<void> {
-		const exitCode = await this.executor.execute(run);
-		const status = exitCode === 0 ? "passed" : "failed";
-		await this.updateJobStatus(run.id, status);
+		try {
+			logger.info({ run }, "Starting job execution");
+			await this.updateJobStatus(run.id, "running");
+			const exitCode = await this.executor.execute(run);
+			const status = exitCode === 0 ? "passed" : "failed";
+			await this.updateJobStatus(run.id, status);
+		} catch (error) {
+			logger.error({ error }, "Error during job execution");
+			await this.updateJobStatus(run.id, "failed");
+		}
 	}
 
 	stop(): void {
@@ -119,7 +126,7 @@ export default class Agent {
 
 	private async updateJobStatus(
 		runId: string,
-		status: "passed" | "completed" | "failed",
+		status: "running" | "passed" | "completed" | "failed",
 	): Promise<void> {
 		await this.sendAuthenticatedRequest(
 			`${this.server}/api/agents/job/${runId}`,

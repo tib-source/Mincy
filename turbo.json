@@ -1,5 +1,6 @@
 {
 	"$schema": "https://turbo.build/schema.json",
+	"globalDependencies": ["**/.env"],
 	"tasks": {
 		"dev": {
 			"cache": false,
@@ -8,8 +9,18 @@
 			"outputs": []
 		},
 		"build": {
+			"inputs": ["src/**", "package.json"],
 			"dependsOn": ["^build"],
-			"outputs": ["dist/**", ".next/**"]
+			"outputs": ["dist/**", ".next/**"],
+			"env": [
+				"NEXT_PUBLIC_SUPABASE_URL",
+				"NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+				"SUPABASE_PRIVATE_KEY",
+				"GITHUB_APP_ID",
+				"GITHUB_WEBHOOK_SECRET",
+				"GITHUB_APP_PRIVATE_KEY",
+				"NEXT_PUBLIC_GITHUB_APP_SLUG"
+			]
 		},
 		"lint": {
 			"cache": false,
