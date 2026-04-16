@@ -9,8 +9,8 @@ const secret = process.env.GITHUB_WEBHOOK_SECRET || "";
 const appId = process.env.GITHUB_APP_ID || "";
 
 const supabase = createClient(
-	process.env.NEXT_PUBLIC_SUPABASE_URL,
-	process.env.SUPABASE_PRIVATE_KEY,
+	process.env.NEXT_PUBLIC_SUPABASE_URL!,
+	process.env.SUPABASE_PRIVATE_KEY!,
 );
 
 const app = new App({
