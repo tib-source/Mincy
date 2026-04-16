@@ -59,7 +59,7 @@ export default function ProjectEditPage() {
 				<ActionIcon
 					variant="subtle"
 					aria-label="Settings"
-					href={`/projects/${project?.id}`}
+					href={`/projects/${projectId}`}
 					component={Link}
 				>
 					<IconChevronLeft stroke={1.5} />

@@ -15,22 +15,25 @@ import {
 	Text,
 	TextInput,
 } from "@mantine/core";
-import { IconPlus, IconTrash, IconVariable, IconAlertTriangle } from "@tabler/icons-react";
+import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { EnvironmentVariable } from "@/src/client/workflow";
 import { useUpdateEnvironment } from "@/src/hooks/workflows/useUpdateEnvironment";
 import { useDeleteProject } from "@/src/hooks/projects/useDeleteProject";
+import { notifications } from "@mantine/notifications";
 import type { Tables } from "@mincy/shared";
 
 interface ProjectSettingsModalProps extends ModalProps {
 	projectId: string;
 	workflow: Tables<"Workflow"> | undefined;
+	projectName?: string;
 }
 
 export function ProjectSettingsModal({
 	projectId,
 	workflow,
+	projectName,
 	...modalProps
 }: ProjectSettingsModalProps) {
 	const [variables, setVariables] = useState<EnvironmentVariable[]>([]);
@@ -130,7 +133,10 @@ export function ProjectSettingsModal({
 								variant="light"
 								loading={isDeleting}
 								onClick={() =>
-									deleteProject(projectId, { onSuccess: () => router.push("/projects") })
+									deleteProject(projectId, { onSuccess: () => {
+										notifications.show({ title: `Project deleted`, message: `${projectName || "Project"} has been deleted`, color: "green" });
+										router.push("/projects");
+									} , onError: (error) => notifications.show({ message: error.message, color: "red" }) })
 								}
 							>
 								Delete Project

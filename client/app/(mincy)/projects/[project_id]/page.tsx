@@ -128,6 +128,7 @@ export default function ProjectPage() {
 				opened={settingsOpened}
 				onClose={closeSettings}
 				projectId={projectId}
+				projectName={project?.name}
 				workflow={workflow}
 			/>
 		</Container>
