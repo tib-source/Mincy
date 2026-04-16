@@ -22,6 +22,7 @@
 		"supabase:start": "supabase start"
 	},
 	"dependencies": {
+		"@supabase/ssr": "^0.10.2",
 		"@types/dockerode": "^3.3.44",
 		"dockerode": "^4.0.9",
 		"nanoid": "^5.1.6",
