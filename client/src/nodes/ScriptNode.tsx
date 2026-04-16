@@ -59,7 +59,13 @@ export function ScriptNode({ id, selected, data }: NodeProps) {
 	const script = config.cmd[2] || "";
 
 	const details = (
-		<div style={{ flex: 1, overflow: "hidden", minHeight: 0, borderRadius: 4 }}>
+		// eslint-disable-next-line jsx-a11y/no-static-element-interactions
+		<div
+			tabIndex={-1}
+			className="nopan nodrag nowheel"
+			onKeyDown={(e) => e.stopPropagation()}
+			style={{ flex: 1, overflow: "hidden", minHeight: 0, borderRadius: 4 }}
+		>
 			<Editor
 				height="100%"
 				language="shell"

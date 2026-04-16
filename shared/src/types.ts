@@ -5,6 +5,7 @@ export type Run = {
 		id: string;
 		projectId: string;
 		jobs: JobDefinition;
+		environment?: { key: string; value: string; secret?: boolean }[] | null;
 	};
 	project: Tables<"Projects">;
 } & Tables<"PipelineRun">;

@@ -45,6 +45,11 @@ export default class DockerExecutor implements Executor {
 		hashedId: bigint | number,
 	): Promise<number> {
 		const image = stage.image || "debian:latest";
+		const env = Array.isArray(run.workflow.environment)
+			? run.workflow.environment.map(
+					(e: any) => `${e.key}=${e.value}`,
+			  )
+			: [];
 		await this.ensureImageExists(image);
 
 		for (const step of stage.steps) {
@@ -60,6 +65,7 @@ export default class DockerExecutor implements Executor {
 				image,
 				workdir,
 				hashedId,
+				env
 			);
 			if (exitCode !== 0) {
 				return exitCode;
@@ -75,6 +81,7 @@ export default class DockerExecutor implements Executor {
 		image: string,
 		workdir: string,
 		hashedId: bigint | number,
+		envirionment: string[]
 	): Promise<number> {
 		const jobLogger = new BatchLogger(
 			context,
@@ -105,6 +112,7 @@ export default class DockerExecutor implements Executor {
 					HostConfig: {
 						Binds: [`${workdir}:/workspace`],
 					},
+					Env: envirionment,
 				},
 				(err, container) => {
 					if (err || !container) {

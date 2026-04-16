@@ -36,6 +36,19 @@ export async function getProjects(): Promise<Tables<"Projects">[]> {
 	return data || [];
 }
 
+export async function deleteProject(projectId: string) {
+	const supabase = createClient();
+
+	const { error } = await supabase
+		.from("Projects")
+		.delete()
+		.eq("id", projectId);
+
+	if (error) {
+		throw new Error(error.message);
+	}
+}
+
 export async function createProject(repo: GitHubRepo) {
 	const res = await fetch("/api/projects", {
 		method: "POST",
