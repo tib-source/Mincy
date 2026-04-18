@@ -2,15 +2,20 @@
 	"$schema": "https://turbo.build/schema.json",
 	"globalDependencies": ["**/.env"],
 	"tasks": {
+		"generate:manifests": {
+			"inputs": ["nodes/*/manifest.json"],
+			"outputs": ["client/src/generated/node-manifests.json"],
+			"cache": true
+		},
 		"dev": {
 			"cache": false,
 			"persistent": true,
-			"dependsOn": [],
+			"dependsOn": ["generate:manifests"],
 			"outputs": []
 		},
 		"build": {
 			"inputs": ["src/**", "package.json"],
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "generate:manifests"],
 			"outputs": ["dist/**", ".next/**"],
 			"env": [
 				"NEXT_PUBLIC_SUPABASE_URL",
@@ -23,10 +28,19 @@
 			]
 		},
 		"lint": {
-			"cache": false,
-			"persistent": true,
-			"dependsOn": [],
-			"outputs": []
+			"cache": false
+		},
+		"lint:fix": {
+			"cache": false
+		},
+		"lint:ci": {
+			"cache": false
+		},
+		"format": {
+			"cache": false
+		},
+		"format:fix": {
+			"cache": false
 		},
 		"test": {}
 	}

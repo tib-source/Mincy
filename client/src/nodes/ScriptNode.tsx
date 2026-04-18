@@ -56,7 +56,7 @@ export function ScriptNode({ id, selected, data }: NodeProps) {
 		updateNodeData(id, { config: { ...config, ...updates } });
 	};
 
-	const script = config.cmd[2] || "";
+	const script = config.cmd[3] || "";
 
 	const details = (
 		// eslint-disable-next-line jsx-a11y/no-static-element-interactions
@@ -72,7 +72,7 @@ export function ScriptNode({ id, selected, data }: NodeProps) {
 				theme="command-node"
 				value={script}
 				beforeMount={handleEditorWillMount}
-				onChange={(v) => updateConfig({ cmd: ["sh", "-c", v ?? ""] })}
+				onChange={(v) => updateConfig({ cmd: ["bash", "-l", "-c", v ?? ""] })}
 				options={{
 					minimap: { enabled: false },
 					lineNumbers: "off",

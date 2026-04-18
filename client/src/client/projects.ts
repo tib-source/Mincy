@@ -49,7 +49,7 @@ export async function deleteProject(projectId: string) {
 	}
 }
 
-export async function createProject(repo: GitHubRepo) {
+export async function createProject(repo: GitHubRepo & { installation_id?: number }) {
 	const res = await fetch("/api/projects", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -58,7 +58,8 @@ export async function createProject(repo: GitHubRepo) {
 			description: repo.description ?? "",
 			org: repo.owner.login,
 			provider: "github",
-			cloneUrl: repo.git_url,
+			cloneUrl: repo.clone_url,
+			installation_id: repo.installation_id,
 		}),
 	});
 

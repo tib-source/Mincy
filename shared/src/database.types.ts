@@ -183,6 +183,7 @@ export type Database = {
           createdAt: string
           description: string
           id: string
+          installation_id: number | null
           name: string
           org: string
           provider: string
@@ -193,6 +194,7 @@ export type Database = {
           createdAt?: string
           description: string
           id?: string
+          installation_id?: number | null
           name: string
           org?: string
           provider: string
@@ -203,6 +205,7 @@ export type Database = {
           createdAt?: string
           description?: string
           id?: string
+          installation_id?: number | null
           name?: string
           org?: string
           provider?: string

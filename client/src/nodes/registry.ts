@@ -1,8 +1,8 @@
 import type React from "react";
-import { GitCheckoutNodeDefinition } from "./GitCheckoutNode";
 import { TriggerNodeDefinition } from "./TriggerNode";
 import { ScriptNodeDefinition } from "./ScriptNode";
 import { StageNodeDefinition } from "./Stage/StageNode";
+import { marketplaceNodeDefinitions } from "./MarketplaceNode";
 
 export type NodeDefinition = {
 	type: string;
@@ -14,9 +14,13 @@ export type NodeDefinition = {
 	description: string;
 };
 
-export const nodeRegistry: NodeDefinition[] = [
+const builtInNodes: NodeDefinition[] = [
 	TriggerNodeDefinition,
-	GitCheckoutNodeDefinition,
 	ScriptNodeDefinition,
 	StageNodeDefinition,
+];
+
+export const nodeRegistry: NodeDefinition[] = [
+	...builtInNodes,
+	...marketplaceNodeDefinitions,
 ];

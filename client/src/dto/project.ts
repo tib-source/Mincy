@@ -6,4 +6,5 @@ export const createProjectSchema = z.object({
 	org: z.string().min(1),
 	provider: z.union([z.literal("github"), z.literal("bitbucket")]),
 	cloneUrl: z.string().min(1),
+	installation_id: z.number().optional(),
 });

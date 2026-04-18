@@ -4,6 +4,7 @@ import "@mantine/core/styles.css";
 import { AppShell, Group, Text, Title } from "@mantine/core";
 import {
 	IconFolder,
+	IconHistory,
 	IconLayoutDashboard,
 	IconRobot,
 	IconSettings,
@@ -46,6 +47,11 @@ export default function RootLayout({
 			label: "Agents",
 			link: "/agents",
 			icon: IconRobot,
+		},
+		{
+			label: "Activity",
+			link: "/audit",
+			icon: IconHistory,
 		},
 		{
 			label: "Settings",

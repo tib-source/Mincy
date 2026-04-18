@@ -1,12 +1,6 @@
 export const BASE_WORKFLOW = {
 	nodes: [
 		{
-			id: "n2",
-			position: { x: 0, y: 0 },
-			data: { label: "Checkout" },
-			type: "GitCheckoutNode",
-		},
-		{
 			id: "n1",
 			data: {
 				label: "Trigger",
@@ -37,11 +31,5 @@ export const BASE_WORKFLOW = {
 			selected: true,
 		},
 	],
-	edges: [
-		{
-			id: "n1-n2",
-			source: "n1",
-			target: "n2",
-		},
-	],
+	edges: [],
 };

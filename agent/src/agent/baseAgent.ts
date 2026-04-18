@@ -1,6 +1,6 @@
 import type { Run } from "@mincy/shared";
 import { logger } from "../..";
-import type { Executor } from "../executors/executor";
+import { BaseExecutor } from "../executors/executor";
 import { retry } from "../util";
 
 export default class Agent {
@@ -11,7 +11,7 @@ export default class Agent {
 	readonly workdir: string;
 	readonly pollInterval: number = 3000;
 	readonly server: string;
-	readonly executor: Executor;
+	readonly executor: BaseExecutor;
 	private activeJobs: number = 0;
 	private heartbeatId: NodeJS.Timeout | null = null;
 	private jobPollId: NodeJS.Timeout | null = null;
@@ -22,7 +22,7 @@ export default class Agent {
 		capacity: number,
 		workdir: string,
 		token: string,
-		executor: Executor,
+		executor: BaseExecutor,
 		server: string,
 	) {
 		this.id = id;

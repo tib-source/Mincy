@@ -30,6 +30,7 @@ export function useRunLogs(runId?: string) {
 		queryKey: ["run-logs", runId],
 		queryFn: () => getLogsForRun(runId!),
 		enabled: !!runId,
+		refetchInterval: 1000,
 	});
 }
 

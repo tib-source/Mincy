@@ -1,0 +1,19 @@
+[
+  {
+    "type": "GitCheckoutNode",
+    "label": "Git Checkout",
+    "category": "Source",
+    "color": "oklch(0.65 0.15 160)",
+    "description": "Clone a repository",
+    "icon": "git-commit",
+    "execution": {
+      "script": "run.sh",
+      "dependencies": [
+        "git"
+      ]
+    },
+    "inputs": {},
+    "configMapping": {},
+    "resizable": false
+  }
+]
