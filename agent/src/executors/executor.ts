@@ -11,6 +11,18 @@ export interface MaterializedStep {
 	env: string[];
 }
 
+const DEFAULT_SHELL_ARGV: readonly string[] = ["bash", "-l", "-c"];
+const SHELL_ARGV: Record<string, readonly string[]> = {
+	bash: DEFAULT_SHELL_ARGV,
+	sh: ["sh", "-c"],
+	zsh: ["zsh", "-c"],
+};
+
+function buildShellCmd(shell: string | undefined, script: string): string[] {
+	const prefix = (shell ? SHELL_ARGV[shell] : undefined) ?? DEFAULT_SHELL_ARGV;
+	return [...prefix, script];
+}
+
 export abstract class BaseExecutor {
 	protected readonly server: string;
 	protected readonly token: string;
@@ -84,9 +96,12 @@ export abstract class BaseExecutor {
 	}
 
 	private materializeScript(step: Step): MaterializedStep | null {
-		const cmd = (step.data?.config as any)?.cmd;
-		if (!cmd) return null;
-		return { cmd, env: [] };
+		const config = step.data?.config as
+			| { script?: string; shell?: string }
+			| undefined;
+		const script = config?.script;
+		if (!script) return null;
+		return { cmd: buildShellCmd(config?.shell, script), env: [] };
 	}
 
 	private materializeFromManifest(

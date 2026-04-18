@@ -33,7 +33,6 @@ export async function getAuditLog(page: number): Promise<AuditPage> {
 	if (error) {
 		throw new Error(error.message);
 	}
-	consoe.log("Fetched audit log entries:", data);
 	const entries = (data || []) as unknown as Omit<AuditLogEntry, "login">[];
 
 	// Resolve logins separately — no FK to profile

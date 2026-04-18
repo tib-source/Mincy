@@ -21,6 +21,7 @@ interface NodeProp {
 	node: NodeDefinition;
 	minwidth?: number;
 	minHeight?: number;
+	headerRight?: React.ReactNode;
 }
 
 export function BaseNode({
@@ -35,6 +36,7 @@ export function BaseNode({
 	resizable = false,
 	minwidth = 200,
 	minHeight = 150,
+	headerRight,
 }: NodeProp) {
 	const theme = useMantineTheme();
 	return (
@@ -66,7 +68,7 @@ export function BaseNode({
 							style={{ backgroundColor: "transparent" }}
 						/>
 					) : (
-						<></>
+						headerRight
 					)
 				}
 			/>

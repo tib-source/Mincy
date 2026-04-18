@@ -1,11 +1,21 @@
+import { Select } from "@mantine/core";
 import { IconTerminal } from "@tabler/icons-react";
 import type { NodeProps } from "@xyflow/react";
+import Editor from "@monaco-editor/react";
 import { BaseNode } from "./Base/BaseNode";
 import type { NodeDefinition } from "./registry";
 import { useDesignerStore } from "../store/store";
-import Editor from "@monaco-editor/react";
 
 const NODE_COLOR = "oklch(0.55 0.12 250)";
+
+const DEFAULT_SCRIPT =
+	'apt-get update && apt-get install -y cowsay\n/usr/games/cowsay "Hello from mincy!"';
+
+export const SHELLS = ["bash", "sh", "zsh"] as const;
+export type Shell = (typeof SHELLS)[number];
+export const DEFAULT_SHELL: Shell = "bash";
+
+const SHELL_OPTIONS = SHELLS.map((s) => ({ value: s, label: s }));
 
 export const ScriptNodeDefinition: NodeDefinition = {
 	type: "ScriptNode",
@@ -18,8 +28,8 @@ export const ScriptNodeDefinition: NodeDefinition = {
 };
 
 export interface ScriptNodeConfig {
-	cmd: string[];
-	workdir?: string;
+	script: string;
+	shell: Shell;
 }
 
 function handleEditorWillMount(
@@ -44,19 +54,34 @@ function handleEditorWillMount(
 export function ScriptNode({ id, selected, data }: NodeProps) {
 	const { updateNodeData } = useDesignerStore();
 
-	const config = (data?.config as ScriptNodeConfig) ?? {
-		cmd: [
-			"sh",
-			"-c",
-			'apt-get update && apt-get install -y cowsay\n/usr/games/cowsay "Hello from mincy!"',
-		],
+	const config = data?.config as ScriptNodeConfig | undefined;
+	const script = config?.script ?? DEFAULT_SCRIPT;
+	const shell: Shell = config?.shell ?? DEFAULT_SHELL;
+
+	const writeConfig = (next: Partial<ScriptNodeConfig>) => {
+		updateNodeData(id, { config: { script, shell, ...next } });
 	};
 
-	const updateConfig = (updates: Partial<ScriptNodeConfig>) => {
-		updateNodeData(id, { config: { ...config, ...updates } });
-	};
-
-	const script = config.cmd[3] || "";
+	const shellSelect = (
+		// eslint-disable-next-line jsx-a11y/no-static-element-interactions
+		<div
+			className="nodrag nopan"
+			onKeyDown={(e) => e.stopPropagation()}
+			onPointerDown={(e) => e.stopPropagation()}
+			style={{ marginLeft: 8 }}
+		>
+			<Select
+				size="xs"
+				w={80}
+				data={SHELL_OPTIONS}
+				value={shell}
+				onChange={(v) => v && writeConfig({ shell: v as Shell })}
+				allowDeselect={false}
+				withCheckIcon={false}
+				comboboxProps={{ withinPortal: true }}
+			/>
+		</div>
+	);
 
 	const details = (
 		// eslint-disable-next-line jsx-a11y/no-static-element-interactions
@@ -72,7 +97,7 @@ export function ScriptNode({ id, selected, data }: NodeProps) {
 				theme="command-node"
 				value={script}
 				beforeMount={handleEditorWillMount}
-				onChange={(v) => updateConfig({ cmd: ["bash", "-l", "-c", v ?? ""] })}
+				onChange={(v) => writeConfig({ script: v ?? "" })}
 				options={{
 					minimap: { enabled: false },
 					lineNumbers: "off",
@@ -97,6 +122,7 @@ export function ScriptNode({ id, selected, data }: NodeProps) {
 			node={ScriptNodeDefinition}
 			valid={!!script}
 			details={details}
+			headerRight={shellSelect}
 			selected={selected}
 			resizable
 			minwidth={350}
