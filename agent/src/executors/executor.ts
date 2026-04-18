@@ -101,7 +101,8 @@ export abstract class BaseExecutor {
 			| undefined;
 		const script = config?.script;
 		if (!script) return null;
-		return { cmd: buildShellCmd(config?.shell, script), env: [] };
+		const wrapped = `set -e\nset -o pipefail\n${script}`;
+		return { cmd: buildShellCmd(config?.shell, wrapped), env: [] };
 	}
 
 	private materializeFromManifest(
