@@ -63,12 +63,7 @@ export abstract class BaseExecutor {
 		const env: string[] = [];
 
 		if (run.project?.cloneUrl) {
-			// Normalize git:// to https:// (GitHub dropped git protocol)
-			let repoUrl = run.project.cloneUrl.replace(
-				"git://",
-				"https://",
-			);
-
+			let repoUrl = run.project.cloneUrl;
 			const gitToken = run.project_id
 				? await this.fetchGitToken(run.project_id)
 				: null;
