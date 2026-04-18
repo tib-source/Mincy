@@ -42,69 +42,77 @@ Deno.serve(async (req) => {
 			}
 		}
 
-		const stageEdges = edges.filter(
-			(e: any) => stageById.has(e.source) && stageById.has(e.target),
+		// Collect all top-level execution units: stages + orphan nodes
+		const allUnits = [...stageNodes, ...orphanNodes];
+		const unitIds = new Set(allUnits.map((u: any) => u.id));
+
+		// Include ALL edges between execution units, not just stage-to-stage
+		const unitEdges = edges.filter(
+			(e: any) => unitIds.has(e.source) && unitIds.has(e.target),
 		);
-		const sortedStages = topologicalSort(stageNodes, stageEdges);
+		const sortedUnits = topologicalSort(allUnits, unitEdges);
 
-		const stages = sortedStages.map((stage: any) => {
-			const children = stageChildren.get(stage.id) || [];
-			const childIds = new Set(children.map((c: any) => c.id));
+		const stages = sortedUnits.map((unit: any) => {
+			const isStage = stageById.has(unit.id);
 
-			const internalEdges = edges.filter(
-				(e: any) => childIds.has(e.source) && childIds.has(e.target),
-			);
+			if (isStage) {
+				const children = stageChildren.get(unit.id) || [];
+				const childIds = new Set(children.map((c: any) => c.id));
 
-			const sortedChildren = topologicalSort(children, internalEdges);
+				const internalEdges = edges.filter(
+					(e: any) => childIds.has(e.source) && childIds.has(e.target),
+				);
 
-			const steps = sortedChildren.map((node: any) => ({
-				id: node.id,
-				type: node.type,
-				data: node.data,
-				status: "queued",
-				dependsOn: internalEdges
-					.filter((e: any) => e.target === node.id)
-					.map((e: any) => e.source),
-				next: internalEdges
-					.filter((e: any) => e.source === node.id)
-					.map((e: any) => e.target),
-			}));
+				const sortedChildren = topologicalSort(children, internalEdges);
 
+				const steps = sortedChildren.map((node: any) => ({
+					id: node.id,
+					type: node.type,
+					data: node.data,
+					status: "queued",
+					dependsOn: internalEdges
+						.filter((e: any) => e.target === node.id)
+						.map((e: any) => e.source),
+					next: internalEdges
+						.filter((e: any) => e.source === node.id)
+						.map((e: any) => e.target),
+				}));
+
+				return {
+					id: unit.id,
+					name: unit.data?.label || "Stage",
+					image: unit.data?.image || "debian:latest",
+					steps,
+					dependsOn: unitEdges
+						.filter((e: any) => e.target === unit.id)
+						.map((e: any) => e.source),
+				};
+			}
+
+			// Orphan node → single-step stage
 			return {
-				id: stage.id,
-				name: stage.data?.label || "Stage",
-				image: stage.data?.image || "debian:latest",
-				steps,
-				dependsOn: stageEdges
-					.filter((e: any) => e.target === stage.id)
-					.map((e: any) => e.source),
-			};
-		});
-
-		for (const node of orphanNodes) {
-			stages.push({
-				id: node.id,
-				name: node.data?.label || node.type,
-				image: node.data?.image || "debian:latest",
+				id: unit.id,
+				name: unit.data?.label || unit.type,
+				image: unit.data?.image || "debian:latest",
 				steps: [
 					{
-						id: node.id,
-						type: node.type,
-						data: node.data,
+						id: unit.id,
+						type: unit.type,
+						data: unit.data,
 						status: "queued",
-						dependsOn: edges
-							.filter((e: any) => e.target === node.id)
+						dependsOn: unitEdges
+							.filter((e: any) => e.target === unit.id)
 							.map((e: any) => e.source),
-						next: edges
-							.filter((e: any) => e.source === node.id)
+						next: unitEdges
+							.filter((e: any) => e.source === unit.id)
 							.map((e: any) => e.target),
 					},
 				],
-				dependsOn: edges
-					.filter((e: any) => e.target === node.id)
+				dependsOn: unitEdges
+					.filter((e: any) => e.target === unit.id)
 					.map((e: any) => e.source),
-			});
-		}
+			};
+		});
 
 		const triggers = triggerNode?.data?.config?.triggers || [];
 		const jobDefinition = {

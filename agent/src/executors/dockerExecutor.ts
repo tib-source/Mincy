@@ -2,20 +2,23 @@ import { mkdir } from "node:fs/promises";
 import { PassThrough } from "node:stream";
 import Docker from "dockerode";
 import { logger } from "../..";
-import type { Executor, JobContext } from "./executor";
+import { BaseExecutor, type JobContext } from "./executor";
 import { BatchLogger } from "../logger/logger";
-import type { Run, Stage, Step } from "@mincy/shared";
+import type { Run, Stage, Step, NodeManifest } from "@mincy/shared";
 
-export default class DockerExecutor implements Executor {
+export default class DockerExecutor extends BaseExecutor {
 	workdir: string;
-	readonly server: string;
-	readonly token: string;
 	private readonly docker: Docker;
 
-	constructor(workdir: string, server: string, token: string) {
+	constructor(
+		workdir: string,
+		server: string,
+		token: string,
+		nodesDir: string,
+		manifests: NodeManifest[],
+	) {
+		super(server, token, nodesDir, manifests);
 		this.workdir = workdir;
-		this.server = server;
-		this.token = token;
 		this.docker = new Docker({
 			socketPath: process.env.DOCKER_SOCKET || "/var/run/docker.sock",
 		});
@@ -45,36 +48,55 @@ export default class DockerExecutor implements Executor {
 		hashedId: bigint | number,
 	): Promise<number> {
 		const image = stage.image || "debian:latest";
+		const stageEnv = Array.isArray(run.workflow.environment)
+			? run.workflow.environment.map((e: any) => `${e.key}=${e.value}`)
+			: [];
 		await this.ensureImageExists(image);
 
-		for (const step of stage.steps) {
-			const context: JobContext = {
-				workflowId: run.workflow.id,
-				jobId: stage.id,
-				runId: run.id,
-			};
+		// Create one long-lived container for the entire stage
+		const container = await this.docker.createContainer({
+			Image: image,
+			Cmd: ["tail", "-f", "/dev/null"],
+			name: `mincy_${hashedId}_${stage.id}`,
+			WorkingDir: "/workspace",
+			HostConfig: {
+				Binds: [
+					`${workdir}:/workspace`,
+					`${this.nodesDir}:/mincy/nodes:ro`,
+				],
+			},
+			Env: stageEnv,
+		});
 
-			const exitCode = await this.runStep(
-				context,
-				step,
-				image,
-				workdir,
-				hashedId,
-			);
-			if (exitCode !== 0) {
-				return exitCode;
+		await container.start();
+		logger.info(`Started stage container: ${stage.name} (${stage.id})`);
+
+		try {
+			for (const step of stage.steps) {
+				const context: JobContext = {
+					workflowId: run.workflow.id,
+					jobId: stage.id,
+					runId: run.id,
+				};
+
+				const exitCode = await this.execStep(container, context, step, run);
+				if (exitCode !== 0) {
+					return exitCode;
+				}
 			}
+			return 0;
+		} finally {
+			await container.stop().catch(() => {});
+			await container.remove().catch(() => {});
+			logger.info(`Removed stage container: ${stage.name}`);
 		}
-
-		return 0;
 	}
 
-	private async runStep(
+	private async execStep(
+		container: Docker.Container,
 		context: JobContext,
 		step: Step,
-		image: string,
-		workdir: string,
-		hashedId: bigint | number,
+		run: Run,
 	): Promise<number> {
 		const jobLogger = new BatchLogger(
 			context,
@@ -84,54 +106,45 @@ export default class DockerExecutor implements Executor {
 			1000,
 		);
 
-		if (!step.data?.config || !(step.data.config as any)?.cmd) {
+		const materialized = await this.materializeStep(step, run);
+		if (!materialized) {
 			return 0;
 		}
 
+		logger.info(materialized.cmd);
+		const exec = await container.exec({
+			Cmd: materialized.cmd,
+			Env: materialized.env,
+			AttachStdout: true,
+			AttachStderr: true,
+			WorkingDir: "/workspace",
+		});
+
+		const stream = await exec.start({ Tty: false });
+
 		const stdout = new PassThrough();
 		const stderr = new PassThrough();
-
 		this.pipeToLogger(stdout, "info", jobLogger);
 		this.pipeToLogger(stderr, "error", jobLogger);
-		logger.info((step.data.config as any)?.cmd);
+		container.modem.demuxStream(stream, stdout, stderr);
 
-		const exitCode = await new Promise<number>((resolve, reject) => {
-			this.docker.createContainer(
-				{
-					Image: image,
-					Cmd: (step.data.config as any)?.cmd,
-					name: `mincy_${hashedId}_${step.id}`,
-					WorkingDir: "/workspace",
-					HostConfig: {
-						Binds: [`${workdir}:/workspace`],
-					},
-				},
-				(err, container) => {
-					if (err || !container) {
-						return reject(err ?? new Error("Container creation failed"));
+		// Poll exec.inspect() until the process exits
+		// Stream events are unreliable with docker exec
+		const exitCode = await new Promise<number>((resolve) => {
+			const poll = setInterval(async () => {
+				try {
+					const info = await exec.inspect();
+					if (!info.Running) {
+						clearInterval(poll);
+						stream.destroy();
+						resolve(info.ExitCode ?? 1);
 					}
-
-					container.attach(
-						{ stream: true, stdout: true, stderr: true },
-						(err, stream) => {
-							if (err || !stream) {
-								return reject(
-									err ?? new Error("Failed to attach to container"),
-								);
-							}
-							container.modem.demuxStream(stream, stdout, stderr);
-						},
-					);
-
-					container
-						.start()
-						.then(() => container.wait())
-						.then((result) =>
-							container.remove().then(() => resolve(result.StatusCode)),
-						)
-						.catch(reject);
-				},
-			);
+				} catch {
+					clearInterval(poll);
+					stream.destroy();
+					resolve(1);
+				}
+			}, 500);
 		});
 
 		await jobLogger.flush();

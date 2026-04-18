@@ -1,8 +1,10 @@
 import pino from "pino";
 import { createHash, randomBytes } from "node:crypto";
+import path from "node:path";
 import Agent from "./src/agent/baseAgent";
 import { exit } from "node:process";
 import DockerExecutor from "./src/executors/dockerExecutor";
+import { loadManifests } from "@mincy/shared";
 
 let AGENT_TOKEN = Bun.env.AGENT_TOKEN;
 const SERVER_URL = Bun.env.SERVER_URL || "http://localhost:3000";
@@ -25,7 +27,10 @@ if (!AGENT_TOKEN) {
 }
 
 const workDir = "/tmp/workdir";
-const docker = new DockerExecutor(workDir, SERVER_URL, AGENT_TOKEN);
+const NODES_DIR = path.resolve(import.meta.dir, "../nodes");
+const manifests = loadManifests(NODES_DIR);
+logger.info(`Loaded ${manifests.length} node manifest(s): ${manifests.map((m) => m.type).join(", ")}`);
+const docker = new DockerExecutor(workDir, SERVER_URL, AGENT_TOKEN, NODES_DIR, manifests);
 
 const base_agent = new Agent(
 	"agent-1",

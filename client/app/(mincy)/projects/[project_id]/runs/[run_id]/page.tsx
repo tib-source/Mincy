@@ -195,7 +195,10 @@ export default function RunDetailPage() {
 	const params = useParams<{ project_id: string; run_id: string }>();
 	const { data: project } = useProject(params.project_id);
 	const { data: run, isLoading: runLoading } = useRun(params.run_id);
-	const { data: logs = [], isLoading: logsLoading } = useRunLogs(params.run_id);
+	const { data: logs = [], isLoading: logsLoading } = useRunLogs(
+		params.run_id,
+		run?.status,
+	);
 	const { data: workflow } = useWorkflow(project?.id as string);
 
 	const [activeStageId, setActiveStageId] = useState<string | null>(null);

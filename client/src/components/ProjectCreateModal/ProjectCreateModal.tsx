@@ -19,6 +19,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { useGithubRepos } from "@/src/hooks/github/useGithubRepos";
+import { useGithubAppInstallation } from "@/src/hooks/github/useGithubAppInstallation";
 
 interface GithubOptions extends ComboboxStringItem {
 	image: string;
@@ -53,6 +54,7 @@ const renderAutocompleteOption: RenderAutocompleteOption = ({ option }) => {
 
 export function ProjectCreateModal(props: ModalProps) {
 	const { data: repos } = useGithubRepos();
+	const { data: appInstallation } = useGithubAppInstallation();
 	const [selectedRepo, setSelectedRepo] = useState<GitHubRepo | null>(null);
 	const repoList = useMemo(() => {
 		if (Array.isArray(repos)) {
@@ -71,7 +73,9 @@ export function ProjectCreateModal(props: ModalProps) {
 		if (!selectedRepo) {
 			return;
 		}
-		mutate(selectedRepo);
+		const installationId =
+			appInstallation?.installed ? appInstallation.installation.id : undefined;
+		mutate({ ...selectedRepo, installation_id: installationId });
 	};
 
 	useEffect(() => {

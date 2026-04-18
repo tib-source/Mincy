@@ -16,9 +16,15 @@
 	"scripts": {
 		"dev": "tsc --watch",
 		"build": "tsc",
-		"clean": "rm -rf dist"
+		"clean": "rm -rf dist",
+		"lint": "biome check .",
+		"lint:fix": "biome check --fix .",
+		"lint:ci": "biome ci .",
+		"format": "biome format .",
+		"format:fix": "biome format --fix ."
 	},
 	"devDependencies": {
+		"@types/node": "^25.6.0",
 		"typescript": "latest"
 	}
 }

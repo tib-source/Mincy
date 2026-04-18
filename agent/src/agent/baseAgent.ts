@@ -1,6 +1,7 @@
 import type { Run } from "@mincy/shared";
 import { logger } from "../..";
-import type { Executor } from "../executors/executor";
+import { BaseExecutor } from "../executors/executor";
+import { retry } from "../util";
 
 export default class Agent {
 	readonly id: string;
@@ -10,7 +11,7 @@ export default class Agent {
 	readonly workdir: string;
 	readonly pollInterval: number = 3000;
 	readonly server: string;
-	readonly executor: Executor;
+	readonly executor: BaseExecutor;
 	private activeJobs: number = 0;
 	private heartbeatId: NodeJS.Timeout | null = null;
 	private jobPollId: NodeJS.Timeout | null = null;
@@ -21,7 +22,7 @@ export default class Agent {
 		capacity: number,
 		workdir: string,
 		token: string,
-		executor: Executor,
+		executor: BaseExecutor,
 		server: string,
 	) {
 		this.id = id;
@@ -34,15 +35,16 @@ export default class Agent {
 	}
 
 	async register(): Promise<void> {
-		const res = await this.sendAuthenticatedRequest(
-			`${this.server}/api/agents/register`,
-			{
-				method: "POST",
-			},
-		);
+		await retry(async () => {
+			const res = await this.sendAuthenticatedRequest(
+				`${this.server}/api/agents/register`,
+				{
+					method: "POST",
+				},
+			);
 
-		if (!res.ok) throw new Error("Agent failed to register");
-
+			if (!res.ok) throw new Error("Agent failed to register");
+		});
 		logger.info("Agent registered successfully");
 		this.startHeartbeat();
 		this.startJobPoll();
@@ -128,13 +130,16 @@ export default class Agent {
 		runId: string,
 		status: "running" | "passed" | "completed" | "failed",
 	): Promise<void> {
-		await this.sendAuthenticatedRequest(
-			`${this.server}/api/agents/job/${runId}`,
-			{
-				method: "POST",
-				body: JSON.stringify({ status }),
-			},
-		);
+		await retry(async () => {
+			const res = await this.sendAuthenticatedRequest(
+				`${this.server}/api/agents/job/${runId}`,
+				{
+					method: "POST",
+					body: JSON.stringify({ status }),
+				},
+			);
+			if (!res.ok) throw new Error(`Failed to update job ${runId} to ${status}`);
+		});
 	}
 
 	private sendAuthenticatedRequest(

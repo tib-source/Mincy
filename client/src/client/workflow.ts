@@ -48,6 +48,35 @@ export async function updateWorkflow(projectId: string, workflow: object) {
 	}
 }
 
+export type EnvironmentVariable = {
+	key: string;
+	value: string;
+	secret: boolean;
+};
+
+export async function updateWorkflowEnvironment(
+	projectId: string,
+	environment: EnvironmentVariable[],
+) {
+	const supabase = createClient();
+	const existing = await getWorkflowForProject(projectId);
+
+	if (!existing) {
+		throw new Error("Workflow not found for this project");
+	}
+
+	const { error } = await supabase
+		.from("Workflow")
+		.update({
+			environment: environment as unknown as Tables<"Workflow">["environment"],
+		})
+		.eq("projectId", projectId);
+
+	if (error) {
+		throw new Error(error.message);
+	}
+}
+
 export async function runWorkflow(
 	projectId: string,
 	workflowId: string,

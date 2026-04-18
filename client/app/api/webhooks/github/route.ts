@@ -1,22 +1,13 @@
 import { createRun } from "@/actions/runs";
 import { getProjectWithWorkflowByRepo } from "@/actions/projects";
 import { type NextRequest, NextResponse } from "next/server";
-import { App } from "octokit";
 import { createClient } from "@supabase/supabase-js";
-
-const privateKey = process.env.GITHUB_APP_PRIVATE_KEY || "";
-const secret = process.env.GITHUB_WEBHOOK_SECRET || "";
-const appId = process.env.GITHUB_APP_ID || "";
+import { githubApp as app } from "@/utils/api/githubApp";
 
 const supabase = createClient(
 	process.env.NEXT_PUBLIC_SUPABASE_URL!,
 	process.env.SUPABASE_PRIVATE_KEY!,
 );
-const app = new App({
-	appId: Number.parseInt(appId, 10),
-	privateKey,
-	webhooks: { secret },
-});
 
 app.webhooks.on("push", async ({ payload }) => {
 	console.log(

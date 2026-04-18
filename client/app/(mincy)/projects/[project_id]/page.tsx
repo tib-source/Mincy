@@ -15,6 +15,7 @@ import {
 	IconCircleCheck,
 	IconPencil,
 	IconPlayerPlay,
+	IconSettings,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useProject } from "@/src/hooks/projects/useProject";
@@ -27,7 +28,9 @@ import { useHeader } from "@/src/hooks/useHeader";
 import type { HeaderContent } from "@/src/context/HeaderContext";
 import { useEffect } from "react";
 import { notifications } from "@mantine/notifications";
+import { useDisclosure } from "@mantine/hooks";
 import type { PipelineRun } from "@/src/client/runs";
+import { ProjectSettingsModal } from "@/src/components/ProjectSettingsModal/ProjectSettingsModal";
 export default function ProjectPage() {
 	const pars = useParams<{ project_id: string }>();
 	const projectId = pars.project_id;
@@ -35,6 +38,8 @@ export default function ProjectPage() {
 	const { data: workflow } = useWorkflow(projectId);
 	const runWorkflow = useRunWorkflow(projectId, workflow?.id ?? "", "manual");
 	const { data: runs, isLoading: runsLoading } = useProjectRuns(project?.id);
+	const [settingsOpened, { open: openSettings, close: closeSettings }] =
+		useDisclosure(false);
 
 	const header: HeaderContent = {
 		left: (
@@ -87,12 +92,19 @@ export default function ProjectPage() {
 
 					<Group gap="xs">
 						<Button
+							variant="default"
+							leftSection={<IconSettings size={14} />}
+							onClick={openSettings}
+						>
+							Settings
+						</Button>
+						<Button
 							component={Link}
 							href={`/projects/${project?.id}/edit`}
 							variant="default"
 							leftSection={<IconPencil size={14} />}
 						>
-							Settings
+							Edit Pipeline
 						</Button>
 						<Button
 							onClick={() => runWorkflow.mutate()}
@@ -110,6 +122,15 @@ export default function ProjectPage() {
 					isLoading={runsLoading}
 				/>
 			</Stack>
+
+			<ProjectSettingsModal
+				title="Project Settings"
+				opened={settingsOpened}
+				onClose={closeSettings}
+				projectId={projectId}
+				projectName={project?.name}
+				workflow={workflow}
+			/>
 		</Container>
 	);
 }

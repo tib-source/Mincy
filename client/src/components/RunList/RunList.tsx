@@ -182,6 +182,7 @@ export function RunList({
 							target="_blank"
 							size="xs"
 							c="dimmed"
+							w="fit-content"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{sha.slice(0, 7)}

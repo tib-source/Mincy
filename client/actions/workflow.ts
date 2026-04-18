@@ -24,7 +24,7 @@ export async function createWorkflow(projectId: string, workflow: Json) {
 }
 
 export async function getWorkflowWithId(workflowId: string | null) {
-	if (!workflowId) return undefined;
+	if (!workflowId) {return undefined;}
 
 	const supabase = await createServerClient();
 
@@ -33,7 +33,8 @@ export async function getWorkflowWithId(workflowId: string | null) {
 		.select(`
             id,
             projectId,
-            jobs
+            jobs,
+			environment
         `)
 		.eq("id", workflowId)
 		.single();

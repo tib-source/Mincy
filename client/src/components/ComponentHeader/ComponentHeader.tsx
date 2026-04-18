@@ -7,7 +7,7 @@ import type { DragEvent } from "react";
 interface ComponentHeaderProps {
 	node: NodeDefinition;
 	showDescription: boolean;
-	RightIcon: React.ReactElement;
+	RightIcon: React.ReactNode;
 	draggable: boolean;
 }
 
