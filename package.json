@@ -10,7 +10,7 @@
 		"dev": "bunx turbo run dev",
 		"build": "bunx turbo run build",
 		"test": "bunx turbo run test",
-		"generate:manifests": "bun scripts/generate-manifests.ts",
+		"gm": "bun scripts/generate-manifests.ts",
 		"types": "bun --cwd=shared run build",
 		"lint": "bunx turbo run lint",
 		"lint:fix": "bunx turbo run lint:fix",

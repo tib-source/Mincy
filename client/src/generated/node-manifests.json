@@ -15,5 +15,39 @@
     "inputs": {},
     "configMapping": {},
     "resizable": false
+  },
+  {
+    "type": "ArtifactSaveNode",
+    "label": "Save Artifact",
+    "category": "Utility",
+    "color": "#FBBF24",
+    "description": "Archive a file or directory as a build artifact",
+    "icon": "download",
+    "execution": {
+      "script": "run.sh"
+    },
+    "inputs": {
+      "path": {
+        "type": "string",
+        "label": "Path",
+        "description": "File or directory inside the workspace to save (e.g. dist)",
+        "required": true
+      },
+      "name": {
+        "type": "string",
+        "label": "Artifact name",
+        "description": "Optional. Defaults to the basename of the path."
+      }
+    },
+    "configMapping": {
+      "path": {
+        "env": "ARTIFACT_PATH"
+      },
+      "name": {
+        "env": "ARTIFACT_NAME"
+      }
+    },
+    "hasOutput": false,
+    "resizable": false
   }
 ]

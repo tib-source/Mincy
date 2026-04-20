@@ -129,7 +129,6 @@ export default class DockerExecutor extends BaseExecutor {
 		container.modem.demuxStream(stream, stdout, stderr);
 
 		// Poll exec.inspect() until the process exits
-		// Stream events are unreliable with docker exec
 		const exitCode = await new Promise<number>((resolve) => {
 			const poll = setInterval(async () => {
 				try {

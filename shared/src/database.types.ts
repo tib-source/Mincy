@@ -50,6 +50,83 @@ export type Database = {
         }
         Relationships: []
       }
+      Artifacts: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          id: string
+          name: string
+          run_id: string
+          sha256: string | null
+          size_bytes: number
+          step_id: string | null
+          storage_key: string
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          run_id: string
+          sha256?: string | null
+          size_bytes: number
+          step_id?: string | null
+          storage_key: string
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          run_id?: string
+          sha256?: string | null
+          size_bytes?: number
+          step_id?: string | null
+          storage_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Artifacts_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "PipelineRun"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       Logs: {
         Row: {
           created_at: string

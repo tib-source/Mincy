@@ -29,6 +29,7 @@ import { useRun, useRunLogs } from "@/src/hooks/runs/useRuns";
 import { useProject } from "@/src/hooks/projects/useProject";
 import { useWorkflow } from "@/src/hooks/workflows/useWorkflows";
 import { LogViewer } from "@/src/components/LogViewer/LogViewer";
+import { ArtifactList } from "@/src/components/ArtifactList/ArtifactList";
 import { useHeader } from "@/src/hooks/useHeader";
 import type { HeaderContent } from "@/src/context/HeaderContext";
 import type { LogEntry } from "@/src/client/runs";
@@ -391,11 +392,7 @@ export default function RunDetailPage() {
 				</Tabs.Panel>
 
 				<Tabs.Panel value="artifacts" p="lg">
-					<Stack align="center" py="xl">
-						<Text c="dimmed" size="sm">
-							No artifacts for this run.
-						</Text>
-					</Stack>
+					<ArtifactList runId={params.run_id} />
 				</Tabs.Panel>
 			</Tabs>
 		</Stack>

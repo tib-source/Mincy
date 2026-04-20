@@ -8,6 +8,10 @@ export interface InputSchema {
 	secret?: boolean;
 	options?: string[];
 	description?: string;
+	label?: string;
+	multiline?: boolean;
+	min?: number;
+	max?: number;
 }
 
 export interface NodeManifest {
@@ -25,6 +29,8 @@ export interface NodeManifest {
 	configMapping: Record<string, { env: string; secret?: boolean }>;
 	resizable?: boolean;
 	minWidth?: number;
+	hasInput?: boolean;
+	hasOutput?: boolean;
 }
 
 export function loadManifests(nodesDir: string): NodeManifest[] {

@@ -1,3 +1,5 @@
+export const ARTIFACTS_BUCKET = "artifacts";
+
 export const BASE_WORKFLOW = {
 	nodes: [
 		{
