@@ -387,7 +387,7 @@ export default function RunDetailPage() {
 
 				<Tabs.Panel value="pipeline" className={classes.pipelinePanel}>
 					<ReactFlowProvider>
-						<FlowCanvas />
+						<FlowCanvas readOnly />
 					</ReactFlowProvider>
 				</Tabs.Panel>
 
