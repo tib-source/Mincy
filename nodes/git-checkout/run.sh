@@ -6,7 +6,15 @@ if [ -z "${REPO_URL:-}" ]; then
   exit 1
 fi
 
-REF="${REF:-main}"
+if [ -n "${BRANCH:-}" ]; then
+  REF="$BRANCH"
+else
+  REF="${REF:-main}"
+  case "$REF" in
+    refs/heads/*) REF="${REF#refs/heads/}" ;;
+    refs/tags/*)  REF="${REF#refs/tags/}" ;;
+  esac
+fi
 DEPTH="${CLONE_DEPTH:-1}"
 
 # Install git if not available

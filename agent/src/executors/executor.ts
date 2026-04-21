@@ -1,4 +1,5 @@
 import type { Run, Step, NodeManifest } from "@mincy/shared";
+import { logger } from "../..";
 
 export interface JobContext {
 	workflowId: string;
@@ -23,8 +24,31 @@ function buildShellCmd(shell: string | undefined, script: string): string[] {
 	return [...prefix, script];
 }
 
+// when testing locally - localhost urls cant be resolved from inside docker
+// need to rewrite to host.docker.internal
+function containerFacingUrl(url: string): string {
+	const withScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(url) ? url : `http://${url}`;
+
+	let parsed: URL;
+	try {
+		parsed = new URL(withScheme);
+	} catch {
+		logger.warn(
+			`Server URL "${url}" is not a valid URL. Using as-is without rewriting.`,
+		);
+		return url;
+	}
+
+	if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
+		parsed.hostname = "host.docker.internal";
+		return parsed.toString().replace(/\/$/, "");
+	}
+	return url;
+}
+
 export abstract class BaseExecutor {
 	protected readonly server: string;
+	protected readonly containerServer: string;
 	protected readonly token: string;
 	protected readonly nodesDir: string;
 	private readonly manifestRegistry: Map<string, NodeManifest>;
@@ -36,6 +60,7 @@ export abstract class BaseExecutor {
 		manifests: NodeManifest[],
 	) {
 		this.server = server;
+		this.containerServer = containerFacingUrl(server);
 		this.token = token;
 		this.nodesDir = nodesDir;
 		this.manifestRegistry = new Map(manifests.map((m) => [m.type, m]));
@@ -44,6 +69,18 @@ export abstract class BaseExecutor {
 	abstract execute(run: Run): Promise<number>;
 
 	async materializeStep(step: Step, run: Run): Promise<MaterializedStep | null> {
+		const materialized = await this.materializeStepInner(step, run);
+		if (!materialized) return null;
+		return {
+			cmd: materialized.cmd,
+			env: [...this.platformEnv(run, step), ...materialized.env],
+		};
+	}
+
+	private async materializeStepInner(
+		step: Step,
+		run: Run,
+	): Promise<MaterializedStep | null> {
 		switch (step.type) {
 			case "GitCheckoutNode":
 				return this.materializeGitCheckout(step, run);
@@ -54,6 +91,16 @@ export abstract class BaseExecutor {
 			default:
 				return this.materializeFromManifest(step, run);
 		}
+	}
+
+	private platformEnv(run: Run, step: Step): string[] {
+		return [
+			`MINCY_SERVER=${this.containerServer}`,
+			`MINCY_TOKEN=${this.token}`,
+			`MINCY_RUN_ID=${run.id}`,
+			`MINCY_STEP_ID=${step.id}`,
+			`MINCY_PROJECT_ID=${run.project_id ?? ""}`,
+		];
 	}
 
 	private async materializeGitCheckout(

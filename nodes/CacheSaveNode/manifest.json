@@ -1,0 +1,31 @@
+{
+  "type": "CacheSaveNode",
+  "label": "Cache Save",
+  "category": "Utility",
+  "color": "#10B981",
+  "description": "Save a file or directory to be reused across runs",
+  "icon": "archive",
+  "execution": {
+    "script": "run.sh"
+  },
+  "inputs": {
+    "path": {
+      "type": "string",
+      "label": "Path",
+      "description": "Absolute path to cache (e.g. /root/.npm)",
+      "required": true
+    },
+    "key": {
+      "type": "string",
+      "label": "Cache key",
+      "description": "Unique identifier — same value restores it in later runs",
+      "required": true
+    }
+  },
+  "configMapping": {
+    "path": { "env": "CACHE_PATH" },
+    "key": { "env": "CACHE_KEY" }
+  },
+  "hasOutput": false,
+  "resizable": false
+}

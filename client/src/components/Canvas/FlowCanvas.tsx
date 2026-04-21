@@ -11,9 +11,17 @@ import {
 	ReactFlow,
 	useReactFlow,
 } from "@xyflow/react";
-import { type DragEvent, useCallback, useEffect, useState } from "react";
+import {
+	type DragEvent,
+	useCallback,
+	useEffect,
+	useState,
+} from "react";
 import { nodeRegistry } from "@/src/nodes/registry";
-import { type AppNode, useDesignerStore } from "@/src/store/store";
+import {
+	type AppNode,
+	useDesignerStore,
+} from "@/src/store/store";
 import { useDnD } from "@/src/context/DnDContext";
 import { nanoid } from "nanoid";
 import { useWorkflow } from "@/src/hooks/workflows/useWorkflows";
@@ -21,18 +29,14 @@ import { useParams } from "next/navigation";
 import { PipelineSchema } from "@/src/client/workflow";
 
 function getFlowTheme(theme: MantineColorScheme): ColorMode {
-	let flowTheme: ColorMode = "system";
 	switch (theme) {
-		case "auto":
-			flowTheme = "system";
-			break;
 		case "dark":
-			flowTheme = "dark";
-			break;
+			return "dark";
 		case "light":
-			flowTheme = "light";
+			return "light";
+		default:
+			return "system";
 	}
-	return flowTheme;
 }
 
 interface FlowCanvasProps {
@@ -81,7 +85,6 @@ export function FlowCanvas({ readOnly = false }: FlowCanvasProps) {
 	const onDrop = useCallback(
 		(event: DragEvent) => {
 			event.preventDefault();
-
 			if (!type) {
 				return;
 			}
@@ -114,9 +117,7 @@ export function FlowCanvas({ readOnly = false }: FlowCanvasProps) {
 							y: position.y - stageNode.position.y,
 						}
 					: position,
-				data: {
-					label: `${type} node`,
-				},
+				data: { label: `${type} node` },
 				...(type === "stage" && { style: { width: 400, height: 400 } }),
 				...(type === "ScriptNode" && { style: { width: 350, height: 250 } }),
 				...(stageNode && { parentId: stageNode.id, extent: "parent" as const }),
@@ -153,15 +154,13 @@ export function FlowCanvas({ readOnly = false }: FlowCanvasProps) {
 				panOnDrag
 				zoomOnScroll
 				defaultViewport={{
-					zoom: 1,
+					zoom: 0.75,
 					x: 400,
 					y: 200,
 				}}
 			>
 				<Background
-					style={{
-						backgroundColor: "var(--mantine-color-body)",
-					}}
+					style={{ backgroundColor: "var(--mantine-color-body)" }}
 					variant={BackgroundVariant.Dots}
 				/>
 				<Controls showInteractive={!readOnly} />

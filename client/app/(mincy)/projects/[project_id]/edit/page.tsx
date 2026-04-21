@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import "@xyflow/react/dist/style.css";
 import { ActionIcon, Button, Flex, Group, Text } from "@mantine/core";
 import {
 	IconArrowBackUp,
