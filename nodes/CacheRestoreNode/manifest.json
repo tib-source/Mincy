@@ -1,0 +1,23 @@
+{
+  "type": "CacheRestoreNode",
+  "label": "Cache Restore",
+  "category": "Utility",
+  "color": "#10B981",
+  "description": "Restore cached files or directories",
+  "icon": "archive",
+  "execution": {
+    "script": "run.sh"
+  },
+  "inputs": {
+    "key": {
+      "type": "string",
+      "label": "Cache key",
+      "description": "Unique identifier for the cache",
+      "required": true
+    }
+  },
+  "configMapping": {
+    "key": { "env": "CACHE_KEY" }
+  },
+  "resizable": false
+}

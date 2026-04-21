@@ -17,6 +17,41 @@
     "resizable": false
   },
   {
+    "type": "CacheSaveNode",
+    "label": "Cache Save",
+    "category": "Utility",
+    "color": "#10B981",
+    "description": "Save a file or directory to be reused across runs",
+    "icon": "archive",
+    "execution": {
+      "script": "run.sh"
+    },
+    "inputs": {
+      "path": {
+        "type": "string",
+        "label": "Path",
+        "description": "Absolute path to cache (e.g. /root/.npm)",
+        "required": true
+      },
+      "key": {
+        "type": "string",
+        "label": "Cache key",
+        "description": "Unique identifier — same value restores it in later runs",
+        "required": true
+      }
+    },
+    "configMapping": {
+      "path": {
+        "env": "CACHE_PATH"
+      },
+      "key": {
+        "env": "CACHE_KEY"
+      }
+    },
+    "hasOutput": false,
+    "resizable": false
+  },
+  {
     "type": "ArtifactSaveNode",
     "label": "Save Artifact",
     "category": "Utility",
@@ -30,7 +65,7 @@
       "path": {
         "type": "string",
         "label": "Path",
-        "description": "File or directory inside the workspace to save (e.g. dist)",
+        "description": "File or directory to save (e.g. dist)",
         "required": true
       },
       "name": {
@@ -48,6 +83,31 @@
       }
     },
     "hasOutput": false,
+    "resizable": false
+  },
+  {
+    "type": "CacheRestoreNode",
+    "label": "Cache Restore",
+    "category": "Utility",
+    "color": "#10B981",
+    "description": "Restore cached files or directories",
+    "icon": "archive",
+    "execution": {
+      "script": "run.sh"
+    },
+    "inputs": {
+      "key": {
+        "type": "string",
+        "label": "Cache key",
+        "description": "Unique identifier for the cache",
+        "required": true
+      }
+    },
+    "configMapping": {
+      "key": {
+        "env": "CACHE_KEY"
+      }
+    },
     "resizable": false
   }
 ]

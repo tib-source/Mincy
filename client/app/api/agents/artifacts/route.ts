@@ -1,6 +1,6 @@
-import { createHash } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { validateAgentToken } from "@/utils/agents/validateAgentToken";
+import { readUpload } from "@/utils/agents/upload";
 import { createClient } from "@/utils/supabase/server";
 import { ARTIFACTS_BUCKET } from "@/utils/constants";
 
@@ -50,9 +50,7 @@ export async function POST(request: NextRequest) {
 		);
 	}
 
-	const bytes = new Uint8Array(await file.arrayBuffer());
-	const sha256 = createHash("sha256").update(bytes).digest("hex");
-	const contentType = file.type || "application/octet-stream";
+	const { bytes, contentType, sha256 } = await readUpload(file);
 	const storageKey = `${run.project_id}/${run.id}/${crypto.randomUUID()}-${name}`;
 
 	const { error: uploadErr } = await supabase.storage

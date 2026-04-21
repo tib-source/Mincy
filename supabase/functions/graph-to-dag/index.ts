@@ -1,5 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const DEFAULT_IMAGE = "debian:latest";
+
 Deno.serve(async (req) => {
 	const payload = await req.json();
 	const { record, old_record, type } = payload;
@@ -81,7 +83,7 @@ Deno.serve(async (req) => {
 				return {
 					id: unit.id,
 					name: unit.data?.label || "Stage",
-					image: unit.data?.image || "debian:latest",
+					image: unit.data?.image || DEFAULT_IMAGE,
 					steps,
 					dependsOn: unitEdges
 						.filter((e: any) => e.target === unit.id)
@@ -93,7 +95,7 @@ Deno.serve(async (req) => {
 			return {
 				id: unit.id,
 				name: unit.data?.label || unit.type,
-				image: unit.data?.image || "debian:latest",
+				image: unit.data?.image || DEFAULT_IMAGE,
 				steps: [
 					{
 						id: unit.id,

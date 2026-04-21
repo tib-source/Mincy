@@ -4,7 +4,6 @@ import {
 	ActionIcon,
 	Card,
 	Center,
-	Code,
 	Group,
 	Loader,
 	Stack,

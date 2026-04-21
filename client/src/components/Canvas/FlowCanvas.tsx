@@ -8,7 +8,6 @@ import {
 	BackgroundVariant,
 	type ColorMode,
 	Controls,
-	type Edge,
 	ReactFlow,
 	useReactFlow,
 } from "@xyflow/react";
@@ -16,13 +15,11 @@ import {
 	type DragEvent,
 	useCallback,
 	useEffect,
-	useMemo,
 	useState,
 } from "react";
 import { nodeRegistry } from "@/src/nodes/registry";
 import {
 	type AppNode,
-	type DesignerState,
 	useDesignerStore,
 } from "@/src/store/store";
 import { useDnD } from "@/src/context/DnDContext";

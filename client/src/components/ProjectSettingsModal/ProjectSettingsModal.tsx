@@ -15,14 +15,22 @@ import {
 	Text,
 	TextInput,
 } from "@mantine/core";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconEraser, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { EnvironmentVariable } from "@/src/client/workflow";
 import { useUpdateEnvironment } from "@/src/hooks/workflows/useUpdateEnvironment";
 import { useDeleteProject } from "@/src/hooks/projects/useDeleteProject";
+import { useClearProjectCaches } from "@/src/hooks/caches/useCaches";
 import { notifications } from "@mantine/notifications";
 import type { Tables } from "@mincy/shared";
+
+function describeClearedCaches(count: number): string {
+	if (count === 0) {
+		return "No caches to clear.";
+	}
+	return `Removed ${count} cache${count === 1 ? "" : "s"}.`;
+}
 
 interface ProjectSettingsModalProps extends ModalProps {
 	projectId: string;
@@ -42,6 +50,8 @@ export function ProjectSettingsModal({
 	const [newIsSecret, setNewIsSecret] = useState(false);
 	const { mutate: saveEnvironment, isPending } = useUpdateEnvironment(projectId);
 	const { mutate: deleteProject, isPending: isDeleting } = useDeleteProject();
+	const { mutate: clearCaches, isPending: isClearingCaches } =
+		useClearProjectCaches();
 	const router = useRouter();
 
 	useEffect(() => {
@@ -107,6 +117,49 @@ export function ProjectSettingsModal({
 								saveEnvironment(variables, { onSuccess: () => modalProps.onClose() })
 							}>
 								Save
+							</Button>
+						</Group>
+					</Stack>
+				</Card>
+
+				<Card>
+					<Stack gap="md">
+						<Group gap="sm">
+							<Text fw={500}>Caches</Text>
+						</Group>
+
+						<Divider />
+
+						<Group justify="space-between">
+							<Stack gap={2}>
+								<Text size="sm">Clear all caches</Text>
+								<Text size="xs" c="dimmed">
+									Removes every cached archive saved by this project's runs. Future runs will rebuild them.
+								</Text>
+							</Stack>
+
+							<Button
+								variant="light"
+								leftSection={<IconEraser size={14} />}
+								loading={isClearingCaches}
+								onClick={() =>
+									clearCaches(projectId, {
+										onSuccess: (count) =>
+											notifications.show({
+												title: "Caches cleared",
+												message: describeClearedCaches(count),
+												color: "green",
+											}),
+										onError: (error) =>
+											notifications.show({
+												title: "Failed to clear caches",
+												message: error.message,
+												color: "red",
+											}),
+									})
+								}
+							>
+								Clear caches
 							</Button>
 						</Group>
 					</Stack>
