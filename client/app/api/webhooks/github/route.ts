@@ -1,79 +1,31 @@
-import { createRun } from "@/actions/runs";
-import { getProjectWithWorkflowByRepo } from "@/actions/projects";
-import { type NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { type NextRequest, NextResponse } from "next/server";
 import { githubApp as app } from "@/utils/api/githubApp";
+import { handleCheckRunRerequest } from "./handlers/checkRun";
+import { handleCheckSuite } from "./handlers/checkSuite";
+import { handlePush } from "./handlers/push";
 
 const supabase = createClient(
 	process.env.NEXT_PUBLIC_SUPABASE_URL!,
 	process.env.SUPABASE_PRIVATE_KEY!,
 );
 
-app.webhooks.on("push", async ({ payload }) => {
-	console.log(
-		"Received push event for repository:",
-		payload.repository.name,
-		"Organization:",
-		payload.repository.owner?.login,
-	);
+app.webhooks.on("push", ({ payload }) => handlePush(supabase, payload));
 
-	const result = await getProjectWithWorkflowByRepo(
-		supabase,
-		payload.repository.owner?.login ?? "",
-		payload.repository.name,
-	);
-	if (!result) {
-		return;
-	}
+app.webhooks.on(
+	["check_suite.requested", "check_suite.rerequested"],
+	({ payload }) => handleCheckSuite(supabase, payload),
+);
 
-	const { project, workflow } = result;
-
-	const triggers = (workflow.jobs as any)?.triggers ?? [];
-	console.log("Checking for triggers : ", triggers);
-
-	if (payload.ref.startsWith("refs/tags/")) {
-		const tagTrigger = triggers.find((t: any) => t.type === "tag" && t.enabled);
-		if (!tagTrigger) {
-			return;
-		}
-
-		await createRun(supabase, project.id, workflow.id, "tag", {
-			ref: payload.ref,
-			sha: payload.after,
-			tag: payload.ref.replace("refs/tags/", ""),
-			sender: payload.sender?.login,
-			url: payload.repository.html_url,
-		});
-		return;
-	}
-
-	const branch = payload.ref.replace("refs/heads/", "");
-	const commitTrigger = triggers.find(
-		(t: any) =>
-			t.type === "commit" &&
-			t.enabled &&
-			t.branches?.some((pattern: string) =>
-				new RegExp(`^${pattern.replace(/\*/g, ".*")}$`).test(branch),
-			),
-	);
-	if (!commitTrigger) {
-		return;
-	}
-	await createRun(supabase, project.id, workflow.id, "commit", {
-		ref: payload.ref,
-		branch,
-		sha: payload.after,
-		message: payload.head_commit?.message,
-		sender: payload.sender?.login,
-		url: payload.repository.html_url,
-	});
-});
+app.webhooks.on("check_run.rerequested", ({ payload }) =>
+	handleCheckRunRerequest(supabase, payload),
+);
 
 // inspired by the octokit docs: https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries
 export async function POST(request: NextRequest) {
-	const signature = request.headers.get("x-hub-signature-256") || "";
-	const id = request.headers.get("x-github-delivery") || "";
-	const event = request.headers.get("x-github-event") || "";
+	const signature = request.headers.get("x-hub-signature-256");
+	const id = request.headers.get("x-github-delivery");
+	const event = request.headers.get("x-github-event");
 
 	if (!signature || !id || !event) {
 		return NextResponse.json(

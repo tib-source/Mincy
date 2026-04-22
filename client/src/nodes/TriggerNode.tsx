@@ -228,7 +228,7 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 										default:
 											return (
 												<Text c="dimmed">
-													No editor implemented for {trigger}
+													No editor implemented for {trigger.type}
 												</Text>
 											);
 									}

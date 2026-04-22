@@ -55,7 +55,6 @@ if [ -z "$URL" ]; then
 fi
 
 TMP_FILE="$(mktemp)"
-echo "Downloading from $URL"
 curl -fsS -o "$TMP_FILE" "$URL"
 # Extract at / — save wrote paths relative to /, so this restores them in place.
 echo "Extracting cache '$NAME' to original paths"

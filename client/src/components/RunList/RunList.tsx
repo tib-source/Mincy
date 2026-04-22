@@ -190,7 +190,7 @@ export function RunList({
 					);
 				} else if (sha) {
 					shaElement = (
-						<Text size="xs" c="dimmed" ff="monospace">
+						<Text size="xs" c="dimmed">
 							{sha.slice(0, 7)}
 						</Text>
 					);

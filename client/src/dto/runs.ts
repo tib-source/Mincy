@@ -9,6 +9,7 @@ export const runContextSchema = z.object({
 	message: z.string().optional(),
 	sender: z.string().optional(),
 	url: z.string().optional(),
+	check_run_id: z.number().optional(),
 });
 
 export const triggerTypes = z.union([

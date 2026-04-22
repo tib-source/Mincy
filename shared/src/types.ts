@@ -54,10 +54,21 @@ export interface CommitTriggerConfig extends BaseTriggerConfig {
 	branches: string[];
 }
 
+export interface PullRequestTriggerConfig extends BaseTriggerConfig {
+	type: "pull_request";
+	branches?: string[];
+}
+
+export interface TagTriggerConfig extends BaseTriggerConfig {
+	type: "tag";
+}
+
 export type TriggerConfig =
 	| ManualTriggerConfig
 	| ScheduledTriggerConfig
-	| CommitTriggerConfig;
+	| CommitTriggerConfig
+	| PullRequestTriggerConfig
+	| TagTriggerConfig;
 
 export interface JobDefinition {
 	stages: Stage[];

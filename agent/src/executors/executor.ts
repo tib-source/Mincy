@@ -12,7 +12,7 @@ export interface MaterializedStep {
 	env: string[];
 }
 
-const DEFAULT_SHELL_ARGV: readonly string[] = ["bash", "-l", "-c"];
+const DEFAULT_SHELL_ARGV: readonly string[] = ["bash", "-c"];
 const SHELL_ARGV: Record<string, readonly string[]> = {
 	bash: DEFAULT_SHELL_ARGV,
 	sh: ["sh", "-c"],

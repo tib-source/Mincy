@@ -1,8 +1,8 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { getProjectById } from "@/actions/projects";
 import { getWorkflowWithId } from "@/actions/workflow";
 import { validateAgentToken } from "@/utils/agents/validateAgentToken";
 import { createClient } from "@/utils/supabase/server";
-import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
 	const agent = await validateAgentToken(request);
