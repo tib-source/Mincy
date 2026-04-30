@@ -1,8 +1,6 @@
 import {
 	Accordion,
-	Badge,
 	Box,
-	Button,
 	Flex,
 	Stack,
 	Switch,
@@ -10,20 +8,14 @@ import {
 	Text,
 } from "@mantine/core";
 import {
-	IconCalendar,
 	IconGitCommit,
-	IconGitPullRequest,
 	IconPlayerPlay,
-	IconPlus,
-	IconTag,
-	IconWebhook,
 } from "@tabler/icons-react";
 import type { NodeProps } from "@xyflow/react";
-import { useState } from "react";
 import { useDesignerStore } from "../store/store";
 import { BaseNode } from "./Base/BaseNode";
 import type { NodeDefinition } from "./registry";
-import type { CommitTriggerConfig, TriggerConfig, TriggerType } from "@mincy/shared";
+import type { CommitTriggerConfig, TriggerConfig } from "@mincy/shared";
 
 export const TriggerNodeDefinition: NodeDefinition = {
 	type: "TriggerNode",
@@ -35,16 +27,10 @@ export const TriggerNodeDefinition: NodeDefinition = {
 	description: "start your workflow",
 };
 
-interface TriggerOptions {
-	type: TriggerType;
-	label: string;
-	icon: React.ReactNode;
-	description: string;
-}
-
-const triggerOptions: TriggerOptions[] = [
+const triggerOptions: TriggerConfig[] = [
 	{
 		type: "manual",
+		enabled: true,
 		label: "Manual",
 		icon: <IconPlayerPlay size={10} />,
 		description: "Trigger manually via UI or API",
@@ -52,32 +38,10 @@ const triggerOptions: TriggerOptions[] = [
 	{
 		type: "commit",
 		label: "On Push",
+		enabled: true,
+		branches: ["*"],
 		icon: <IconGitCommit size={10} />,
 		description: "When code is pushed to branch",
-	},
-	{
-		type: "pull_request",
-		label: "Pull Request",
-		icon: <IconGitPullRequest size={10} />,
-		description: "On PR open, update, or merge",
-	},
-	{
-		type: "schedule",
-		label: "Scheduled",
-		icon: <IconCalendar size={10} />,
-		description: "Run on a cron schedule",
-	},
-	{
-		type: "webhook",
-		label: "Webhook",
-		icon: <IconWebhook size={15} />,
-		description: "Trigger via external webhook",
-	},
-	{
-		type: "tag",
-		label: "On Tag",
-		icon: <IconTag size={15} />,
-		description: "When a tag is created",
 	},
 ];
 
@@ -90,7 +54,7 @@ export interface TriggerNodeData {
 
 interface TriggerEditorProps<T> {
 	trigger: T;
-	triggerInfo: TriggerOptions;
+	triggerInfo: TriggerConfig;
 	updateTrigger: (trigger: T, updates: Partial<T>) => void;
 }
 
@@ -98,11 +62,6 @@ export function CommitTriggerEditor({
 	trigger,
 	updateTrigger,
 }: TriggerEditorProps<CommitTriggerConfig>) {
-	const handleBranchRemove = (item: string) => {
-		updateTrigger(trigger, {
-			branches: trigger.branches.filter((branch) => branch !== item),
-		});
-	};
 
 	const handleBranchAdd = (branches: string[]) => {
 		updateTrigger(trigger, {
@@ -124,16 +83,9 @@ export function CommitTriggerEditor({
 }
 
 export function TriggerNode({ id, selected, data }: NodeProps) {
-	const [enabledTiggers, setEnabledTriggers] = useState<TriggerOptions[]>([
-		triggerOptions[0],
-		triggerOptions[3],
-	]);
 	const { updateNodeData } = useDesignerStore();
 	const config: Triggers = (data?.config as Triggers) ?? {
-		triggers: [
-			{ type: "manual", enabled: true },
-			{ type: "commit", enabled: true, branches: ["*"] },
-		],
+		triggers: triggerOptions,
 	};
 
 	const updateNode = (updates: Partial<TriggerNodeData>) => {
@@ -153,21 +105,9 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 		});
 	};
 
+	const validTriggers = config.triggers.filter( t => t.enabled)
 	const details = (
 		<Stack gap="sm">
-			<Flex>
-				{enabledTiggers.map((trigger) => (
-					<Badge
-						key={trigger.type}
-						size="xs"
-						variant="light"
-						leftSection={trigger.icon}
-					>
-						{trigger.label}
-					</Badge>
-				))}
-			</Flex>
-
 			<Accordion
 				styles={() => ({
 					control: {
@@ -238,29 +178,13 @@ export function TriggerNode({ id, selected, data }: NodeProps) {
 					);
 				})}
 			</Accordion>
-
-			<Button
-				fullWidth
-				variant="outline"
-				size="compact-md"
-				bdrs="sm"
-				style={{
-					borderStyle: "dashed",
-					borderWidth: 1,
-					fontSize: 12,
-				}}
-				justify="center"
-				leftSection={<IconPlus size={15} />}
-			>
-				Add Trigger
-			</Button>
 		</Stack>
 	);
 
 	return (
 		<BaseNode
 			node={TriggerNodeDefinition}
-			valid={false}
+			valid={validTriggers.length > 0}
 			details={details}
 			hasInput={false}
 			color={TriggerNodeDefinition.color}

@@ -70,17 +70,6 @@ export default function ProjectEditPage() {
 		),
 		right: (
 			<Group justify="center">
-				<Button leftSection={<IconArrowBackUp size={14} />} variant="default">
-					Undo
-				</Button>
-
-				<Button
-					variant="default"
-					leftSection={<IconSquareRoundedCheck size={14} />}
-				>
-					Validate
-				</Button>
-
 				<Button
 					onClick={() => savePipeline()}
 					loading={savingPending}

@@ -1,7 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { PassThrough } from "node:stream";
 import Docker from "dockerode";
-import { logger } from "../..";
+import { logger } from "../logger/pino";
 import { BaseExecutor, type JobContext } from "./executor";
 import { BatchLogger } from "../logger/logger";
 import type { Run, Stage, Step, NodeManifest } from "@mincy/shared";

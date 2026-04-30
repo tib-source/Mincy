@@ -1,5 +1,5 @@
 import type { Run } from "@mincy/shared";
-import { logger } from "../..";
+import { logger } from "../logger/pino";
 import { BaseExecutor } from "../executors/executor";
 import { retry } from "../util";
 
