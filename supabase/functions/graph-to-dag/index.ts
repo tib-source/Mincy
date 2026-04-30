@@ -6,8 +6,6 @@ Deno.serve(async (req) => {
 	const payload = await req.json();
 	const { record, old_record, type } = payload;
 
-	
-
 	// prevent cyclical update
 	if (
 		type === "UPDATE" &&
@@ -18,8 +16,6 @@ Deno.serve(async (req) => {
 
 
 	const { nodes, edges } = record.pipeline || { nodes: [], edges: [] };
-
-
 
 	try {
 

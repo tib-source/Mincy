@@ -38,6 +38,9 @@ export type TriggerType =
 export interface BaseTriggerConfig {
 	type: TriggerType;
 	enabled: boolean;
+	description?: string;
+    label ?: string;
+	icon ?: any;
 }
 
 export interface ManualTriggerConfig extends BaseTriggerConfig {

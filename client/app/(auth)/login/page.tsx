@@ -14,7 +14,7 @@ export default function AuthenticationForm() {
 		const { error } = await supabase.auth.signInWithOAuth({
 			provider: "github",
 			options: {
-				scopes: "read:user",
+				scopes: "read:user user:email read:org",
 				redirectTo: `${window.location.origin}/api/auth/oauth`,
 			},
 		});
@@ -29,9 +29,9 @@ export default function AuthenticationForm() {
 		<Flex
 			w="100vw"
 			h="100vh"
-			justify={"center"}
-			align={"center"}
-			direction={"column"}
+			justify="center"
+			align="center"
+			direction="column"
 			gap="lg"
 		>
 			<Text fz={40} fw={500} c="bright">

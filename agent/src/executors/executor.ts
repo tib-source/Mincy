@@ -1,5 +1,5 @@
 import type { Run, Step, NodeManifest } from "@mincy/shared";
-import { logger } from "../..";
+import { logger } from "../logger/pino";
 
 export interface JobContext {
 	workflowId: string;

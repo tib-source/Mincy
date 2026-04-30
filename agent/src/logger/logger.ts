@@ -1,7 +1,7 @@
 // Inspired by https://oneuptime.com/blog/post/2026-01-30-log-batching/view
 
 import type { JobContext } from "../executors/executor";
-import { logger } from "../..";
+import { logger } from "./pino";
 
 interface LogEntry {
 	timestamp: number;

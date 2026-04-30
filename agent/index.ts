@@ -1,22 +1,13 @@
-import pino from "pino";
 import { createHash, randomBytes } from "node:crypto";
 import path from "node:path";
 import Agent from "./src/agent/baseAgent";
 import { exit } from "node:process";
 import DockerExecutor from "./src/executors/dockerExecutor";
 import { loadManifests } from "@mincy/shared";
+import { logger } from "./src/logger/pino";
 
 let AGENT_TOKEN = Bun.env.AGENT_TOKEN;
 const SERVER_URL = Bun.env.SERVER_URL || "http://localhost:3000";
-
-export const logger = pino({
-	base: null,
-	level: "info",
-	transport: {
-		target: "pino-pretty",
-		options: { colorize: true },
-	},
-});
 
 if (!AGENT_TOKEN) {
 	const token = randomBytes(32).toString("hex");

@@ -1,5 +1,5 @@
 import { TOML } from "bun";
-import { logger } from "..";
+import { logger } from "./logger/pino";
 
 export async function loadTomlConfig(path: string): Promise<object> {
 	const file_content = await Bun.file(path).text();
